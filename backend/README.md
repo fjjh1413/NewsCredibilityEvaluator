@@ -207,12 +207,20 @@ python -m app.db.init_db
 
 这个命令会：
 
-- 创建当前阶段已注册的数据库表，目前是 `users` 表；
+- 创建当前阶段已注册的数据库表，目前包括 `users` 和 `knowledge_items`；
 - 从 `.env` 读取 `FIRST_SUPERUSER_USERNAME`、`FIRST_SUPERUSER_PASSWORD`、`FIRST_SUPERUSER_EMAIL`；
 - 创建一个 `role=admin`、`status=active` 的管理员账号；
 - 使用哈希方式保存密码，不保存明文密码。
 
 重复运行不会重复创建同名管理员。如果管理员已存在，会输出跳过信息。
+
+如果你是在第二阶段字段调整前已经创建过 `knowledge_items` 表，需要按实际缺失字段执行迁移。`vector_sync_status` 必须带数据库默认值：
+
+```sql
+ALTER TABLE knowledge_items
+  ADD COLUMN vector_sync_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  ADD COLUMN vector_sync_error TEXT NULL;
+```
 
 ## 启动后端
 
@@ -472,4 +480,3 @@ uvicorn app.main:app --reload --port 8001
 ```text
 http://127.0.0.1:8001/docs
 ```
-

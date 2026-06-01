@@ -31,6 +31,7 @@ class Settings:
         self.first_superuser_username = os.getenv("FIRST_SUPERUSER_USERNAME", "")
         self.first_superuser_password = os.getenv("FIRST_SUPERUSER_PASSWORD", "")
         self.first_superuser_email = os.getenv("FIRST_SUPERUSER_EMAIL", "")
+        self.chroma_persist_dir = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
 
     @property
     def cors_origins(self) -> list[str]:
@@ -50,6 +51,13 @@ class Settings:
             f"@{self.database_host}:{self.database_port}/{self.database_name}"
             "?charset=utf8mb4"
         )
+
+    @property
+    def chroma_persist_path(self) -> str:
+        path = Path(self.chroma_persist_dir)
+        if not path.is_absolute():
+            path = BASE_DIR / path
+        return str(path)
 
 
 @lru_cache

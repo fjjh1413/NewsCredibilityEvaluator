@@ -19,3 +19,7 @@ backend/.env
 
 # Logs
 *.log
+
+# Local vector database
+backend/chroma_db/
+chroma_db/
