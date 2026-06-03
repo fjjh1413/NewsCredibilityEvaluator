@@ -1,5 +1,6 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
@@ -50,3 +51,35 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
             detail="Admin permission required",
         )
     return current_user
+
+
+def get_optional_current_user(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> User | None:
+    authorization = request.headers.get("Authorization")
+    if authorization is None:
+        return None
+
+    scheme, token = get_authorization_scheme_param(authorization)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid authentication credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if scheme.lower() != "bearer" or not token:
+        raise credentials_exception
+
+    try:
+        payload = decode_token(token)
+        subject = payload.get("sub")
+        if subject is None:
+            raise credentials_exception
+        user_id = int(subject)
+    except (TypeError, ValueError, RuntimeError):
+        raise credentials_exception
+
+    user = get_user_by_id(db, user_id)
+    if user is None or user.status != "active":
+        raise credentials_exception
+    return user
