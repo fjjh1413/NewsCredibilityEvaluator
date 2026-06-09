@@ -1,4 +1,5 @@
 import os
+import tempfile
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote_plus
@@ -7,13 +8,52 @@ from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-load_dotenv(BASE_DIR / ".env")
+ENV_FILE = BASE_DIR / ".env"
+load_dotenv(ENV_FILE)
+
+DEFAULT_EMBEDDING_PROVIDER = "hash"
+DEFAULT_EMBEDDING_DIMENSION = 384
+DEFAULT_DETECT_RATE_LIMIT_COUNT = 3
+DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS = 60
+PRODUCTION_ENV_NAMES = {"prod", "production"}
+PLACEHOLDER_SECRET_KEYS = {
+    "change_me",
+    "changeme",
+    "replace_with_secret_key",
+    "replace_with_a_long_random_secret",
+    "your-secret-key",
+    "your_secret_key",
+}
+MIN_PRODUCTION_SECRET_KEY_LENGTH = 32
+MIN_PRODUCTION_SECRET_KEY_UNIQUE_CHARS = 8
+
+
+def _read_positive_int_env(name: str, default: int) -> int:
+    raw_value = os.getenv(name, "").strip()
+    if not raw_value:
+        return default
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+def _read_environment() -> str:
+    return (
+        os.getenv("APP_ENV")
+        or os.getenv("ENVIRONMENT")
+        or os.getenv("ENV")
+        or "development"
+    ).strip().lower()
 
 
 class Settings:
     """Application settings loaded from environment variables."""
 
     def __init__(self) -> None:
+        self.env_file_exists = ENV_FILE.is_file()
+        self.environment = _read_environment()
         self.project_name = os.getenv("PROJECT_NAME", "zhiyun-bianzhen-backend")
         self.project_version = os.getenv("PROJECT_VERSION", "0.1.0")
         self.api_prefix = os.getenv("API_PREFIX", "/api")
@@ -23,7 +63,8 @@ class Settings:
         self.database_user = os.getenv("DATABASE_USER", "root")
         self.database_password = os.getenv("DATABASE_PASSWORD", "")
         self.database_name = os.getenv("DATABASE_NAME", "zhiyun_bianzhen")
-        self.secret_key = os.getenv("SECRET_KEY", "")
+        self.database_url_override = os.getenv("DATABASE_URL", "").strip()
+        self.secret_key = os.getenv("SECRET_KEY", "").strip()
         self.algorithm = os.getenv("ALGORITHM", "HS256")
         self.access_token_expire_minutes = int(
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440")
@@ -31,7 +72,30 @@ class Settings:
         self.first_superuser_username = os.getenv("FIRST_SUPERUSER_USERNAME", "")
         self.first_superuser_password = os.getenv("FIRST_SUPERUSER_PASSWORD", "")
         self.first_superuser_email = os.getenv("FIRST_SUPERUSER_EMAIL", "")
-        self.chroma_persist_dir = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
+        self.chroma_persist_dir = (
+            os.getenv("CHROMA_PATH")
+            or os.getenv("CHROMA_PERSIST_DIR")
+            or "./chroma_db"
+        )
+        self.embedding_provider = (
+            os.getenv("EMBEDDING_PROVIDER", DEFAULT_EMBEDDING_PROVIDER).strip().lower()
+            or DEFAULT_EMBEDDING_PROVIDER
+        )
+        self.embedding_dimension = _read_positive_int_env(
+            "EMBEDDING_DIMENSION",
+            DEFAULT_EMBEDDING_DIMENSION,
+        )
+        self.report_dir = os.getenv("REPORT_DIR") or str(
+            Path(tempfile.gettempdir()) / "zhiyun-bianzhen" / "reports"
+        )
+        self.detect_rate_limit_count = _read_positive_int_env(
+            "DETECT_RATE_LIMIT_COUNT",
+            DEFAULT_DETECT_RATE_LIMIT_COUNT,
+        )
+        self.detect_rate_limit_window_seconds = _read_positive_int_env(
+            "DETECT_RATE_LIMIT_WINDOW_SECONDS",
+            DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS,
+        )
 
     @property
     def cors_origins(self) -> list[str]:
@@ -45,6 +109,9 @@ class Settings:
 
     @property
     def database_url(self) -> str:
+        if self.database_url_override:
+            return self.database_url_override
+
         password = quote_plus(self.database_password)
         return (
             f"mysql+pymysql://{self.database_user}:{password}"
@@ -58,6 +125,46 @@ class Settings:
         if not path.is_absolute():
             path = BASE_DIR / path
         return str(path)
+
+    @property
+    def report_path(self) -> str:
+        path = Path(self.report_dir).expanduser()
+        if not path.is_absolute():
+            path = BASE_DIR / path
+        resolved = path.resolve()
+        if resolved.is_relative_to(BASE_DIR.resolve()):
+            raise RuntimeError("REPORT_DIR must point outside the backend source directory")
+        try:
+            resolved.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            raise RuntimeError(f"Unable to create REPORT_DIR at {resolved}: {exc}") from exc
+        return str(resolved)
+
+    def validate_required_settings(self) -> None:
+        secret_key = self.secret_key
+        if not secret_key:
+            raise RuntimeError(
+                "SECRET_KEY is required. Please configure it in backend/.env."
+            )
+
+        if secret_key.lower() in PLACEHOLDER_SECRET_KEYS:
+            raise RuntimeError(
+                "SECRET_KEY must not use a placeholder value. "
+                "Please configure a strong secret in backend/.env."
+            )
+
+        if self.environment in PRODUCTION_ENV_NAMES and _is_weak_secret_key(secret_key):
+            raise RuntimeError(
+                "SECRET_KEY is too weak for production. "
+                "Please configure a long random secret in backend/.env."
+            )
+
+
+def _is_weak_secret_key(secret_key: str) -> bool:
+    return (
+        len(secret_key) < MIN_PRODUCTION_SECRET_KEY_LENGTH
+        or len(set(secret_key)) < MIN_PRODUCTION_SECRET_KEY_UNIQUE_CHARS
+    )
 
 
 @lru_cache

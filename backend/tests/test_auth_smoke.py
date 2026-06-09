@@ -156,6 +156,38 @@ class AuthSmokeTestCase(unittest.TestCase):
         )
         self.assertEqual(admin_ping_response.status_code, 200)
 
+    def test_disabled_user_cannot_login_or_reuse_existing_token(self) -> None:
+        user_input = SimpleNamespace(
+            username="disabled_user",
+            email="disabled@example.com",
+        )
+        user = self._create_user(
+            Mock(),
+            user_input,
+            get_password_hash("secret123"),
+            role="user",
+            status="active",
+        )
+        login_response = self.client.post(
+            "/api/auth/login",
+            json={"username": "disabled_user", "password": "secret123"},
+        )
+        token = login_response.json()["data"]["access_token"]
+
+        user.status = "disabled"
+
+        disabled_login_response = self.client.post(
+            "/api/auth/login",
+            json={"username": "disabled_user", "password": "secret123"},
+        )
+        disabled_me_response = self.client.get(
+            "/api/auth/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        self.assertEqual(disabled_login_response.status_code, 403)
+        self.assertEqual(disabled_me_response.status_code, 403)
+
 
 if __name__ == "__main__":
     unittest.main()

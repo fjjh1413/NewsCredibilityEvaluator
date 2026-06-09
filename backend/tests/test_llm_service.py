@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import patch
 
 from app.services.llm_service import (
+    DeepSeekServiceError,
+    _normalize_score,
     analyze_news_credibility,
     build_analysis_prompt,
     get_default_prompt_template,
@@ -11,6 +13,35 @@ from app.services.llm_service import (
 
 
 class LlmServiceTestCase(unittest.TestCase):
+    def test_normalize_score_returns_float_for_supported_inputs(self) -> None:
+        cases = (
+            (85, 85.0),
+            (85.0, 85.0),
+            ("85", 85.0),
+            ("85.5", 85.5),
+        )
+
+        for raw_score, expected_score in cases:
+            with self.subTest(raw_score=raw_score):
+                result = _normalize_score(raw_score)
+
+                self.assertEqual(result, expected_score)
+                self.assertIs(type(result), float)
+
+    def test_normalize_score_clamps_and_defaults_as_float(self) -> None:
+        cases = (
+            (-1, 0.0),
+            (120, 100.0),
+            (None, 0.0),
+        )
+
+        for raw_score, expected_score in cases:
+            with self.subTest(raw_score=raw_score):
+                result = _normalize_score(raw_score)
+
+                self.assertEqual(result, expected_score)
+                self.assertIs(type(result), float)
+
     def test_parse_json_response(self) -> None:
         result = parse_analysis_response(
             """
@@ -82,6 +113,87 @@ class LlmServiceTestCase(unittest.TestCase):
         self.assertIn("Evidence", prompt)
         self.assertIn("llm_score", prompt)
 
+    def test_invalid_configured_prompt_falls_back_and_keeps_news_inputs(self) -> None:
+        with self.assertLogs("app.services.llm_service", level="WARNING"):
+            prompt = build_analysis_prompt(
+                title="Fallback title",
+                content="Fallback content",
+                evidence_list=[{"title": "Fallback evidence"}],
+                prompt_template="Only describe your role",
+            )
+
+        self.assertIn("Fallback title", prompt)
+        self.assertIn("Fallback content", prompt)
+        self.assertIn("Fallback evidence", prompt)
+
+    def test_empty_configured_prompt_logs_builtin_fallback(self) -> None:
+        with self.assertLogs("app.services.llm_service", level="WARNING") as captured:
+            prompt = build_analysis_prompt(
+                title="Fallback title",
+                content="Fallback content",
+                evidence_list=[{"title": "Fallback evidence"}],
+                prompt_template="",
+            )
+
+        self.assertIn("Fallback title", prompt)
+        self.assertIn("Fallback content", prompt)
+        self.assertIn("Fallback evidence", prompt)
+        self.assertTrue(
+            any(
+                "No configured prompt template supplied, fallback to built-in prompt."
+                in message
+                for message in captured.output
+            )
+        )
+
+    def test_final_prompt_sent_to_deepseek_contains_news_inputs(self) -> None:
+        response_data = {
+            "choices": [
+                {
+                    "message": {
+                        "content": (
+                            '{"llm_score": 70, "risk_level": "存疑信息", '
+                            '"reason": "需要核查", "risk_points": [], '
+                            '"keywords": [], "suggestion": "继续核查"}'
+                        )
+                    }
+                }
+            ]
+        }
+
+        with (
+            patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False),
+            patch(
+                "app.services.llm_service._post_chat_completion",
+                return_value=response_data,
+            ) as mocked_post,
+        ):
+            analyze_news_credibility(
+                title="Sent title",
+                content="Sent content",
+                evidence_list=[{"title": "Sent evidence"}],
+                prompt_template="Invalid role-only prompt",
+            )
+
+        sent_prompt = mocked_post.call_args.kwargs["prompt"]
+        self.assertIn("Sent title", sent_prompt)
+        self.assertIn("Sent content", sent_prompt)
+        self.assertIn("Sent evidence", sent_prompt)
+
+    def test_invalid_configured_and_fallback_prompts_block_deepseek_call(self) -> None:
+        with patch(
+            "app.services.llm_service.get_default_prompt_template",
+            return_value="Invalid fallback",
+        ):
+            with self.assertLogs("app.services.llm_service", level="WARNING"):
+                with self.assertRaises(DeepSeekServiceError):
+                    build_analysis_prompt(
+                        title="Title",
+                        content="Content",
+                        evidence_list=[],
+                        prompt_template="Invalid configured prompt",
+                    )
+
     def test_default_prompt_template_documents_json_contract(self) -> None:
         template = get_default_prompt_template()
 
@@ -107,7 +219,7 @@ class LlmServiceTestCase(unittest.TestCase):
                 {"title": f"Evidence {index}"}
                 for index in range(1, 7)
             ],
-            prompt_template="证据：{evidence_list}",
+            prompt_template="{title}\n{content}\n证据：{evidence_list}",
         )
 
         self.assertIn("Evidence 1", prompt)
@@ -124,9 +236,37 @@ class LlmServiceTestCase(unittest.TestCase):
             )
 
         self.assertEqual(result["llm_score"], 0)
-        self.assertEqual(result["risk_level"], "模型调用失败")
+        self.assertIn(
+            result["risk_level"],
+            ("可信新闻", "存疑信息", "疑似谣言", "高风险谣言"),
+        )
+        self.assertEqual(result["risk_level"], "存疑信息")
+        self.assertIn("模型调用失败", result["reason"])
         self.assertIn("DEEPSEEK_API_KEY", result["reason"])
         self.assertEqual(result["keywords"], [])
+
+    def test_analyze_returns_standard_risk_level_when_deepseek_call_fails(self) -> None:
+        with (
+            patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False),
+            patch(
+                "app.services.llm_service._post_chat_completion",
+                side_effect=DeepSeekServiceError("请求超时"),
+            ),
+        ):
+            result = analyze_news_credibility(
+                title="Title",
+                content="Content",
+                evidence_list=[],
+                prompt_template="{title}\n{content}\n{evidence_list}",
+            )
+
+        self.assertEqual(result["llm_score"], 0)
+        self.assertEqual(result["risk_level"], "存疑信息")
+        self.assertIn("模型调用失败", result["reason"])
+        self.assertTrue(
+            any("模型调用失败" in risk_point for risk_point in result["risk_points"])
+        )
+        self.assertEqual(result.get("error"), "模型调用失败")
 
 
 if __name__ == "__main__":

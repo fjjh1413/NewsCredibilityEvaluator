@@ -142,6 +142,11 @@ def update_knowledge(
             status_code=status.HTTP_404_NOT_FOUND,
             content=error_response(str(exc), code=404),
         )
+    except KnowledgeVectorSyncError as exc:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content=error_response(str(exc), code=409),
+        )
 
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
     message = "success"

@@ -1,5 +1,7 @@
+import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 from app.core.config import get_settings
 from app.models.knowledge_item import KnowledgeItem
@@ -13,6 +15,10 @@ _clients: dict[str, Any] = {}
 _collections: dict[tuple[str, str], Any] = {}
 MIN_TOP_K = 1
 MAX_TOP_K = 50
+CHROMA_OPERATION_RETRY_COUNT = 1
+
+logger = logging.getLogger(__name__)
+T = TypeVar("T")
 
 
 class ChromaServiceError(Exception):
@@ -31,6 +37,35 @@ def _import_chromadb() -> Any:
 
 def get_chroma_persist_dir() -> str:
     return get_settings().chroma_persist_path
+
+
+def reset_collection_cache(collection_name: str | None = None) -> None:
+    if collection_name is None:
+        _collections.clear()
+        return
+
+    for cache_key in list(_collections):
+        if cache_key[1] == collection_name:
+            _collections.pop(cache_key, None)
+
+
+def reset_chroma_cache() -> None:
+    _clients.clear()
+    reset_collection_cache()
+
+
+def _reset_cached_chroma_handles(
+    persist_dir: str,
+    collection_name: str | None = None,
+) -> None:
+    _clients.pop(persist_dir, None)
+    for cache_key in list(_collections):
+        cached_persist_dir, cached_collection_name = cache_key
+        if cached_persist_dir != persist_dir:
+            continue
+        if collection_name is not None and cached_collection_name != collection_name:
+            continue
+        _collections.pop(cache_key, None)
 
 
 def get_chroma_client() -> Any:
@@ -62,6 +97,41 @@ def get_knowledge_collection() -> Any:
         except Exception as exc:
             raise ChromaServiceError("Failed to get Chroma collection") from exc
     return _collections[cache_key]
+
+
+def _is_non_retriable_chroma_error(exc: ChromaServiceError) -> bool:
+    return "chromadb is not installed" in str(exc).lower()
+
+
+def _run_knowledge_collection_operation(
+    error_message: str,
+    operation: Callable[[Any], T],
+) -> T:
+    last_exc: Exception | None = None
+    for attempt in range(CHROMA_OPERATION_RETRY_COUNT + 1):
+        try:
+            collection = get_knowledge_collection()
+            return operation(collection)
+        except ChromaServiceError as exc:
+            if _is_non_retriable_chroma_error(exc):
+                raise
+            last_exc = exc
+        except Exception as exc:
+            last_exc = exc
+
+        if attempt < CHROMA_OPERATION_RETRY_COUNT:
+            persist_dir = get_chroma_persist_dir()
+            logger.warning(
+                "%s; clearing cached Chroma client/collection and retrying once",
+                error_message,
+                exc_info=True,
+            )
+            _reset_cached_chroma_handles(
+                persist_dir,
+                KNOWLEDGE_COLLECTION_NAME,
+            )
+
+    raise ChromaServiceError(f"{error_message} after retry") from last_exc
 
 
 def reset_knowledge_collection() -> None:
@@ -108,29 +178,31 @@ def upsert_knowledge_item_vector(
 ) -> str:
     vector_id = build_knowledge_vector_id(item)
     try:
-        collection = get_knowledge_collection()
-        collection.upsert(
-            ids=[vector_id],
-            embeddings=[embed_text(embedding_text)],
-            documents=[embedding_text],
-            metadatas=[build_knowledge_metadata(item)],
-        )
-        return vector_id
+        embedding = embed_text(embedding_text)
+        metadata = build_knowledge_metadata(item)
     except ChromaServiceError:
         raise
     except Exception as exc:
         raise ChromaServiceError("Failed to upsert knowledge vector") from exc
 
+    _run_knowledge_collection_operation(
+        "Failed to upsert knowledge vector",
+        lambda collection: collection.upsert(
+            ids=[vector_id],
+            embeddings=[embedding],
+            documents=[embedding_text],
+            metadatas=[metadata],
+        ),
+    )
+    return vector_id
+
 
 def delete_knowledge_item_vector(item: KnowledgeItem) -> None:
     vector_id = item.vector_id or build_knowledge_vector_id(item)
-    try:
-        collection = get_knowledge_collection()
-        collection.delete(ids=[vector_id])
-    except ChromaServiceError:
-        raise
-    except Exception as exc:
-        raise ChromaServiceError("Failed to delete knowledge vector") from exc
+    _run_knowledge_collection_operation(
+        "Failed to delete knowledge vector",
+        lambda collection: collection.delete(ids=[vector_id]),
+    )
 
 
 def _build_where_filter(
@@ -166,9 +238,16 @@ def search_knowledge_vectors(
 
     safe_top_k = normalize_top_k(top_k)
     try:
-        collection = get_knowledge_collection()
-        results = collection.query(
-            query_embeddings=[embed_text(cleaned_query)],
+        query_embedding = embed_text(cleaned_query)
+    except ChromaServiceError:
+        raise
+    except Exception as exc:
+        raise ChromaServiceError("Failed to query knowledge vectors") from exc
+
+    results = _run_knowledge_collection_operation(
+        "Failed to query knowledge vectors",
+        lambda collection: collection.query(
+            query_embeddings=[query_embedding],
             n_results=safe_top_k,
             where=_build_where_filter(
                 category=category,
@@ -176,11 +255,8 @@ def search_knowledge_vectors(
                 risk_level=risk_level,
             ),
             include=["documents", "metadatas", "distances"],
-        )
-    except ChromaServiceError:
-        raise
-    except Exception as exc:
-        raise ChromaServiceError("Failed to query knowledge vectors") from exc
+        ),
+    )
 
     ids = results.get("ids", [[]])[0]
     documents = results.get("documents", [[]])[0]

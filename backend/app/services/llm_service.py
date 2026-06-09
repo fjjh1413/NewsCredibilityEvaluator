@@ -7,7 +7,19 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from app.core.constants import (
+    RISK_LEVEL_HIGH,
+    RISK_LEVEL_RUMOR,
+    RISK_LEVEL_SUSPICIOUS,
+    RISK_LEVEL_TRUSTED,
+)
 from app.core.config import BASE_DIR
+from app.services.prompt_template_validator import (
+    NEWS_CREDIBILITY_PROMPT_TYPE,
+    PromptTemplateValidationError,
+    validate_prompt_template_content,
+)
+from app.utils.risk_level import get_risk_level_from_score
 from app.utils.text_cleaner import clean_text
 
 
@@ -23,6 +35,7 @@ DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-chat"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 DEFAULT_EVIDENCE_LIMIT = 5
+LLM_FAILURE_ERROR = "模型调用失败"
 
 DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE = """
 你是“智闻辨真”的新闻可信度辅助评估工具，用于帮助用户初步判断新闻内容的可信度和风险点。
@@ -68,7 +81,12 @@ REQUIRED_RESULT_FIELDS = (
     "suggestion",
 )
 
-RISK_LEVELS = ("可信新闻", "存疑信息", "疑似谣言", "高风险谣言")
+RISK_LEVELS = (
+    RISK_LEVEL_TRUSTED,
+    RISK_LEVEL_SUSPICIOUS,
+    RISK_LEVEL_RUMOR,
+    RISK_LEVEL_HIGH,
+)
 
 
 class DeepSeekServiceError(Exception):
@@ -94,14 +112,13 @@ def analyze_news_credibility(
             ),
         )
 
-    prompt = build_analysis_prompt(
-        title=title,
-        content=content,
-        evidence_list=evidence_list,
-        prompt_template=prompt_template,
-    )
-
     try:
+        prompt = build_analysis_prompt(
+            title=title,
+            content=content,
+            evidence_list=evidence_list,
+            prompt_template=prompt_template,
+        )
         response_data = _post_chat_completion(config=config, prompt=prompt)
         assistant_content = _extract_assistant_content(response_data)
         if not assistant_content:
@@ -132,20 +149,106 @@ def build_analysis_prompt(
     title_text = clean_text(title, max_length=1000)
     content_text = clean_text(content, max_length=12000)
     evidence_json = _dump_json(_limit_evidence_list(evidence_list), indent=2)
-    template = clean_text(prompt_template, max_length=None) or get_default_prompt_template()
+    if not title_text or not content_text:
+        raise DeepSeekServiceError("新闻标题和正文不能为空，无法构造安全分析Prompt")
 
-    prompt = (
-        template.replace("{title}", title_text)
-        .replace("{content}", content_text)
-        .replace("{evidence_list}", evidence_json)
-        .replace("{evidence_json}", evidence_json)
+    requested_template = clean_text(prompt_template, max_length=None)
+    template = _select_safe_prompt_template(requested_template)
+    prompt = _render_prompt_template(
+        template=template,
+        title=title_text,
+        content=content_text,
+        evidence_json=evidence_json,
     )
     prompt = _ensure_output_contract(prompt)
-    return clean_text(prompt, max_length=None)
+    prompt = clean_text(prompt, max_length=None)
+
+    if not _rendered_prompt_contains_inputs(
+        prompt=prompt,
+        title=title_text,
+        content=content_text,
+        evidence_json=evidence_json,
+    ):
+        logger.error("Rendered Prompt lost required news inputs; retrying with code fallback")
+        fallback = _validated_code_fallback_prompt()
+        prompt = _ensure_output_contract(
+            _render_prompt_template(
+                template=fallback,
+                title=title_text,
+                content=content_text,
+                evidence_json=evidence_json,
+            )
+        )
+        prompt = clean_text(prompt, max_length=None)
+        if not _rendered_prompt_contains_inputs(
+            prompt=prompt,
+            title=title_text,
+            content=content_text,
+            evidence_json=evidence_json,
+        ):
+            raise DeepSeekServiceError("安全兜底Prompt渲染失败，已阻止发送无效Prompt")
+
+    return prompt
 
 
 def get_default_prompt_template() -> str:
     return DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE
+
+
+def _select_safe_prompt_template(prompt_template: str) -> str:
+    if prompt_template:
+        try:
+            return validate_prompt_template_content(
+                NEWS_CREDIBILITY_PROMPT_TYPE,
+                prompt_template,
+            )
+        except PromptTemplateValidationError as exc:
+            logger.warning(
+                "Configured news credibility Prompt is invalid; using code fallback: %s",
+                exc,
+            )
+    else:
+        logger.warning("No configured prompt template supplied, fallback to built-in prompt.")
+    return _validated_code_fallback_prompt()
+
+
+def _validated_code_fallback_prompt() -> str:
+    try:
+        return validate_prompt_template_content(
+            NEWS_CREDIBILITY_PROMPT_TYPE,
+            get_default_prompt_template(),
+        )
+    except PromptTemplateValidationError as exc:
+        logger.exception("Code fallback Prompt failed safety validation")
+        raise DeepSeekServiceError("安全兜底Prompt配置无效，已阻止调用DeepSeek") from exc
+
+
+def _render_prompt_template(
+    template: str,
+    title: str,
+    content: str,
+    evidence_json: str,
+) -> str:
+    return (
+        template.replace("{title}", title)
+        .replace("{content}", content)
+        .replace("{evidence_list}", evidence_json)
+        .replace("{evidence_json}", evidence_json)
+    )
+
+
+def _rendered_prompt_contains_inputs(
+    prompt: str,
+    title: str,
+    content: str,
+    evidence_json: str,
+) -> bool:
+    expected_inputs = (
+        clean_text(title, max_length=None),
+        clean_text(content, max_length=None),
+        clean_text(evidence_json, max_length=None),
+    )
+    return all(value and value in prompt for value in expected_inputs)
 
 
 def parse_analysis_response(response_text: str) -> dict[str, Any]:
@@ -349,7 +452,7 @@ def _normalize_result(data: dict[str, Any], raw_text: str = "") -> dict[str, Any
         max_length=50,
     )
     if not risk_level:
-        risk_level = _risk_level_from_score(score)
+        risk_level = get_risk_level_from_score(score)
 
     reason = clean_text(
         data.get("reason")
@@ -412,7 +515,7 @@ def _fallback_parse_text(text: str) -> dict[str, Any]:
 
     return {
         "llm_score": _normalize_score(score),
-        "risk_level": risk_level or _risk_level_from_score(float(score)),
+        "risk_level": risk_level or get_risk_level_from_score(float(score)),
         "reason": reason
         or f"模型返回非 JSON，已启用兜底解析。原始返回：{clean_text(text, max_length=1200)}",
         "risk_points": risk_points or ["模型未按 JSON 格式返回，已使用文本兜底解析"],
@@ -465,7 +568,7 @@ def _extract_list_section(text: str, labels: tuple[str, ...]) -> list[str]:
     return _normalize_string_list(bullet_items, fallback=[])
 
 
-def _normalize_score(value: Any) -> int | float:
+def _normalize_score(value: Any) -> float:
     if isinstance(value, str):
         match = re.search(r"\d+(?:\.\d+)?", value)
         score = float(match.group(0)) if match else 0.0
@@ -475,28 +578,15 @@ def _normalize_score(value: Any) -> int | float:
         score = 0.0
 
     score = min(100.0, max(0.0, score))
-    if score.is_integer():
-        return int(score)
     return round(score, 2)
-
-
-def _risk_level_from_score(score: int | float) -> str:
-    score_value = float(score)
-    if score_value >= 80:
-        return "可信新闻"
-    if score_value >= 60:
-        return "存疑信息"
-    if score_value >= 40:
-        return "疑似谣言"
-    return "高风险谣言"
 
 
 def _score_from_risk_level(risk_level: str) -> int:
     mapping = {
-        "可信新闻": 85,
-        "存疑信息": 65,
-        "疑似谣言": 50,
-        "高风险谣言": 25,
+        RISK_LEVEL_TRUSTED: 85,
+        RISK_LEVEL_SUSPICIOUS: 65,
+        RISK_LEVEL_RUMOR: 50,
+        RISK_LEVEL_HIGH: 25,
     }
     return mapping.get(risk_level, 0)
 
@@ -548,13 +638,25 @@ def _build_error_result(
     risk_point: str,
     suggestion: str,
 ) -> dict[str, Any]:
+    reason_text = clean_text(reason, max_length=2000)
+    if LLM_FAILURE_ERROR not in reason_text:
+        reason_text = clean_text(f"{LLM_FAILURE_ERROR}：{reason_text}", max_length=2000)
+
+    risk_point_text = clean_text(risk_point, max_length=500)
+    if LLM_FAILURE_ERROR not in risk_point_text:
+        risk_point_text = clean_text(
+            f"{LLM_FAILURE_ERROR}：{risk_point_text}",
+            max_length=500,
+        )
+
     return {
         "llm_score": 0,
-        "risk_level": "模型调用失败",
-        "reason": clean_text(reason, max_length=2000),
-        "risk_points": [clean_text(risk_point, max_length=500)],
+        "risk_level": RISK_LEVEL_SUSPICIOUS,
+        "reason": reason_text,
+        "risk_points": [risk_point_text],
         "keywords": [],
         "suggestion": clean_text(suggestion, max_length=1000),
+        "error": LLM_FAILURE_ERROR,
     }
 
 

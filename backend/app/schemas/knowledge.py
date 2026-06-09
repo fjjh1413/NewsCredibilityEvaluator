@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-VectorSyncStatus = Literal["pending", "synced", "failed"]
+VectorSyncStatus = Literal["pending", "synced", "failed", "delete_failed"]
 
 
 class KnowledgeInputBase(BaseModel):

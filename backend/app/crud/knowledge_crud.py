@@ -67,6 +67,7 @@ def update_knowledge_item(
     db: Session,
     db_item: KnowledgeItem,
     item_in: KnowledgeUpdate,
+    auto_commit: bool = True,
 ) -> KnowledgeItem:
     update_data = item_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -75,8 +76,11 @@ def update_knowledge_item(
     db_item.vector_sync_status = "pending"
     db_item.vector_sync_error = None
     db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
+    if auto_commit:
+        db.commit()
+        db.refresh(db_item)
+    else:
+        db.flush()
     return db_item
 
 
@@ -86,6 +90,7 @@ def update_knowledge_vector_state(
     status: str,
     vector_id: str | None = None,
     error: str | None = None,
+    auto_commit: bool = True,
 ) -> KnowledgeItem:
     db_item.vector_sync_status = status
     db_item.vector_sync_error = error
@@ -93,8 +98,11 @@ def update_knowledge_vector_state(
         db_item.vector_id = vector_id
 
     db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
+    if auto_commit:
+        db.commit()
+        db.refresh(db_item)
+    else:
+        db.flush()
     return db_item
 
 

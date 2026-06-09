@@ -122,6 +122,7 @@ class DetectionHistoryItem(BaseModel):
     final_score: float
     risk_level: str
     is_high_risk: bool
+    report_url: str | None = None
     created_at: datetime
 
     @field_validator("final_score", mode="before")
@@ -173,12 +174,24 @@ class DetectNewsRequest(BaseModel):
     category: str | None = Field(default=None, max_length=50)
     source_name: str | None = Field(default=None, max_length=100)
 
-    @field_validator("title", "content")
+    @field_validator("title")
     @classmethod
-    def required_text_must_not_be_blank(cls, value: str) -> str:
+    def title_must_meet_demo_length(cls, value: str) -> str:
         cleaned = value.strip()
         if not cleaned:
-            raise ValueError("field cannot be blank")
+            raise ValueError("新闻标题不能为空")
+        if len(cleaned) < 4:
+            raise ValueError("新闻标题长度不能少于 4 个字符")
+        return cleaned
+
+    @field_validator("content")
+    @classmethod
+    def content_must_meet_demo_length(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("新闻正文不能为空")
+        if len(cleaned) < 20:
+            raise ValueError("新闻正文长度不能少于 20 个字符")
         return cleaned
 
 

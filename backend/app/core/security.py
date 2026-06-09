@@ -19,10 +19,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def _get_secret_key() -> str:
-    secret_key = get_settings().secret_key
-    if not secret_key:
-        raise RuntimeError("SECRET_KEY is not configured")
-    return secret_key
+    settings = get_settings()
+    settings.validate_required_settings()
+    return settings.secret_key
 
 
 def create_access_token(

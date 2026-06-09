@@ -20,6 +20,14 @@ backend/.env
 # Logs
 *.log
 
+# Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
 # Local vector database
 backend/chroma_db/
 chroma_db/
+data/chroma/
+data/reports/

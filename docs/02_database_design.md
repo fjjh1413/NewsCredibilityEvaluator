@@ -59,7 +59,7 @@ utf8mb4_unicode_ci
 | detection_records | 检测记录表 | 保存用户每次新闻检测结果 |
 | evidence_matches | 证据匹配表 | 保存每次检测召回的相似证据 |
 | prompt_templates | Prompt 模板表 | 保存可配置 Prompt 模板 |
-| high_risk_news | 高风险新闻表 | 保存高风险新闻案例 |
+| detection_records 高风险审核字段 | 高风险新闻审核数据 | 复用检测记录，保存审核与公开状态 |
 | reports | 检测报告表 | 保存 HTML / PDF 报告路径 |
 | system_logs | 系统日志表 | 保存用户和管理员操作日志 |
 
@@ -186,6 +186,11 @@ CREATE TABLE knowledge_items (
 | suggestion | TEXT | 否 | 辟谣建议 |
 | agent_steps | TEXT | 否 | Agent步骤，JSON字符串 |
 | is_high_risk | TINYINT | 是 | 是否高风险 |
+| review_status | VARCHAR(20) | 是 | pending / approved / rejected |
+| is_public | TINYINT | 是 | 是否允许前台公开展示 |
+| admin_remark | TEXT | 否 | 管理员内部备注 |
+| reviewed_at | DATETIME | 否 | 审核时间 |
+| reviewed_by | BIGINT | 否 | 审核管理员ID |
 | report_url | VARCHAR(500) | 否 | 报告下载地址 |
 | created_at | DATETIME | 是 | 创建时间 |
 
@@ -210,13 +215,22 @@ CREATE TABLE detection_records (
     suggestion TEXT DEFAULT NULL COMMENT '辟谣建议',
     agent_steps TEXT DEFAULT NULL COMMENT 'Agent执行步骤JSON',
     is_high_risk TINYINT NOT NULL DEFAULT 0 COMMENT '是否高风险：0否，1是',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT '审核状态：pending/approved/rejected',
+    is_public TINYINT NOT NULL DEFAULT 0 COMMENT '是否允许前台公开展示',
+    admin_remark TEXT DEFAULT NULL COMMENT '管理员内部备注',
+    reviewed_at DATETIME DEFAULT NULL COMMENT '审核时间',
+    reviewed_by BIGINT DEFAULT NULL COMMENT '审核管理员ID',
     report_url VARCHAR(500) DEFAULT NULL COMMENT '报告下载地址',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX idx_user_id (user_id),
     INDEX idx_risk_level (risk_level),
     INDEX idx_is_high_risk (is_high_risk),
+    INDEX idx_detection_review_status (review_status),
+    INDEX idx_detection_is_public (is_public),
+    INDEX idx_detection_reviewed_by (reviewed_by),
     INDEX idx_created_at (created_at),
-    CONSTRAINT fk_detection_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT fk_detection_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_detection_reviewed_by FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='检测记录表';
 ```
 
@@ -255,7 +269,7 @@ CREATE TABLE evidence_matches (
     similarity_score DECIMAL(6,4) NOT NULL COMMENT '相似度评分',
     rank_order INT NOT NULL COMMENT '证据排名',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    INDEX idx_detection_id (detection_id),
+    UNIQUE INDEX uq_reports_detection_id (detection_id),
     INDEX idx_knowledge_id (knowledge_id),
     CONSTRAINT fk_evidence_detection FOREIGN KEY (detection_id) REFERENCES detection_records(id) ON DELETE CASCADE,
     CONSTRAINT fk_evidence_knowledge FOREIGN KEY (knowledge_id) REFERENCES knowledge_items(id) ON DELETE SET NULL
@@ -315,54 +329,27 @@ CREATE TABLE prompt_templates (
 
 ---
 
-## 9. high_risk_news 高风险新闻表
+## 9. 高风险新闻审核数据
 
 ### 9.1 表作用
 
-保存高风险新闻案例。  
-系统检测结果为“高风险谣言”时，可以自动生成待审核高风险记录，由管理员决定是否公开展示。
+当前实现复用 `detection_records` 作为高风险新闻唯一事实来源，不额外复制新闻正文、评分和证据。
+检测保存时若 `final_score < 40` 或 `risk_level = '高风险谣言'`，自动设置 `is_high_risk=1`，并使用默认审核状态 `pending` 与默认公开状态 `is_public=0`。
 
 ### 9.2 字段设计
 
-| 字段名 | 类型 | 是否必填 | 说明 |
+高风险审核字段直接位于 `detection_records`：
+
+| 字段名 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| id | BIGINT | 是 | 主键，自增 |
-| detection_id | BIGINT | 是 | 检测记录ID |
-| title | VARCHAR(255) | 是 | 新闻标题 |
-| summary | TEXT | 否 | 新闻摘要 |
-| risk_level | VARCHAR(30) | 是 | 风险等级 |
-| risk_score | DECIMAL(5,2) | 是 | 风险分数 |
-| category | VARCHAR(50) | 否 | 新闻类别 |
-| keywords | VARCHAR(500) | 否 | 关键词 |
-| review_status | VARCHAR(20) | 是 | pending / approved / rejected |
-| is_public | TINYINT | 是 | 是否前台展示 |
-| admin_note | TEXT | 否 | 管理员备注 |
-| created_at | DATETIME | 是 | 创建时间 |
-| updated_at | DATETIME | 是 | 更新时间 |
+| is_high_risk | TINYINT | 0 | 后端检测保存时自动标记 |
+| review_status | VARCHAR(20) | pending | 待审核 / 审核通过 / 审核驳回 |
+| is_public | TINYINT | 0 | 是否允许前台公开展示 |
+| admin_remark | TEXT | NULL | 仅管理员可见的审核备注 |
+| reviewed_at | DATETIME | NULL | 审核时间 |
+| reviewed_by | BIGINT | NULL | 审核管理员ID |
 
-### 9.3 建表 SQL
-
-```sql
-CREATE TABLE high_risk_news (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '高风险新闻ID',
-    detection_id BIGINT NOT NULL COMMENT '检测记录ID',
-    title VARCHAR(255) NOT NULL COMMENT '新闻标题',
-    summary TEXT DEFAULT NULL COMMENT '新闻摘要',
-    risk_level VARCHAR(30) NOT NULL COMMENT '风险等级',
-    risk_score DECIMAL(5,2) NOT NULL COMMENT '风险分数',
-    category VARCHAR(50) DEFAULT NULL COMMENT '新闻类别',
-    keywords VARCHAR(500) DEFAULT NULL COMMENT '关键词',
-    review_status VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT '审核状态：pending/approved/rejected',
-    is_public TINYINT NOT NULL DEFAULT 0 COMMENT '是否前台展示：0否，1是',
-    admin_note TEXT DEFAULT NULL COMMENT '管理员备注',
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_review_status (review_status),
-    INDEX idx_is_public (is_public),
-    INDEX idx_category (category),
-    CONSTRAINT fk_high_risk_detection FOREIGN KEY (detection_id) REFERENCES detection_records(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='高风险新闻表';
-```
+现有数据库使用 `backend/migrations/20260604_add_high_risk_review_fields.sql` 升级。升级会将已有高风险记录统一设为待审核且不公开，避免历史数据未经审核直接展示。
 
 ---
 
@@ -476,13 +463,9 @@ knowledge_items 1 —— N evidence_matches
 detection_records 1 —— 1 reports
 ```
 
-### 12.5 detection_records 与 high_risk_news
+### 12.5 detection_records 与高风险审核
 
-如果某次检测被判定为高风险，则可以生成一条高风险新闻记录。
-
-```text
-detection_records 1 —— 0/1 high_risk_news
-```
+高风险审核生命周期直接记录在 `detection_records`，不创建内容副本。公开接口只查询 `is_high_risk=1 AND review_status='approved' AND is_public=1`。
 
 ---
 

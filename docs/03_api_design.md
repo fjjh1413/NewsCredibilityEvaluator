@@ -558,12 +558,15 @@ POST /api/admin/prompts
 ```json
 {
   "name": "新闻可信度分析模板",
-  "type": "credibility_analysis",
-  "content": "你是新闻可信度分析助手……",
+  "type": "news_credibility",
+  "content": "请分析新闻标题：{title}\n新闻正文：{content}\n检索证据：{evidence_list}",
   "is_default": true,
   "status": "enabled"
 }
 ```
+
+`news_credibility` 类型必须包含 `{title}`、`{content}` 和 `{evidence_list}`。
+检索证据占位符兼容 `{evidence_json}`。创建、编辑、启用和设为默认时，后端都会执行强校验。
 
 ---
 
@@ -619,12 +622,13 @@ POST /api/admin/prompts/{id}/set-default
 ### 7.1 前台获取高风险新闻
 
 ```http
-GET /api/high-risk
+GET /api/high-risk/public
 ```
 
 #### 功能说明
 
-普通用户查看已审核并公开展示的高风险新闻案例。
+公开访问。只返回同时满足 `is_high_risk=true`、`review_status=approved`、`is_public=true` 的检测记录摘要。
+响应不包含完整正文、管理员备注、审核状态、公开状态和审核人等内部字段。
 
 #### 查询参数
 
@@ -633,26 +637,46 @@ GET /api/high-risk
 | page | int | 否 | 页码 |
 | page_size | int | 否 | 每页数量 |
 | category | string | 否 | 类别筛选 |
-| keyword | string | 否 | 关键词搜索 |
+| risk_level | string | 否 | 风险等级筛选 |
+| keyword | string | 否 | 标题或公开摘要关键词搜索 |
+| start_date | datetime | 否 | 检测开始时间 |
+| end_date | datetime | 否 | 检测结束时间 |
+
+#### 公开响应字段
+
+`id`、`title`、`summary`、`category`、`final_score`、`risk_level`、`keywords`、`published_at`。
+
+### 7.2 前台高风险统计
+
+```http
+GET /api/high-risk/ranking
+GET /api/high-risk/keywords
+GET /api/high-risk/category-distribution
+```
+
+- 排行榜只统计已审核且公开的高风险记录，按 `final_score` 升序、审核时间倒序排列。
+- 关键词和类别分布只统计已审核且公开的高风险记录。
 
 ---
 
-### 7.2 管理员获取高风险新闻
+### 7.3 管理员获取高风险新闻
 
 ```http
 GET /api/admin/high-risk
+GET /api/admin/high-risk/{id}
 ```
 
 #### 权限
 
 管理员。
 
----
+列表支持 `page`、`page_size`、`risk_level`、`category`、`review_status`、`is_public`、`keyword`、`start_date` 和 `end_date`。
+详情接口返回完整正文、模型分析、风险点、证据和管理员审核信息。
 
-### 7.3 审核高风险新闻
+### 7.4 审核高风险新闻
 
 ```http
-POST /api/admin/high-risk/{id}/review
+PUT /api/admin/high-risk/{id}/review
 ```
 
 #### 请求参数
@@ -660,24 +684,55 @@ POST /api/admin/high-risk/{id}/review
 ```json
 {
   "review_status": "approved",
-  "is_public": true,
-  "admin_note": "该案例可作为高风险样例展示。"
+  "admin_remark": "该案例可作为高风险样例展示。"
 }
 ```
 
----
+`review_status` 仅允许 `pending`、`approved`、`rejected`。改为待审核或驳回时会强制取消公开。
 
-### 7.4 编辑高风险新闻
+### 7.5 设置公开状态
 
 ```http
-PUT /api/admin/high-risk/{id}
+PUT /api/admin/high-risk/{id}/public
 ```
+
+```json
+{
+  "is_public": true
+}
+```
+
+仅 `is_high_risk=true` 且 `review_status=approved` 的记录允许设置公开，否则返回 `409`。
+
+### 7.6 编辑管理员备注
+
+```http
+PUT /api/admin/high-risk/{id}/remark
+```
+
+```json
+{
+  "admin_remark": "内部审核说明"
+}
+```
+
+管理员备注只在管理员接口返回，公开接口不返回。
 
 ---
 
 ## 8. 数据统计模块
 
----
+本模块所有接口仅管理员可访问，统一使用管理员权限依赖。普通用户访问返回 `403`，未登录访问返回 `401`。统计数据来自 MySQL 中的真实用户、检测、知识库和报告记录。
+
+检测趋势、风险分布、类别分布、高频关键词和用户活跃度支持以下可选日期参数：
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| start_date | date | 开始日期，格式 `YYYY-MM-DD` |
+| end_date | date | 结束日期，格式 `YYYY-MM-DD` |
+| days | int | 趋势或活跃度默认统计天数，最大 366 天 |
+
+开始日期晚于结束日期或时间范围超过 366 天时返回 `422`。
 
 ### 8.1 后台统计总览
 
@@ -696,10 +751,13 @@ GET /api/admin/statistics/overview
     "total_detections": 860,
     "total_knowledge": 100,
     "total_high_risk": 45,
-    "today_detections": 20
+    "today_detections": 20,
+    "total_reports": 320
   }
 }
 ```
+
+`total_high_risk` 严格按照检测记录的 `is_high_risk` 字段统计，不根据风险等级前端推导。
 
 ---
 
@@ -709,6 +767,8 @@ GET /api/admin/statistics/overview
 GET /api/admin/statistics/trend
 ```
 
+支持 `days=7` 或 `days=30`，也支持明确传入 `start_date` 和 `end_date`。没有检测记录的日期会返回数量 `0`。
+
 #### 返回示例
 
 ```json
@@ -716,8 +776,8 @@ GET /api/admin/statistics/trend
   "code": 200,
   "message": "success",
   "data": {
-    "dates": ["2026-05-20", "2026-05-21"],
-    "counts": [12, 18]
+    "dates": ["2026-06-01", "2026-06-02", "2026-06-03"],
+    "counts": [12, 18, 0]
   }
 }
 ```
@@ -753,6 +813,20 @@ GET /api/admin/statistics/risk-distribution
 GET /api/admin/statistics/category-distribution
 ```
 
+#### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {"name": "社会", "value": 120},
+    {"name": "科技", "value": 80},
+    {"name": "未分类", "value": 5}
+  ]
+}
+```
+
 ---
 
 ### 8.5 高频关键词
@@ -760,6 +834,79 @@ GET /api/admin/statistics/category-distribution
 ```http
 GET /api/admin/statistics/keywords
 ```
+
+支持 `limit` 参数，默认返回前 20 个关键词，最大 100 个。
+
+#### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {"keyword": "官方通报", "count": 42},
+    {"keyword": "网传", "count": 31}
+  ]
+}
+```
+
+---
+
+### 8.6 用户检测活跃度
+
+```http
+GET /api/admin/statistics/user-activity
+```
+
+按天统计产生检测记录的去重登录用户数量，不计入 `user_id` 为空的游客检测。
+
+#### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "dates": ["2026-06-01", "2026-06-02", "2026-06-03"],
+    "active_users": [8, 12, 0]
+  }
+}
+```
+
+---
+
+### 8.7 知识库统计概览
+
+```http
+GET /api/admin/statistics/knowledge-overview
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total_knowledge": 100,
+    "category_distribution": [
+      {"name": "社会", "value": 45},
+      {"name": "科技", "value": 30}
+    ],
+    "truth_label_distribution": [
+      {"name": "可信", "value": 60},
+      {"name": "虚假", "value": 40}
+    ],
+    "vector_status_distribution": [
+      {"name": "synced", "value": 90},
+      {"name": "pending", "value": 8},
+      {"name": "failed", "value": 2}
+    ]
+  }
+}
+```
+
+为兼容第五阶段现有统计页面，后端暂时保留不进入 Swagger 的 `GET /api/admin/statistics/knowledge-vector-status`，其数据来自上述 `vector_status_distribution`。
 
 ---
 
@@ -782,6 +929,32 @@ POST /api/report/generate/{detection_id}
 - 普通用户只能生成自己的报告；
 - 管理员可以生成任意检测记录的报告。
 
+#### 处理说明
+
+- 报告内容只读取已保存的检测记录、检索证据和用户信息，不重新调用 DeepSeek；
+- 同一检测记录只保留一条报告记录，重复生成会替换 HTML / PDF 文件；
+- 报告文件保存在环境变量 `REPORT_DIR` 指定的源码目录外位置，数据库保存相对路径；
+- 生成成功后会同步更新 `detection_records.report_url`。
+
+#### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "报告生成成功",
+  "data": {
+    "id": 1,
+    "detection_id": 1001,
+    "user_id": 10,
+    "report_title": "新闻可信度检测报告 - 示例新闻",
+    "download_url": "/api/report/download/1",
+    "created_at": "2026-06-04T10:00:00"
+  }
+}
+```
+
+检测记录不存在返回 `404`；普通用户操作他人检测记录返回 `403`；HTML 模板渲染或 PDF 转换失败返回带明确错误信息的 `500`。
+
 ---
 
 ### 9.2 下载检测报告
@@ -793,6 +966,13 @@ GET /api/report/download/{report_id}
 #### 功能说明
 
 下载 PDF 检测报告。
+
+#### 权限与失败场景
+
+- 普通用户只能下载自己的报告；
+- 管理员可以下载全部报告；
+- 报告记录或 PDF 文件不存在时返回 `404`；
+- 数据库存储的文件路径必须位于 `REPORT_DIR` 内，非法路径会被拒绝。
 
 ---
 
@@ -844,21 +1024,87 @@ GET /api/admin/users
 
 管理员。
 
+#### 查询参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| page | int | 否 | 页码，默认 1 |
+| page_size | int | 否 | 每页数量，默认 20，最大 100 |
+| keyword | string | 否 | 按用户名或邮箱模糊搜索 |
+| role | string | 否 | `user` 或 `admin` |
+| status | string | 否 | `active` 或 `disabled` |
+
+#### 响应字段
+
+用户项包含 `id`、`username`、`email`、`role`、`status`、`is_active`、
+`created_at`、`updated_at` 和真实聚合的 `detection_count`。响应不会返回密码哈希、
+Token 等认证敏感字段。当前用户表没有 `last_login_at` 字段。
+
 ---
 
-### 11.2 启用用户
+### 11.2 获取用户详情
 
 ```http
-POST /api/admin/users/{id}/enable
+GET /api/admin/users/{user_id}
 ```
+
+用户不存在时返回 `404`。
 
 ---
 
-### 11.3 禁用用户
+### 11.3 获取指定用户的检测记录
 
 ```http
-POST /api/admin/users/{id}/disable
+GET /api/admin/users/{user_id}/detections
 ```
+
+支持 `page` 和 `page_size`，返回该用户真实检测记录。
+
+---
+
+### 11.4 启用用户
+
+```http
+POST /api/admin/users/{user_id}/enable
+```
+
+重复启用返回成功。用户不存在时返回 `404`。
+
+---
+
+### 11.5 禁用用户
+
+```http
+POST /api/admin/users/{user_id}/disable
+```
+
+不能禁用当前登录管理员，也不能禁用系统中最后一个可用管理员；冲突时返回 `409`。
+禁用后，现有登录、Token 恢复和受保护接口会通过认证依赖拒绝该用户。
+
+---
+
+### 11.6 修改用户角色
+
+```http
+POST /api/admin/users/{user_id}/role
+```
+
+```json
+{
+  "role": "admin"
+}
+```
+
+角色仅支持 `user` 和 `admin`。不能降级当前登录管理员，也不能移除系统中最后一个
+管理员或最后一个可用管理员；冲突时返回 `409`。当前管理员用户页面暂未提供角色修改入口。
+
+---
+
+### 11.7 用户删除策略与废弃接口
+
+- 当前没有用户软删除字段，为保留历史检测记录，不开放管理员物理删除接口。
+- 不再使用 `PUT /api/admin/users/{user_id}/status`。
+- 启用和禁用必须分别调用 `POST /enable` 与 `POST /disable`。
 
 ---
 

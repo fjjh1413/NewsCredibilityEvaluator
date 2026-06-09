@@ -3,6 +3,12 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.constants import (
+    RISK_LEVEL_HIGH,
+    RISK_LEVEL_RUMOR,
+    RISK_LEVEL_SUSPICIOUS,
+    RISK_LEVEL_TRUSTED,
+)
 from app.crud.detection_crud import save_detection_record
 from app.schemas.detection import DetectionCreate, DetectNewsRequest
 from app.services.knowledge_service import (
@@ -10,8 +16,11 @@ from app.services.knowledge_service import (
     build_rag_search_text,
     search_similar_knowledge,
 )
-from app.services.llm_service import analyze_news_credibility
+from app.services.llm_service import LLM_FAILURE_ERROR, analyze_news_credibility
+from app.services.prompt_service import get_default_prompt_content
 from app.services.rule_score_service import calculate_rule_score
+from app.utils.high_risk import should_mark_high_risk
+from app.utils.risk_level import get_risk_level_from_score
 from app.utils.text_cleaner import clean_text
 
 
@@ -76,12 +85,13 @@ def detect_news_credibility(
     evidence_results = _search_top10_evidence(db=db, title=title, content=content)
     evidence_list = _format_evidence_list(evidence_results)
     prompt_evidence = evidence_list[:PROMPT_EVIDENCE_LIMIT]
+    prompt_template = get_default_prompt_content(db)
 
     llm_result = analyze_news_credibility(
         title=title,
         content=content,
         evidence_list=prompt_evidence,
-        prompt_template="",
+        prompt_template=prompt_template,
     )
     if _is_llm_failure(llm_result):
         raise LLMAnalysisFailedError(clean_text(llm_result.get("reason"), max_length=1000))
@@ -100,7 +110,7 @@ def detect_news_credibility(
         evidence_score * 0.4 + llm_score * 0.4 + rule_score * 0.2,
         2,
     )
-    risk_level = build_final_risk_level(final_score)
+    risk_level = get_risk_level_from_score(final_score)
     judgement_result = build_judgement_result(risk_level)
     reason = _build_reason(llm_result, evidence_list)
     risk_points = _merge_risk_points(
@@ -130,7 +140,7 @@ def detect_news_credibility(
             reason=reason,
             risk_points=risk_points,
             suggestion=suggestion,
-            is_high_risk=final_score < 40,
+            is_high_risk=should_mark_high_risk(final_score, risk_level),
             report_url=None,
             evidence_matches=[
                 {
@@ -196,21 +206,15 @@ def calculate_evidence_score(evidence_list: list[dict[str, Any]]) -> float:
 
 
 def build_final_risk_level(final_score: float) -> str:
-    if final_score >= 80:
-        return "可信新闻"
-    if final_score >= 60:
-        return "存疑信息"
-    if final_score >= 40:
-        return "疑似谣言"
-    return "高风险谣言"
+    return get_risk_level_from_score(final_score)
 
 
 def build_judgement_result(risk_level: str) -> str:
     mapping = {
-        "可信新闻": "该新闻整体可信度较高",
-        "存疑信息": "该新闻存在一定疑点，建议进一步核查",
-        "疑似谣言": "该新闻疑似存在谣言风险",
-        "高风险谣言": "该新闻存在较高谣言风险",
+        RISK_LEVEL_TRUSTED: "该新闻整体可信度较高",
+        RISK_LEVEL_SUSPICIOUS: "该新闻存在一定疑点，建议进一步核查",
+        RISK_LEVEL_RUMOR: "该新闻疑似存在谣言风险",
+        RISK_LEVEL_HIGH: "该新闻存在较高谣言风险",
     }
     return mapping.get(risk_level, "该新闻需要进一步核查")
 
@@ -253,7 +257,25 @@ def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]
 
 def _is_llm_failure(llm_result: dict[str, Any]) -> bool:
     risk_level = clean_text(llm_result.get("risk_level"), max_length=50)
-    return risk_level == LLM_FAILURE_RISK_LEVEL
+    if risk_level == LLM_FAILURE_RISK_LEVEL:
+        return True
+
+    error_text = clean_text(llm_result.get("error"), max_length=100)
+    if error_text == LLM_FAILURE_ERROR:
+        return True
+
+    has_zero_score = _normalize_score(llm_result.get("llm_score")) == 0
+    reason = clean_text(llm_result.get("reason"), max_length=1000)
+    if has_zero_score and LLM_FAILURE_ERROR in reason:
+        return True
+
+    risk_points = llm_result.get("risk_points")
+    if isinstance(risk_points, list):
+        return has_zero_score and any(
+            LLM_FAILURE_ERROR in clean_text(risk_point, max_length=200)
+            for risk_point in risk_points
+        )
+    return has_zero_score and LLM_FAILURE_ERROR in clean_text(risk_points, max_length=1000)
 
 
 def _normalize_score(value: Any) -> float:

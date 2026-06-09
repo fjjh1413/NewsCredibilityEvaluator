@@ -65,12 +65,17 @@ def build_knowledge_embedding_text(
     return clean_text("\n".join(lines), max_length=max_length)
 
 
-def _mark_vector_pending(db: Session, item: KnowledgeItem) -> KnowledgeItem:
+def _mark_vector_pending(
+    db: Session,
+    item: KnowledgeItem,
+    auto_commit: bool = True,
+) -> KnowledgeItem:
     return knowledge_crud.update_knowledge_vector_state(
         db,
         item,
         status="pending",
         error=None,
+        auto_commit=auto_commit,
     )
 
 
@@ -78,6 +83,7 @@ def _mark_vector_failed(
     db: Session,
     item: KnowledgeItem,
     exc: Exception,
+    auto_commit: bool = True,
 ) -> KnowledgeItem:
     error_message = _format_sync_error(exc)
     logger.exception("Knowledge vector sync failed for item id=%s", item.id)
@@ -86,13 +92,70 @@ def _mark_vector_failed(
         item,
         status="failed",
         error=error_message,
+        auto_commit=auto_commit,
     )
+
+
+def _mark_vector_delete_failed(
+    db: Session,
+    item: KnowledgeItem,
+    delete_exc: Exception,
+    vector_id: str | None = None,
+    restore_exc: Exception | None = None,
+    auto_commit: bool = True,
+) -> KnowledgeItem:
+    error_parts = [f"MySQL delete failed: {_format_sync_error(delete_exc)}"]
+    if restore_exc is None:
+        error_parts.append("Chroma vector was restored; delete must be retried")
+    else:
+        error_parts.append(
+            f"Chroma vector restore failed: {_format_sync_error(restore_exc)}"
+        )
+    error_message = clean_text("; ".join(error_parts), max_length=1000)
+    logger.warning(
+        "Knowledge delete failed for item id=%s; marking vector_sync_status=delete_failed",
+        item.id,
+    )
+    return knowledge_crud.update_knowledge_vector_state(
+        db,
+        item,
+        status="delete_failed",
+        vector_id=vector_id,
+        error=error_message,
+        auto_commit=auto_commit,
+    )
+
+
+def _try_mark_vector_delete_failed(
+    db: Session,
+    item: KnowledgeItem,
+    delete_exc: Exception,
+    vector_id: str | None = None,
+    restore_exc: Exception | None = None,
+) -> bool:
+    try:
+        _mark_vector_delete_failed(
+            db,
+            item,
+            delete_exc,
+            vector_id=vector_id,
+            restore_exc=restore_exc,
+        )
+        return True
+    except Exception:
+        db.rollback()
+        logger.exception(
+            "Failed to mark knowledge item id=%s vector_sync_status=delete_failed",
+            item.id,
+        )
+        return False
 
 
 def _mark_vector_synced(
     db: Session,
     item: KnowledgeItem,
     vector_id: str,
+    auto_commit: bool = True,
 ) -> KnowledgeItem:
     return knowledge_crud.update_knowledge_vector_state(
         db,
@@ -100,6 +163,7 @@ def _mark_vector_synced(
         status="synced",
         vector_id=vector_id,
         error=None,
+        auto_commit=auto_commit,
     )
 
 
@@ -122,14 +186,24 @@ def build_rag_search_text(
     return clean_text(query, max_length=max_length)
 
 
-def _sync_knowledge_vector(db: Session, item: KnowledgeItem) -> KnowledgeItem:
+def _sync_knowledge_vector(
+    db: Session,
+    item: KnowledgeItem,
+    auto_commit: bool = True,
+    raise_on_failure: bool = False,
+) -> KnowledgeItem:
     embedding_text = build_knowledge_embedding_text(item)
     try:
         vector_id = upsert_knowledge_item_vector(item, embedding_text)
     except ChromaServiceError as exc:
-        return _mark_vector_failed(db, item, exc)
+        failed_item = _mark_vector_failed(db, item, exc, auto_commit=auto_commit)
+        if raise_on_failure:
+            raise KnowledgeVectorSyncError(
+                "Knowledge update failed because Chroma vector sync failed"
+            ) from exc
+        return failed_item
 
-    return _mark_vector_synced(db, item, vector_id)
+    return _mark_vector_synced(db, item, vector_id, auto_commit=auto_commit)
 
 
 def list_knowledge_items(
@@ -174,15 +248,52 @@ def update_knowledge_item(
     item_in: KnowledgeUpdate,
 ) -> KnowledgeItem:
     item = get_knowledge_item(db, item_id)
-    updated_item = knowledge_crud.update_knowledge_item(db, item, item_in)
-    return _sync_knowledge_vector(db, updated_item)
+    updated_item = knowledge_crud.update_knowledge_item(
+        db,
+        item,
+        item_in,
+        auto_commit=False,
+    )
+    try:
+        synced_item = _sync_knowledge_vector(
+            db,
+            updated_item,
+            auto_commit=False,
+            raise_on_failure=True,
+        )
+    except KnowledgeVectorSyncError:
+        db.rollback()
+        logger.exception(
+            "Knowledge update rolled back because vector sync failed for item id=%s",
+            item_id,
+        )
+        raise
+    except Exception:
+        db.rollback()
+        logger.exception("Knowledge update failed before commit for item id=%s", item_id)
+        raise
+
+    db.commit()
+    db.refresh(synced_item)
+    return synced_item
 
 
 def delete_knowledge_item(db: Session, item_id: int) -> None:
+    """Delete Chroma vector first, then MySQL record.
+
+    This is not a distributed transaction. If MySQL delete fails after Chroma
+    delete, the service tries to restore the vector and marks the MySQL record
+    as delete_failed when possible. In production, soft delete or an async
+    compensation job is safer for cross-store consistency.
+    """
     item = get_knowledge_item(db, item_id)
     try:
         delete_knowledge_item_vector(item)
     except ChromaServiceError as exc:
+        logger.exception(
+            "Chroma knowledge vector delete failed for item id=%s; MySQL record kept",
+            item.id,
+        )
         _mark_vector_failed(db, item, exc)
         raise KnowledgeVectorSyncError(
             "Failed to delete knowledge vector; MySQL record was not deleted"
@@ -259,23 +370,53 @@ def _restore_vector_after_mysql_delete_failure(
             item,
             build_knowledge_embedding_text(item),
         )
-        existing_item = knowledge_crud.get_knowledge_item(db, int(item.id))
-        if existing_item is not None:
-            _mark_vector_synced(db, existing_item, vector_id)
-        raise KnowledgeVectorSyncError(
-            "MySQL delete failed; vector was restored; knowledge item was not deleted"
-        ) from delete_exc
-    except KnowledgeVectorSyncError:
-        raise
     except Exception as restore_exc:
         db.rollback()
         logger.exception("Knowledge vector restore failed for item id=%s", item.id)
         existing_item = knowledge_crud.get_knowledge_item(db, int(item.id))
         if existing_item is not None:
-            _mark_vector_failed(db, existing_item, restore_exc)
+            marked = _try_mark_vector_delete_failed(
+                db,
+                existing_item,
+                delete_exc,
+                restore_exc=restore_exc,
+            )
+            mark_message = (
+                "knowledge item marked delete_failed"
+                if marked
+                else "failed to mark knowledge item delete_failed"
+            )
+        else:
+            logger.error(
+                "Knowledge item id=%s was not found while marking delete_failed",
+                item.id,
+            )
+            mark_message = "knowledge item could not be marked delete_failed"
         raise KnowledgeVectorSyncError(
-            "MySQL delete failed and vector restore failed; knowledge item requires re-vectorization"
+            f"MySQL delete failed and vector restore failed; {mark_message}"
         ) from delete_exc
+
+    logger.warning(
+        "MySQL delete failed for item id=%s; Chroma vector was restored",
+        item.id,
+    )
+    existing_item = knowledge_crud.get_knowledge_item(db, int(item.id))
+    if existing_item is not None:
+        marked = _try_mark_vector_delete_failed(db, existing_item, delete_exc, vector_id)
+        mark_message = (
+            "knowledge item marked delete_failed"
+            if marked
+            else "failed to mark knowledge item delete_failed"
+        )
+    else:
+        logger.error(
+            "Knowledge item id=%s was not found after restored vector",
+            item.id,
+        )
+        mark_message = "knowledge item could not be marked delete_failed"
+    raise KnowledgeVectorSyncError(
+        f"MySQL delete failed; vector was restored; {mark_message}"
+    ) from delete_exc
 
 
 def vectorize_knowledge_item(db: Session, item_id: int) -> KnowledgeItem:

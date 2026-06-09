@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ report_title }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 22mm 18mm;
+    }
+
+    body {
+      color: #1f2937;
+      font-family: STSong-Light, sans-serif;
+      font-size: 10pt;
+      line-height: 1.55;
+    }
+
+    h1 {
+      color: #0b5cc4;
+      font-size: 20pt;
+      margin: 0 0 8px;
+    }
+
+    h2 {
+      border-bottom: 1px solid #bfdbfe;
+      color: #0b5cc4;
+      font-size: 13pt;
+      margin: 20px 0 8px;
+      padding-bottom: 5px;
+    }
+
+    h3 {
+      color: #1d4ed8;
+      font-size: 11pt;
+      margin: 12px 0 4px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border: 1px solid #dbeafe;
+      padding: 7px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      width: 25%;
+    }
+
+    .header-note {
+      color: #64748b;
+      margin-bottom: 14px;
+    }
+
+    .score {
+      color: #0b5cc4;
+      font-size: 18pt;
+      font-weight: bold;
+    }
+
+    .risk {
+      color: #b42318;
+      font-weight: bold;
+    }
+
+    .body-text {
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      color: #64748b;
+    }
+
+    .disclaimer {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      margin-top: 20px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>智闻辨真 · 新闻可信度检测报告</h1>
+  <div class="header-note">
+    报告生成时间：{{ generated_time }} · 检测用户：{{ username }}
+  </div>
+
+  <h2>检测概览</h2>
+  <table>
+    <tr><th>新闻标题</th><td>{{ news_title }}</td></tr>
+    <tr><th>检测时间</th><td>{{ detection_time }}</td></tr>
+    <tr><th>可信度评分</th><td><span class="score">{{ final_score }}</span> / 100</td></tr>
+    <tr><th>风险等级</th><td><span class="risk">{{ risk_level }}</span></td></tr>
+    <tr><th>判断结论</th><td>{{ judgement_result }}</td></tr>
+  </table>
+
+  <h2>新闻摘要</h2>
+  <div class="body-text">{{ news_summary }}</div>
+
+  <h2>AI 分析理由</h2>
+  <div class="body-text">{{ reason }}</div>
+
+  <h2>风险点</h2>
+  {% if risk_points %}
+  <ol>
+    {% for item in risk_points %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="empty">未记录明确风险点。</div>
+  {% endif %}
+
+  <h2>关键词</h2>
+  {% if keywords %}
+  <div>{{ keywords | join("、") }}</div>
+  {% else %}
+  <div class="empty">未记录关键词。</div>
+  {% endif %}
+
+  <h2>检索证据</h2>
+  {% if evidence_items %}
+    {% for item in evidence_items %}
+    <h3>{{ item.rank_order }}. {{ item.title }}</h3>
+    <table>
+      <tr><th>来源</th><td>{{ item.source_name or "未知来源" }}</td></tr>
+      <tr><th>相似度</th><td>{{ item.similarity }}</td></tr>
+      <tr><th>摘要</th><td>{{ item.summary or "未提供摘要" }}</td></tr>
+    </table>
+    {% endfor %}
+  {% else %}
+  <div class="empty">本次检测未检索到相关证据。</div>
+  {% endif %}
+
+  <h2>相似新闻</h2>
+  {% if similar_news %}
+  <ol>
+    {% for item in similar_news %}
+    <li>{{ item.title }}（{{ item.source_name or "未知来源" }}，相似度 {{ item.similarity }}）</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="empty">暂无相似新闻。</div>
+  {% endif %}
+
+  <h2>辟谣与核查建议</h2>
+  <div class="body-text">{{ suggestion }}</div>
+
+  <div class="disclaimer">
+    <strong>免责声明：</strong>{{ disclaimer }}
+  </div>
+</body>
+</html>

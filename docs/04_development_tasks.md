@@ -3,8 +3,8 @@
 # 智闻辨真：开发任务拆解与 Codex 使用指南
 
 > 本文档用于指导后续使用 Codex 分阶段开发项目。  
-> 你在使用 Codex 时，应让它先阅读 `docs/01_project_design.md`、`docs/02_database_design.md` 和 `docs/03_api_design.md`，再按照本文档逐项开发。  
-> 不要让 Codex 一次性生成完整系统，应坚持“小任务、分阶段、可运行、可测试”的开发方式。
+> 先阅读 `docs/01_project_design.md`、`docs/02_database_design.md` 和 `docs/03_api_design.md`，再按照本文档逐项开发。  
+> 不要一次性生成完整系统，应坚持“小任务、分阶段、可运行、可测试”的开发方式。
 
 ---
 

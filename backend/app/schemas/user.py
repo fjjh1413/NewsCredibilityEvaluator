@@ -50,3 +50,40 @@ class UserSimpleResponse(BaseModel):
     id: int
     username: str
     role: UserRole
+
+
+class AdminUserRoleUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    role: UserRole
+
+
+class AdminUserOut(BaseModel):
+    id: int
+    username: str
+    email: EmailStr | None = None
+    role: UserRole
+    status: UserStatus
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    detection_count: int = Field(..., ge=0)
+
+
+class AdminUserListData(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[AdminUserOut]
+
+
+class AdminUserItemApiResponse(BaseModel):
+    code: int
+    message: str
+    data: AdminUserOut
+
+
+class AdminUserListApiResponse(BaseModel):
+    code: int
+    message: str
+    data: AdminUserListData

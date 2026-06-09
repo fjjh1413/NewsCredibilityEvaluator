@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.deps import get_current_user, get_optional_current_user
+from app.core.rate_limit import InMemoryRateLimiter
 from app.crud.detection_crud import get_detection_detail, get_detection_history
 from app.db.session import get_db
 from app.models.user import User
@@ -25,9 +27,45 @@ from app.utils.response import error_response, success_response
 
 
 router = APIRouter(prefix="/detect", tags=["detect"])
+detector_rate_limiter = InMemoryRateLimiter()
 
 
-@router.post("/news", response_model=DetectNewsApiResponse)
+def _get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",", 1)[0].strip()
+        if client_ip:
+            return client_ip
+
+    real_ip = request.headers.get("x-real-ip", "").strip()
+    if real_ip:
+        return real_ip
+
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def enforce_detect_news_rate_limit(request: Request) -> None:
+    settings = get_settings()
+    client_ip = _get_client_ip(request)
+    is_allowed = detector_rate_limiter.allow_request(
+        key=client_ip,
+        limit=settings.detect_rate_limit_count,
+        window_seconds=settings.detect_rate_limit_window_seconds,
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="检测请求过于频繁，请稍后再试",
+        )
+
+
+@router.post(
+    "/news",
+    response_model=DetectNewsApiResponse,
+    dependencies=[Depends(enforce_detect_news_rate_limit)],
+)
 def detect_news(
     payload: DetectNewsRequest,
     db: Session = Depends(get_db),
@@ -66,6 +104,7 @@ def read_detection_history(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     risk_level: str | None = Query(default=None),
+    keyword: str | None = Query(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> dict:
@@ -75,6 +114,7 @@ def read_detection_history(
         page=page,
         page_size=page_size,
         risk_level=risk_level,
+        keyword=keyword,
     )
     data = DetectionHistoryData(
         total=total,

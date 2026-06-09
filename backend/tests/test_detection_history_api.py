@@ -92,6 +92,15 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         self.assertEqual(data["items"][0]["id"], 1)
         self.assertEqual(mocked_history.call_args.kwargs["current_user"].id, 1)
 
+    @patch("app.api.v1.detect.get_detection_history")
+    def test_user_history_passes_keyword_filter(self, mocked_history) -> None:
+        mocked_history.return_value = ([_history_record(1)], 1)
+
+        response = self.client.get("/api/detect/history?keyword=official")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(mocked_history.call_args.kwargs["keyword"], "official")
+
     @patch("app.api.v1.detect.get_detection_detail")
     def test_user_detail_returns_evidence_matches(self, mocked_detail) -> None:
         mocked_detail.return_value = _detail_record(1)

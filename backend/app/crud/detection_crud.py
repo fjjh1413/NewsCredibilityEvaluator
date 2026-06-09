@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.models.detection_record import DetectionRecord
 from app.models.evidence_match import EvidenceMatch
 from app.schemas.detection import DetectionCreate
+from app.utils.high_risk import should_mark_high_risk
 
 
 DEFAULT_PAGE_SIZE = 20
@@ -20,6 +21,10 @@ def save_detection_record(
 ) -> DetectionRecord:
     data = detection_in.model_dump(exclude={"evidence_matches"})
     data["risk_points"] = _dump_risk_points(detection_in.risk_points)
+    data["is_high_risk"] = should_mark_high_risk(
+        detection_in.final_score,
+        detection_in.risk_level,
+    )
 
     db_record = DetectionRecord(**data)
     for evidence_in in detection_in.evidence_matches:
@@ -51,12 +56,14 @@ def get_detection_history(
     query = _apply_user_scope(query, current_user=current_user, user_id=user_id)
     if risk_level:
         query = query.filter(DetectionRecord.risk_level == risk_level)
-    if keyword:
-        keyword_pattern = f"%{keyword}%"
+    cleaned_keyword = keyword.strip() if keyword else ""
+    if cleaned_keyword:
+        keyword_pattern = f"%{cleaned_keyword}%"
         query = query.filter(
             or_(
                 DetectionRecord.input_title.like(keyword_pattern),
                 DetectionRecord.input_content.like(keyword_pattern),
+                DetectionRecord.risk_level.like(keyword_pattern),
                 DetectionRecord.keywords.like(keyword_pattern),
                 DetectionRecord.reason.like(keyword_pattern),
             )

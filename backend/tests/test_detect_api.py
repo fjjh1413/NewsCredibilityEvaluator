@@ -1,9 +1,11 @@
 import unittest
+import time
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
+from app.api.v1 import detect as detect_api
 from app.api.v1.detect import get_db, get_optional_current_user
 from app.main import app
 from app.schemas.detection import DetectNewsRequest
@@ -13,12 +15,21 @@ from app.services.detection_service import (
 )
 
 
+VALID_NEWS_CONTENT = "News content with enough detail for validation."
+
+
 def _db_override():
     return Mock()
 
 
 def _optional_user_override():
     return SimpleNamespace(id=1, role="user", status="active")
+
+
+def _clear_detect_rate_limiter() -> None:
+    rate_limiter = getattr(detect_api, "detector_rate_limiter", None)
+    if rate_limiter is not None:
+        rate_limiter.clear()
 
 
 def _vector_result(knowledge_id: int, score: float) -> dict:
@@ -44,6 +55,7 @@ class DetectServiceTestCase(unittest.TestCase):
             patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
             patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
+            patch("app.services.detection_service.get_default_prompt_content") as mocked_prompt,
         ):
             mocked_search.return_value = [_vector_result(1, 0.8), _vector_result(2, 0.6)]
             mocked_llm.return_value = {
@@ -59,10 +71,11 @@ class DetectServiceTestCase(unittest.TestCase):
                 "hit_rules": [{"rule_name": "缺少明确来源"}],
             }
             mocked_save.return_value = SimpleNamespace(id=123)
+            mocked_prompt.return_value = "Configured prompt {title} {content} {evidence_list}"
 
             result = detect_news_credibility(
                 db=Mock(),
-                payload=DetectNewsRequest(title="News title", content="News content"),
+                payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
                 current_user=SimpleNamespace(id=7, role="user"),
             )
 
@@ -75,6 +88,10 @@ class DetectServiceTestCase(unittest.TestCase):
         self.assertEqual(len(result["evidence_list"]), 2)
         self.assertEqual(len(result["similar_news"]), 2)
         self.assertEqual(mocked_search.call_args.kwargs["top_k"], 10)
+        self.assertEqual(
+            mocked_llm.call_args.kwargs["prompt_template"],
+            "Configured prompt {title} {content} {evidence_list}",
+        )
         saved_payload = mocked_save.call_args.args[1]
         self.assertEqual(saved_payload.user_id, 7)
         self.assertEqual(len(saved_payload.evidence_matches), 2)
@@ -100,7 +117,7 @@ class DetectServiceTestCase(unittest.TestCase):
 
             result = detect_news_credibility(
                 db=Mock(),
-                payload=DetectNewsRequest(title="News title", content="News content"),
+                payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
                 current_user=None,
             )
 
@@ -120,31 +137,62 @@ class DetectServiceTestCase(unittest.TestCase):
             mocked_search.return_value = []
             mocked_llm.return_value = {
                 "llm_score": 0,
-                "risk_level": "模型调用失败",
-                "reason": "DeepSeek API Key 未配置",
-                "risk_points": ["DeepSeek API Key 未配置"],
+                "risk_level": "存疑信息",
+                "reason": "模型调用失败：DeepSeek API Key 未配置",
+                "risk_points": ["模型调用失败：DeepSeek API Key 未配置"],
                 "keywords": [],
                 "suggestion": "配置 API Key。",
+                "error": "模型调用失败",
             }
 
             with self.assertRaises(LLMAnalysisFailedError):
                 detect_news_credibility(
                     db=Mock(),
-                    payload=DetectNewsRequest(title="News title", content="News content"),
+                    payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
                     current_user=None,
                 )
+
+            mocked_save.assert_not_called()
+
+    def test_invalid_default_and_fallback_prompt_never_saves_detection(self) -> None:
+        with (
+            patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
+            patch("app.services.detection_service.get_default_prompt_content") as mocked_prompt,
+            patch("app.services.llm_service.get_default_prompt_template") as mocked_fallback,
+            patch("app.services.llm_service._load_deepseek_config") as mocked_config,
+            patch("app.services.detection_service.save_detection_record") as mocked_save,
+        ):
+            mocked_search.return_value = []
+            mocked_prompt.return_value = "Invalid configured prompt"
+            mocked_fallback.return_value = "Invalid fallback prompt"
+            mocked_config.return_value = {
+                "api_key": "test-key",
+                "base_url": "https://api.deepseek.com",
+                "model": "deepseek-chat",
+                "timeout_seconds": 1,
+            }
+
+            with self.assertLogs("app.services.llm_service", level="WARNING"):
+                with self.assertRaises(LLMAnalysisFailedError):
+                    detect_news_credibility(
+                        db=Mock(),
+                        payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
+                        current_user=None,
+                    )
 
             mocked_save.assert_not_called()
 
 
 class DetectApiTestCase(unittest.TestCase):
     def setUp(self) -> None:
+        _clear_detect_rate_limiter()
         app.dependency_overrides[get_db] = _db_override
         app.dependency_overrides[get_optional_current_user] = _optional_user_override
         self.client = TestClient(app)
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
+        _clear_detect_rate_limiter()
 
     @patch("app.api.v1.detect.detect_news_credibility")
     def test_detect_news_endpoint_returns_success(self, mocked_detect) -> None:
@@ -174,7 +222,7 @@ class DetectApiTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -188,20 +236,134 @@ class DetectApiTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
         )
 
         self.assertEqual(response.status_code, 503)
         self.assertIn("DeepSeek 分析失败", response.json()["message"])
 
 
+class DetectRateLimitApiTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        _clear_detect_rate_limiter()
+        app.dependency_overrides[get_db] = _db_override
+        app.dependency_overrides[get_optional_current_user] = _optional_user_override
+        self.client = TestClient(app)
+
+    def tearDown(self) -> None:
+        app.dependency_overrides.clear()
+        _clear_detect_rate_limiter()
+
+    def _valid_request(self) -> dict:
+        return {"title": "News title", "content": VALID_NEWS_CONTENT}
+
+    def _success_payload(self) -> dict:
+        return {
+            "detection_id": 1,
+            "final_score": 76,
+            "evidence_score": 70,
+            "llm_score": 70,
+            "rule_score": 80,
+            "risk_level": "suspected",
+            "judgement_result": "Review recommended.",
+            "reason": "Evidence partially supports the claim.",
+            "risk_points": ["source needs review"],
+            "keywords": ["official notice"],
+            "evidence_list": [],
+            "similar_news": [],
+            "suggestion": "Keep monitoring authoritative sources.",
+            "agent_steps": [],
+            "disclaimer": "For reference only.",
+        }
+
+    @patch.object(detect_api, "get_settings", create=True)
+    @patch("app.api.v1.detect.detect_news_credibility")
+    def test_detect_news_rate_limits_fourth_request_for_same_ip(
+        self,
+        mocked_detect,
+        mocked_get_settings,
+    ) -> None:
+        mocked_get_settings.return_value = SimpleNamespace(
+            detect_rate_limit_count=3,
+            detect_rate_limit_window_seconds=60,
+        )
+        mocked_detect.return_value = self._success_payload()
+
+        responses = [
+            self.client.post("/api/detect/news", json=self._valid_request())
+            for _ in range(4)
+        ]
+
+        self.assertEqual([response.status_code for response in responses[:3]], [200, 200, 200])
+        self.assertEqual(responses[3].status_code, 429)
+        self.assertEqual(responses[3].json()["message"], "检测请求过于频繁，请稍后再试")
+        self.assertEqual(mocked_detect.call_count, 3)
+
+    @patch.object(detect_api, "get_settings", create=True)
+    @patch("app.api.v1.detect.detect_news_credibility")
+    def test_detect_news_rate_limit_recovers_after_window(
+        self,
+        mocked_detect,
+        mocked_get_settings,
+    ) -> None:
+        mocked_get_settings.return_value = SimpleNamespace(
+            detect_rate_limit_count=1,
+            detect_rate_limit_window_seconds=1,
+        )
+        mocked_detect.return_value = self._success_payload()
+
+        first_response = self.client.post("/api/detect/news", json=self._valid_request())
+        limited_response = self.client.post("/api/detect/news", json=self._valid_request())
+        time.sleep(1.1)
+        recovered_response = self.client.post("/api/detect/news", json=self._valid_request())
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(limited_response.status_code, 429)
+        self.assertEqual(recovered_response.status_code, 200)
+
+    @patch.object(detect_api, "get_settings", create=True)
+    @patch("app.api.v1.detect.detect_news_credibility")
+    def test_detect_news_rate_limit_counts_each_ip_separately(
+        self,
+        mocked_detect,
+        mocked_get_settings,
+    ) -> None:
+        mocked_get_settings.return_value = SimpleNamespace(
+            detect_rate_limit_count=1,
+            detect_rate_limit_window_seconds=60,
+        )
+        mocked_detect.return_value = self._success_payload()
+
+        first_ip_response = self.client.post(
+            "/api/detect/news",
+            json=self._valid_request(),
+            headers={"X-Forwarded-For": "203.0.113.10"},
+        )
+        second_ip_response = self.client.post(
+            "/api/detect/news",
+            json=self._valid_request(),
+            headers={"X-Forwarded-For": "203.0.113.11"},
+        )
+        repeated_first_ip_response = self.client.post(
+            "/api/detect/news",
+            json=self._valid_request(),
+            headers={"X-Forwarded-For": "203.0.113.10"},
+        )
+
+        self.assertEqual(first_ip_response.status_code, 200)
+        self.assertEqual(second_ip_response.status_code, 200)
+        self.assertEqual(repeated_first_ip_response.status_code, 429)
+
+
 class DetectOptionalAuthTestCase(unittest.TestCase):
     def setUp(self) -> None:
+        _clear_detect_rate_limiter()
         app.dependency_overrides[get_db] = _db_override
         self.client = TestClient(app)
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
+        _clear_detect_rate_limiter()
 
     def _success_payload(self) -> dict:
         return {
@@ -234,7 +396,7 @@ class DetectOptionalAuthTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -251,7 +413,7 @@ class DetectOptionalAuthTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
             headers={"Authorization": "Bearer invalid-token"},
         )
 
@@ -278,7 +440,7 @@ class DetectOptionalAuthTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
             headers={"Authorization": "Bearer valid-token"},
         )
 
@@ -304,11 +466,33 @@ class DetectOptionalAuthTestCase(unittest.TestCase):
 
         response = self.client.post(
             "/api/detect/news",
-            json={"title": "News title", "content": "News content"},
+            json={"title": "News title", "content": VALID_NEWS_CONTENT},
             headers={"Authorization": "Bearer valid-token"},
         )
 
         self.assertEqual(response.status_code, 401)
+        mocked_detect.assert_not_called()
+
+    @patch("app.api.v1.detect.detect_news_credibility")
+    def test_detect_news_rejects_short_title(self, mocked_detect) -> None:
+        response = self.client.post(
+            "/api/detect/news",
+            json={"title": "abc", "content": VALID_NEWS_CONTENT},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("新闻标题长度不能少于 4 个字符", response.json()["message"])
+        mocked_detect.assert_not_called()
+
+    @patch("app.api.v1.detect.detect_news_credibility")
+    def test_detect_news_rejects_short_content(self, mocked_detect) -> None:
+        response = self.client.post(
+            "/api/detect/news",
+            json={"title": "News title", "content": "too short"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("新闻正文长度不能少于 20 个字符", response.json()["message"])
         mocked_detect.assert_not_called()
 
 

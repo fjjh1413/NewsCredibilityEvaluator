@@ -19,7 +19,11 @@ def _user(user_id: int, role: str = "user") -> SimpleNamespace:
     return SimpleNamespace(id=user_id, role=role)
 
 
-def _payload(user_id: int, title: str = "Test news") -> DetectionCreate:
+def _payload(
+    user_id: int,
+    title: str = "Test news",
+    risk_level: str = "存疑信息",
+) -> DetectionCreate:
     return DetectionCreate(
         user_id=user_id,
         input_title=title,
@@ -30,7 +34,7 @@ def _payload(user_id: int, title: str = "Test news") -> DetectionCreate:
         evidence_score=70,
         llm_score=65,
         rule_score=72,
-        risk_level="存疑信息",
+        risk_level=risk_level,
         judgement_result="需要进一步核查",
         reason="证据不足。",
         risk_points=["来源不明确", "缺少权威证据"],
@@ -121,6 +125,29 @@ class DetectionCrudTestCase(unittest.TestCase):
 
         self.assertEqual(total, 1)
         self.assertEqual(items[0].id, new_record.id)
+
+    def test_history_keyword_matches_risk_level(self) -> None:
+        suspicious_record = save_detection_record(
+            self.db,
+            _payload(user_id=1, title="Ordinary title"),
+        )
+        save_detection_record(
+            self.db,
+            _payload(
+                user_id=1,
+                title="Trusted official title",
+                risk_level="可信新闻",
+            ),
+        )
+
+        items, total = get_detection_history(
+            self.db,
+            current_user=_user(1),
+            keyword="存疑",
+        )
+
+        self.assertEqual(total, 1)
+        self.assertEqual(items[0].id, suspicious_record.id)
 
     def test_detail_respects_user_scope(self) -> None:
         record = save_detection_record(self.db, _payload(user_id=2))
