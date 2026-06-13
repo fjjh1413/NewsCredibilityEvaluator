@@ -42,6 +42,12 @@ class EvidenceMatch(Base):
         nullable=False,
         server_default=func.now(),
     )
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
     detection = relationship("DetectionRecord", back_populates="evidence_matches")
 

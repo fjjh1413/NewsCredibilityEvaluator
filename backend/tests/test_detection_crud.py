@@ -82,6 +82,8 @@ class DetectionCrudTestCase(unittest.TestCase):
         output = DetectionDetailOut.model_validate(record)
         self.assertEqual(output.risk_points, ["来源不明确", "缺少权威证据"])
         self.assertEqual(output.evidence_matches[0].rank_order, 1)
+        self.assertIsNotNone(output.updated_at)
+        self.assertIsNotNone(output.evidence_matches[0].updated_at)
 
     def test_user_history_only_returns_own_records(self) -> None:
         save_detection_record(self.db, _payload(user_id=1, title="User 1 news"))

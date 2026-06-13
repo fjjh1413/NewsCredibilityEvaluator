@@ -349,7 +349,7 @@ CREATE TABLE prompt_templates (
 | reviewed_at | DATETIME | NULL | 审核时间 |
 | reviewed_by | BIGINT | NULL | 审核管理员ID |
 
-现有数据库使用 `backend/migrations/20260604_add_high_risk_review_fields.sql` 升级。升级会将已有高风险记录统一设为待审核且不公开，避免历史数据未经审核直接展示。
+现有数据库使用 Alembic 迁移升级：执行 `python -m app.db.migrate` 或在 `backend` 目录下执行 `alembic upgrade head`。高风险审核字段对应 Alembic 版本 `0002_add_high_risk_review_fields`，升级会将已有高风险记录统一设为待审核且不公开，避免历史数据未经审核直接展示。旧 SQL 文件仅保留在 `backend/migrations/legacy_sql/` 作为历史参考。
 
 ---
 
@@ -527,7 +527,7 @@ rejected：已驳回
 
 ```text
 username：admin
-password：123456
+password：由 seed 执行时的控制台输出或 DEMO_PASSWORD / ADMIN_DEMO_PASSWORD 环境变量确定
 role：admin
 ```
 

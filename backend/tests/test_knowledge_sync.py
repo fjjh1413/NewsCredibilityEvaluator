@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import unittest
 from types import SimpleNamespace
@@ -16,6 +16,7 @@ from app.services.knowledge_service import (
     KnowledgeVectorSyncError,
     create_knowledge_item,
     delete_knowledge_item,
+    list_knowledge_items,
     search_similar_knowledge,
     update_knowledge_item,
 )
@@ -470,6 +471,102 @@ class KnowledgeSyncTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         self.assertEqual(json.loads(response.body)["code"], 409)
         mocked_delete_service.assert_called_once()
+
+    @patch("app.api.v1.admin_knowledge.list_knowledge_items")
+    def test_list_api_passes_vector_sync_status_filter(
+        self,
+        mocked_list_service,
+    ) -> None:
+        mocked_list_service.return_value = ([], 0)
+
+        response = admin_knowledge.read_knowledge_items(
+            page=1,
+            page_size=20,
+            category=None,
+            truth_label=None,
+            risk_level=None,
+            keyword=None,
+            vector_sync_status="failed",
+            db=Mock(),
+            current_admin=Mock(),
+        )
+
+        self.assertEqual(response["data"]["total"], 0)
+        self.assertEqual(
+            mocked_list_service.call_args.kwargs["vector_sync_status"],
+            "failed",
+        )
+
+    def test_list_filters_vector_sync_status_before_pagination(self) -> None:
+        engine = create_engine("sqlite:///:memory:")
+        KnowledgeItem.__table__.create(bind=engine)
+        session_factory = sessionmaker(bind=engine)
+        db = session_factory()
+        base_time = datetime(2026, 1, 1, 12, 0, 0)
+
+        for index, status in enumerate(
+            ["synced", "pending", "synced", "failed", "pending", "synced"],
+            start=1,
+        ):
+            db.add(
+                KnowledgeItem(
+                    id=index,
+                    title=f"Knowledge {index}",
+                    content=f"Content {index}",
+                    truth_label="credible",
+                    vector_sync_status=status,
+                    created_at=base_time + timedelta(minutes=index),
+                    updated_at=base_time + timedelta(minutes=index),
+                )
+            )
+        db.commit()
+
+        try:
+            synced_items, synced_total = list_knowledge_items(
+                db,
+                page=1,
+                page_size=2,
+                vector_sync_status="synced",
+            )
+            synced_page_2, synced_page_2_total = list_knowledge_items(
+                db,
+                page=2,
+                page_size=2,
+                vector_sync_status="synced",
+            )
+            pending_items, pending_total = list_knowledge_items(
+                db,
+                page=1,
+                page_size=10,
+                vector_sync_status="pending",
+            )
+            failed_items, failed_total = list_knowledge_items(
+                db,
+                page=1,
+                page_size=10,
+                vector_sync_status="failed",
+            )
+
+            self.assertEqual(synced_total, 3)
+            self.assertEqual(len(synced_items), 2)
+            self.assertEqual(synced_page_2_total, 3)
+            self.assertEqual(len(synced_page_2), 1)
+            self.assertTrue(
+                all(item.vector_sync_status == "synced" for item in synced_items)
+            )
+            self.assertTrue(
+                all(item.vector_sync_status == "synced" for item in synced_page_2)
+            )
+            self.assertEqual(pending_total, 2)
+            self.assertEqual(
+                [item.vector_sync_status for item in pending_items],
+                ["pending", "pending"],
+            )
+            self.assertEqual(failed_total, 1)
+            self.assertEqual(failed_items[0].vector_sync_status, "failed")
+        finally:
+            db.close()
+            engine.dispose()
 
     @patch("app.services.knowledge_service.search_knowledge_vectors")
     @patch("app.services.knowledge_service.knowledge_crud.get_knowledge_item")

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -28,6 +28,7 @@ from app.services.prompt_service import (
     update_prompt_template,
 )
 from app.services.prompt_template_validator import PromptTemplateValidationError
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -77,6 +78,7 @@ def read_prompt_template(
 @router.post("", response_model=PromptTemplateItemApiResponse, status_code=201)
 def create_prompt(
     payload: PromptTemplateCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
@@ -86,12 +88,21 @@ def create_prompt(
         return _unprocessable(exc)
     except PromptTemplateDisabledError as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="create",
+        description=f"管理员新增 Prompt template_id={template.id} type={template.type}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(template, message="created", code=201)
 
 
 @router.put("/{id}", response_model=PromptTemplateItemApiResponse)
 def update_prompt(
     payload: PromptTemplateUpdate,
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -104,11 +115,20 @@ def update_prompt(
         return _unprocessable(exc)
     except PromptTemplateDisabledError as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="update",
+        description=f"管理员更新 Prompt template_id={id} type={template.type}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(template, message="updated")
 
 
 @router.delete("/{id}", response_model=PromptTemplateDeleteApiResponse)
 def delete_prompt(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -119,11 +139,20 @@ def delete_prompt(
         return _not_found(exc)
     except PromptTemplateDefaultDeleteError as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="delete",
+        description=f"管理员删除 Prompt template_id={id}",
+        ip_address=get_request_ip(request),
+    )
     return success_response(message="deleted", data={"id": id})
 
 
 @router.post("/{id}/enable", response_model=PromptTemplateItemApiResponse)
 def enable_prompt(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -134,11 +163,20 @@ def enable_prompt(
         return _not_found(exc)
     except PromptTemplateValidationError as exc:
         return _unprocessable(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="enable",
+        description=f"管理员启用 Prompt template_id={id} type={template.type}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(template, message="enabled")
 
 
 @router.post("/{id}/disable", response_model=PromptTemplateItemApiResponse)
 def disable_prompt(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -147,11 +185,20 @@ def disable_prompt(
         template = disable_prompt_template(db, id)
     except PromptTemplateNotFoundError as exc:
         return _not_found(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="disable",
+        description=f"管理员禁用 Prompt template_id={id} type={template.type}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(template, message="disabled")
 
 
 @router.post("/{id}/set-default", response_model=PromptTemplateItemApiResponse)
 def set_default_prompt(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -164,6 +211,14 @@ def set_default_prompt(
         return _unprocessable(exc)
     except PromptTemplateDisabledError as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="prompt",
+        action="set_default",
+        description=f"管理员设置默认 Prompt template_id={id} type={template.type}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(template, message="default updated")
 
 

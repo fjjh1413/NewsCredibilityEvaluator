@@ -51,6 +51,7 @@ class AdminHighRiskItem(BaseModel):
     is_public: bool
     admin_remark: str | None = None
     created_at: datetime
+    updated_at: datetime
     reviewed_at: datetime | None = None
     reviewed_by: int | None = None
 

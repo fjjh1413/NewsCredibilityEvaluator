@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ from app.schemas.knowledge import (
     KnowledgeRebuildIndexApiResponse,
     KnowledgeRebuildIndexData,
     KnowledgeUpdate,
+    VectorSyncStatus,
 )
 from app.services.knowledge_service import (
     KnowledgeNotFoundError,
@@ -27,6 +28,7 @@ from app.services.knowledge_service import (
     update_knowledge_item,
     vectorize_knowledge_item,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -40,6 +42,7 @@ def read_knowledge_items(
     category: str | None = Query(default=None),
     truth_label: str | None = Query(default=None),
     risk_level: str | None = Query(default=None),
+    vector_sync_status: VectorSyncStatus | None = Query(default=None),
     keyword: str | None = Query(default=None),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -51,6 +54,7 @@ def read_knowledge_items(
         category=category,
         truth_label=truth_label,
         risk_level=risk_level,
+        vector_sync_status=vector_sync_status,
         keyword=keyword,
     )
     data = KnowledgeListData(
@@ -64,10 +68,22 @@ def read_knowledge_items(
 
 @router.post("/rebuild-index", response_model=KnowledgeRebuildIndexApiResponse)
 def rebuild_knowledge_vectors(
+    request: Request,
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict:
     result = rebuild_knowledge_index(db)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="knowledge",
+        action="rebuild_index",
+        description=(
+            f"管理员重建知识库索引 total={result['total']} "
+            f"success={result['success']} failed={result['failed']}"
+        ),
+        ip_address=get_request_ip(request),
+    )
     data = KnowledgeRebuildIndexData(**result).model_dump()
     message = "rebuild completed"
     if result["failed"]:
@@ -95,6 +111,7 @@ def read_knowledge_item(
 
 @router.post("/{id}/vectorize", response_model=KnowledgeItemApiResponse)
 def vectorize_knowledge(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -106,6 +123,17 @@ def vectorize_knowledge(
             status_code=status.HTTP_404_NOT_FOUND,
             content=error_response(str(exc), code=404),
         )
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="knowledge",
+        action="vectorize",
+        description=(
+            f"管理员向量化知识库 item_id={id} "
+            f"vector_sync_status={item.vector_sync_status}"
+        ),
+        ip_address=get_request_ip(request),
+    )
 
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
     message = "vectorized"
@@ -117,10 +145,19 @@ def vectorize_knowledge(
 @router.post("", response_model=KnowledgeItemApiResponse, status_code=201)
 def create_knowledge(
     payload: KnowledgeCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict:
     item = create_knowledge_item(db, payload)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="knowledge",
+        action="create",
+        description=f"管理员新增知识库 item_id={item.id}",
+        ip_address=get_request_ip(request),
+    )
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
     message = "created"
     if item.vector_sync_status == "failed":
@@ -131,6 +168,7 @@ def create_knowledge(
 @router.put("/{id}", response_model=KnowledgeItemApiResponse)
 def update_knowledge(
     payload: KnowledgeUpdate,
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -147,6 +185,14 @@ def update_knowledge(
             status_code=status.HTTP_409_CONFLICT,
             content=error_response(str(exc), code=409),
         )
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="knowledge",
+        action="update",
+        description=f"管理员更新知识库 item_id={id}",
+        ip_address=get_request_ip(request),
+    )
 
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
     message = "success"
@@ -157,6 +203,7 @@ def update_knowledge(
 
 @router.delete("/{id}", response_model=KnowledgeDeleteApiResponse)
 def delete_knowledge(
+    request: Request = None,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -173,5 +220,13 @@ def delete_knowledge(
             status_code=status.HTTP_409_CONFLICT,
             content=error_response(str(exc), code=409),
         )
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="knowledge",
+        action="delete",
+        description=f"管理员删除知识库 item_id={id}",
+        ip_address=get_request_ip(request),
+    )
 
     return success_response(message="deleted", data={"id": id})

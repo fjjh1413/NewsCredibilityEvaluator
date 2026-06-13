@@ -3,8 +3,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import get_settings
 from app.crud.user import get_user_by_username
-from app.db.base import Base
-from app.db.session import SessionLocal, engine
+from app.db.migration_guard import assert_database_at_head
+from app.db.session import SessionLocal
 from app.schemas.user import UserAdminCreate
 from app.services.auth_service import UserAlreadyExistsError, create_admin_user
 
@@ -30,7 +30,7 @@ def _build_superuser_payload() -> UserAdminCreate:
 
 
 def init_db(db: Session) -> tuple[bool, str]:
-    Base.metadata.create_all(bind=engine)
+    assert_database_at_head()
 
     superuser = _build_superuser_payload()
     existing_user = get_user_by_username(db, superuser.username)

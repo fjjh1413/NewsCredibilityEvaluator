@@ -35,12 +35,21 @@ AGENT_STEPS = [
     "检测结果生成完成",
 ]
 
+DEGRADED_AGENT_STEPS = [
+    "关键词提取完成",
+    "知识库证据检索完成",
+    "LLM 分析暂不可用，已启用降级检测",
+    "风险规则评分完成",
+    "检测结果生成完成",
+]
+
 DISCLAIMER = (
     "本系统为新闻可信度辅助评估工具，检测结果仅供参考，"
     "不能替代人工事实核查、权威媒体报道或官方通报。"
 )
 
 LLM_FAILURE_RISK_LEVEL = "模型调用失败"
+LLM_DEGRADED_NOTICE = "LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成。"
 
 KEYWORD_HINTS = (
     "网传",
@@ -61,10 +70,6 @@ KEYWORD_HINTS = (
 
 class DetectionServiceError(Exception):
     """Base exception for detection flow failures."""
-
-
-class LLMAnalysisFailedError(DetectionServiceError):
-    pass
 
 
 class KnowledgeRetrievalFailedError(DetectionServiceError):
@@ -93,8 +98,9 @@ def detect_news_credibility(
         evidence_list=prompt_evidence,
         prompt_template=prompt_template,
     )
-    if _is_llm_failure(llm_result):
-        raise LLMAnalysisFailedError(clean_text(llm_result.get("reason"), max_length=1000))
+    is_llm_degraded = _is_llm_failure(llm_result)
+    if is_llm_degraded:
+        llm_result = _build_degraded_llm_result(llm_result)
 
     rule_result = calculate_rule_score(
         title=title,
@@ -106,7 +112,10 @@ def detect_news_credibility(
     evidence_score = calculate_evidence_score(prompt_evidence)
     llm_score = _normalize_score(llm_result.get("llm_score"))
     rule_score = _normalize_score(rule_result.get("rule_score"))
-    final_score = round(
+    final_score = calculate_degraded_final_score(
+        evidence_score,
+        rule_score,
+    ) if is_llm_degraded else round(
         evidence_score * 0.4 + llm_score * 0.4 + rule_score * 0.2,
         2,
     )
@@ -170,7 +179,7 @@ def detect_news_credibility(
         "evidence_list": evidence_list,
         "similar_news": _build_similar_news(evidence_list),
         "suggestion": suggestion,
-        "agent_steps": AGENT_STEPS,
+        "agent_steps": DEGRADED_AGENT_STEPS if is_llm_degraded else AGENT_STEPS,
         "disclaimer": DISCLAIMER,
     }
 
@@ -207,6 +216,12 @@ def calculate_evidence_score(evidence_list: list[dict[str, Any]]) -> float:
 
 def build_final_risk_level(final_score: float) -> str:
     return get_risk_level_from_score(final_score)
+
+
+def calculate_degraded_final_score(evidence_score: float, rule_score: float) -> float:
+    available_weight = 0.4 + 0.2
+    score = (evidence_score * 0.4 + rule_score * 0.2) / available_weight
+    return round(score, 2)
 
 
 def build_judgement_result(risk_level: str) -> str:
@@ -276,6 +291,37 @@ def _is_llm_failure(llm_result: dict[str, Any]) -> bool:
             for risk_point in risk_points
         )
     return has_zero_score and LLM_FAILURE_ERROR in clean_text(risk_points, max_length=1000)
+
+
+def _build_degraded_llm_result(llm_result: dict[str, Any]) -> dict[str, Any]:
+    reason = clean_text(llm_result.get("reason"), max_length=1600)
+    suggestion = clean_text(llm_result.get("suggestion"), max_length=800)
+    risk_points = llm_result.get("risk_points")
+    if not isinstance(risk_points, list):
+        risk_points = [risk_points] if risk_points else []
+
+    return {
+        **llm_result,
+        "llm_score": 0,
+        "risk_level": RISK_LEVEL_SUSPICIOUS,
+        "reason": clean_text(
+            f"{LLM_DEGRADED_NOTICE}{reason}" if reason else LLM_DEGRADED_NOTICE,
+            max_length=2000,
+        ),
+        "risk_points": [
+            item
+            for item in [LLM_DEGRADED_NOTICE, *risk_points]
+            if clean_text(item, max_length=200)
+        ],
+        "keywords": llm_result.get("keywords") if isinstance(llm_result.get("keywords"), list) else [],
+        "suggestion": clean_text(
+            f"{LLM_DEGRADED_NOTICE}{suggestion}" if suggestion else (
+                f"{LLM_DEGRADED_NOTICE}建议结合检索证据、规则命中情况和权威来源进行人工复核。"
+            ),
+            max_length=1000,
+        ),
+        "error": llm_result.get("error") or LLM_FAILURE_ERROR,
+    }
 
 
 def _normalize_score(value: Any) -> float:

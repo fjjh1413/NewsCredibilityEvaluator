@@ -11,8 +11,8 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 ENV_FILE = BASE_DIR / ".env"
 load_dotenv(ENV_FILE)
 
-DEFAULT_EMBEDDING_PROVIDER = "hash"
-DEFAULT_EMBEDDING_DIMENSION = 384
+DEFAULT_EMBEDDING_PROVIDER = "dashscope"
+DEFAULT_EMBEDDING_DIMENSION = 1024
 DEFAULT_DETECT_RATE_LIMIT_COUNT = 3
 DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS = 60
 PRODUCTION_ENV_NAMES = {"prod", "production"}
@@ -85,6 +85,12 @@ class Settings:
             "EMBEDDING_DIMENSION",
             DEFAULT_EMBEDDING_DIMENSION,
         )
+        self.deepseek_embedding_model = os.getenv(
+            "DEEPSEEK_EMBEDDING_MODEL", "deepseek-embedding-v1"
+        ).strip()
+        self.dashscope_embedding_model = os.getenv(
+            "DASHSCOPE_EMBEDDING_MODEL", "text-embedding-v4"
+        ).strip()
         self.report_dir = os.getenv("REPORT_DIR") or str(
             Path(tempfile.gettempdir()) / "zhiyun-bianzhen" / "reports"
         )

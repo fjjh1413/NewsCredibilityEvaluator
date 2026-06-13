@@ -250,6 +250,20 @@ class ReportServiceTestCase(unittest.TestCase):
         self.assertLessEqual(len(detail["news_summary"]), 243)
         self.assertNotIn("完整正文末尾不应进入 PDF", detail["news_summary"])
 
+    def test_admin_report_item_uses_report_updated_at(self) -> None:
+        report = self._add_report(self.detection)
+        created_at = datetime(2026, 1, 1, 8, 0, 0)
+        updated_at = datetime(2026, 1, 3, 9, 30, 0)
+        report.created_at = created_at
+        report.updated_at = updated_at
+        self.db.add(report)
+        self.db.commit()
+
+        result = list_admin_reports(self.db)
+
+        self.assertEqual(result["items"][0]["created_at"], created_at)
+        self.assertEqual(result["items"][0]["updated_at"], updated_at)
+
     def test_report_summary_is_generated_without_llm(self) -> None:
         def fake_converter(html_content: str, pdf_file: Path) -> None:
             pdf_file.write_bytes(b"%PDF-1.4\nfake report")

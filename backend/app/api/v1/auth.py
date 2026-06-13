@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
+from app.core.rate_limit import InMemoryRateLimiter
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models.user import User
@@ -21,14 +22,73 @@ from app.services.auth_service import (
     authenticate_user,
     register_user,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+login_rate_limiter = InMemoryRateLimiter()
+register_rate_limiter = InMemoryRateLimiter()
+
+LOGIN_RATE_LIMIT_COUNT = 5
+REGISTER_RATE_LIMIT_COUNT = 2
+AUTH_RATE_LIMIT_WINDOW_SECONDS = 60
 
 
-@router.post("/register", response_model=RegisterApiResponse)
-def register(payload: UserCreate, db: Session = Depends(get_db)) -> dict:
+def _get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",", 1)[0].strip()
+        if client_ip:
+            return client_ip
+
+    real_ip = request.headers.get("x-real-ip", "").strip()
+    if real_ip:
+        return real_ip
+
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def enforce_register_rate_limit(request: Request) -> None:
+    client_ip = _get_client_ip(request)
+    is_allowed = register_rate_limiter.allow_request(
+        key=client_ip,
+        limit=REGISTER_RATE_LIMIT_COUNT,
+        window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="注册请求过于频繁，请稍后再试",
+        )
+
+
+def enforce_login_rate_limit(request: Request) -> None:
+    client_ip = _get_client_ip(request)
+    is_allowed = login_rate_limiter.allow_request(
+        key=client_ip,
+        limit=LOGIN_RATE_LIMIT_COUNT,
+        window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="登录请求过于频繁，请稍后再试",
+        )
+
+
+@router.post(
+    "/register",
+    response_model=RegisterApiResponse,
+    dependencies=[Depends(enforce_register_rate_limit)],
+)
+def register(
+    payload: UserCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> dict:
     try:
         user = register_user(db, payload)
     except UserAlreadyExistsError as exc:
@@ -38,19 +98,49 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> dict:
         )
 
     data = UserSimpleResponse.model_validate(user).model_dump()
+    record_system_log(
+        db,
+        user_id=user.id,
+        module="auth",
+        action="register",
+        description=f"用户注册成功 username={user.username}",
+        ip_address=get_request_ip(request),
+    )
     return success_response(message="注册成功", data=data)
 
 
-@router.post("/login", response_model=LoginApiResponse)
-def login(payload: UserLogin, db: Session = Depends(get_db)) -> dict:
+@router.post(
+    "/login",
+    response_model=LoginApiResponse,
+    dependencies=[Depends(enforce_login_rate_limit)],
+)
+def login(
+    payload: UserLogin,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> dict:
     try:
         user = authenticate_user(db, payload.username, payload.password)
     except InvalidCredentialsError as exc:
+        record_system_log(
+            db,
+            module="auth",
+            action="login_failed",
+            description=f"登录失败 username={payload.username}",
+            ip_address=get_request_ip(request),
+        )
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content=error_response(str(exc), code=401),
         )
     except DisabledUserError as exc:
+        record_system_log(
+            db,
+            module="auth",
+            action="login_disabled",
+            description=f"禁用账号登录被拒绝 username={payload.username}",
+            ip_address=get_request_ip(request),
+        )
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content=error_response(str(exc), code=403),
@@ -66,6 +156,14 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> dict:
         token_type="bearer",
         user=UserSimpleResponse.model_validate(user),
     ).model_dump()
+    record_system_log(
+        db,
+        user_id=user.id,
+        module="auth",
+        action="login",
+        description=f"用户登录成功 username={user.username}",
+        ip_address=get_request_ip(request),
+    )
     return success_response(message="登录成功", data=data)
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -23,6 +23,7 @@ from app.services.high_risk_service import (
     update_high_risk_remark,
     update_high_risk_review,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -81,6 +82,7 @@ def read_admin_high_risk_detail(
 @router.put("/{record_id}/review", response_model=AdminHighRiskDetailApiResponse)
 def review_admin_high_risk(
     payload: HighRiskReviewUpdate,
+    request: Request,
     record_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -95,12 +97,24 @@ def review_admin_high_risk(
         )
     except HighRiskNotFoundError as exc:
         return _not_found(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="high_risk",
+        action="review",
+        description=(
+            f"管理员审核高风险记录 record_id={record_id} "
+            f"review_status={payload.review_status}"
+        ),
+        ip_address=get_request_ip(request),
+    )
     return success_response(data=data)
 
 
 @router.put("/{record_id}/public", response_model=AdminHighRiskDetailApiResponse)
 def update_admin_high_risk_public(
     payload: HighRiskPublicUpdate,
+    request: Request,
     record_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -111,12 +125,24 @@ def update_admin_high_risk_public(
         return _not_found(exc)
     except HighRiskConflictError as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="high_risk",
+        action="update_public",
+        description=(
+            f"管理员更新高风险公开状态 record_id={record_id} "
+            f"is_public={payload.is_public}"
+        ),
+        ip_address=get_request_ip(request),
+    )
     return success_response(data=data)
 
 
 @router.put("/{record_id}/remark", response_model=AdminHighRiskDetailApiResponse)
 def update_admin_high_risk_remark(
     payload: HighRiskRemarkUpdate,
+    request: Request,
     record_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -125,6 +151,14 @@ def update_admin_high_risk_remark(
         data = update_high_risk_remark(db, record_id, payload.admin_remark)
     except HighRiskNotFoundError as exc:
         return _not_found(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="high_risk",
+        action="update_remark",
+        description=f"管理员更新高风险备注 record_id={record_id}",
+        ip_address=get_request_ip(request),
+    )
     return success_response(data=data)
 
 

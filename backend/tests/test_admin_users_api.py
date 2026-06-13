@@ -103,6 +103,7 @@ class AdminUsersApiTestCase(unittest.TestCase):
                     risk_level="存疑信息",
                     is_high_risk=False,
                     created_at=datetime(2026, 1, 3, 8, 0, 0),
+                    updated_at=datetime(2026, 1, 3, 8, 0, 0),
                 )
             ],
             1,

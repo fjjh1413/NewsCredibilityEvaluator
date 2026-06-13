@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
+from app.api.v1 import auth as auth_api
 from app.core.config import get_settings
 from app.core.security import get_password_hash
 from app.db.session import get_db
@@ -16,8 +17,16 @@ def _override_db():
     return Mock()
 
 
+def _clear_auth_rate_limiters() -> None:
+    for limiter_name in ("login_rate_limiter", "register_rate_limiter"):
+        rate_limiter = getattr(auth_api, limiter_name, None)
+        if rate_limiter is not None:
+            rate_limiter.clear()
+
+
 class AuthSmokeTestCase(unittest.TestCase):
     def setUp(self) -> None:
+        _clear_auth_rate_limiters()
         self.previous_secret_key = os.environ.get("SECRET_KEY")
         os.environ["SECRET_KEY"] = "test-secret-for-auth-smoke"
         get_settings.cache_clear()
@@ -80,6 +89,7 @@ class AuthSmokeTestCase(unittest.TestCase):
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
+        _clear_auth_rate_limiters()
         for patcher in reversed(self.patchers):
             patcher.stop()
         if self.previous_secret_key is None:
@@ -187,6 +197,57 @@ class AuthSmokeTestCase(unittest.TestCase):
 
         self.assertEqual(disabled_login_response.status_code, 403)
         self.assertEqual(disabled_me_response.status_code, 403)
+
+    @patch("app.api.v1.auth.authenticate_user")
+    def test_login_rate_limits_sixth_request_for_same_ip(self, mocked_authenticate) -> None:
+        mocked_authenticate.side_effect = auth_api.InvalidCredentialsError(
+            "invalid credentials"
+        )
+
+        responses = [
+            self.client.post(
+                "/api/auth/login",
+                json={"username": "missing_user", "password": "secret123"},
+                headers={"X-Forwarded-For": "198.51.100.10"},
+            )
+            for _ in range(6)
+        ]
+
+        self.assertEqual(
+            [response.status_code for response in responses[:5]],
+            [401, 401, 401, 401, 401],
+        )
+        self.assertEqual(responses[5].status_code, 429)
+        self.assertEqual(mocked_authenticate.call_count, 5)
+
+    @patch("app.api.v1.auth.register_user")
+    def test_register_rate_limits_third_request_for_same_ip(self, mocked_register) -> None:
+        def register_user(db, payload):
+            return SimpleNamespace(
+                id=mocked_register.call_count,
+                username=payload.username,
+                email=payload.email,
+                role="user",
+            )
+
+        mocked_register.side_effect = register_user
+
+        responses = [
+            self.client.post(
+                "/api/auth/register",
+                json={
+                    "username": f"rate_limited_user_{index}",
+                    "password": "secret123",
+                    "email": f"rate_limited_user_{index}@example.com",
+                },
+                headers={"X-Forwarded-For": "198.51.100.20"},
+            )
+            for index in range(3)
+        ]
+
+        self.assertEqual([response.status_code for response in responses[:2]], [200, 200])
+        self.assertEqual(responses[2].status_code, 429)
+        self.assertEqual(mocked_register.call_count, 2)
 
 
 if __name__ == "__main__":

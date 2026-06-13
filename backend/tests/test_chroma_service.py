@@ -112,8 +112,13 @@ class ChromaServiceTestCase(unittest.TestCase):
         self.assertEqual(metadata["source_name"], "")
         self.assertEqual(metadata["risk_level"], "low")
 
+    @patch("app.services.chroma_service.embed_text", return_value=[0.1, 0.2])
     @patch("app.services.chroma_service.get_knowledge_collection")
-    def test_search_knowledge_vectors_formats_results(self, mocked_collection) -> None:
+    def test_search_knowledge_vectors_formats_results(
+        self,
+        mocked_collection,
+        mocked_embed,
+    ) -> None:
         mocked_collection.return_value = FakeCollection()
 
         results = search_knowledge_vectors("Test", top_k=3)

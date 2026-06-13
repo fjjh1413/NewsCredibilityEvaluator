@@ -33,6 +33,7 @@ def _report(report_id: int = 1):
         user_id=1,
         report_title="新闻可信度检测报告",
         created_at=datetime(2026, 1, 2, 8, 0, 0),
+        updated_at=datetime(2026, 1, 3, 8, 0, 0),
     )
 
 
@@ -55,6 +56,7 @@ class ReportApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["download_url"], "/api/report/download/1")
+        self.assertEqual(response.json()["data"]["updated_at"], "2026-01-03T08:00:00")
         self.assertEqual(mocked_generate.call_args.args[2].id, 1)
 
     @patch("app.api.v1.report.generate_detection_report")

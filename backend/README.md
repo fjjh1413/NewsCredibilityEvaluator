@@ -17,6 +17,9 @@ Copy-Item .env.example .env
 - `DATABASE_URL`：可选完整 SQLAlchemy 连接串；如果设置，会优先生效。
 - `SECRET_KEY`：JWT 密钥，演示以外环境请改成足够长的随机字符串。
 - `DEEPSEEK_API_KEY`：真实检测流程需要填写，不要提交真实 Key。
+- `DASHSCOPE_API_KEY`：正式 RAG/答辩演示的 DashScope `text-embedding-v4` 语义 embedding 需要填写，不要提交真实 Key。
+- `EMBEDDING_PROVIDER`：正式 RAG/答辩演示使用 `dashscope`；本地无 API Key 时可临时改为 `hash` fallback。
+- `EMBEDDING_DIMENSION`：需与 embedding 模型输出一致，`text-embedding-v4` 推荐使用 `1024`，hash fallback 使用 `384`。
 - `CHROMA_PATH`：Chroma 向量库目录，默认建议 `../data/chroma`；旧变量 `CHROMA_PERSIST_DIR` 仍可作为兼容别名。
 - `REPORT_DIR`：PDF 报告目录，默认建议 `../data/reports`，必须在 `backend` 源码目录之外。
 - `BACKEND_CORS_ORIGINS`：本地演示可用 `*`，部署时建议改为前端域名。
@@ -33,19 +36,21 @@ CREATE DATABASE zhiyun_bianzhen
   COLLATE utf8mb4_unicode_ci;
 ```
 
-安装依赖并建表：
+安装依赖并执行 Alembic 迁移：
 
 ```powershell
 cd E:\nan\NewsCredibilityEvaluator\backend
 pip install -r requirements.txt
+python -m app.db.migrate
+```
+
+然后初始化管理员账号：
+
+```powershell
 python -m app.db.init_db
 ```
 
-如果是旧库，且 `detection_records` 缺少高风险审核字段，请执行迁移：
-
-```powershell
-mysql -u <user> -p zhiyun_bianzhen < migrations/20260604_add_high_risk_review_fields.sql
-```
+旧 SQL 文件已归档到 `migrations/legacy_sql/`，仅用于追溯历史变更。当前数据库结构以 Alembic 版本为准，不再手工执行 legacy SQL。
 
 ## 3. 导入演示数据
 
@@ -69,10 +74,12 @@ seed 脚本会重复执行且不会无限新增重复演示数据。它会初始
 演示账号：
 
 ```text
-普通用户：user_demo / 123456
-普通用户：user_demo2 / 123456
-管理员：admin_demo / 123456
+普通用户：user_demo
+普通用户：user_demo2
+管理员：admin_demo
 ```
+
+演示密码：运行 `python -m app.db.seed_demo_data` 后查看控制台输出；如需固定本地演示密码，可在执行 seed 前设置 `DEMO_PASSWORD` 或 `ADMIN_DEMO_PASSWORD`。
 
 ## 4. 启动后端
 
@@ -103,6 +110,9 @@ CHROMA_PATH=<实际向量库目录>
 - `chromadb` 是否已通过 `pip install -r requirements.txt` 安装；
 - `CHROMA_PATH` 是否可写；
 - 是否执行过 `python -m app.db.seed_demo_data`。
+- 是否在切换 `EMBEDDING_PROVIDER` 或 `EMBEDDING_DIMENSION` 后重建过 Chroma 知识库索引。
+
+切换 embedding provider 或维度后，必须重建 Chroma 索引，避免维度不匹配或旧向量影响检索。可删除旧 `CHROMA_PATH` 后重新执行 `python -m app.db.seed_demo_data`，或用管理员账号调用 `POST /api/admin/knowledge/rebuild-index`。
 
 PDF 报告默认保存到 `REPORT_DIR`，例如 `E:\nan\NewsCredibilityEvaluator\data\reports`。
 
@@ -113,6 +123,7 @@ PDF 报告默认保存到 `REPORT_DIR`，例如 `E:\nan\NewsCredibilityEvaluator
 ```powershell
 cd E:\nan\NewsCredibilityEvaluator\backend
 python -m unittest discover -s tests -p "test_*.py"
+python -m app.db.migrate
 python -m app.db.init_db
 python -m app.db.seed_demo_data
 uvicorn app.main:app --reload
@@ -154,7 +165,7 @@ npm run build
 → 审核状态和公开状态切换
 ```
 
-真实 DeepSeek 检测流程需要在 `backend/.env` 中填写 `DEEPSEEK_API_KEY`。未配置 Key 时，系统应给出明确提示；seed 数据不依赖真实 DeepSeek Key。
+真实 DeepSeek 检测流程需要在 `backend/.env` 中填写 `DEEPSEEK_API_KEY`；默认 DashScope 语义 embedding 需要填写 `DASHSCOPE_API_KEY`。未配置 Key 时，系统应给出明确提示；仅本地演示 Chroma 流程时可临时设置 `EMBEDDING_PROVIDER=hash`、`EMBEDDING_DIMENSION=384`。hash 不具备语义检索能力，不应作为正式 RAG 方案。
 
 ## 8. 真实联调检查
 
@@ -162,6 +173,7 @@ npm run build
 
 ```powershell
 cd E:\nan\NewsCredibilityEvaluator\backend
+python -m app.db.migrate
 python -m app.db.init_db
 python -m app.db.seed_demo_data
 uvicorn app.main:app --reload
@@ -170,9 +182,9 @@ uvicorn app.main:app --reload
 重点确认：
 
 - seed 输出的 `Chroma collection count` 大于 0；
-- `user_demo / 123456` 可以登录；
+- 使用 seed 控制台输出或环境变量设置的演示密码，`user_demo` 可以登录；
 - `GET /api/detect/history?keyword=台风` 可以按关键词筛选历史记录；
 - 历史页报告下载使用 Bearer Token，不再通过裸 `<a href>` 下载；
-- `admin_demo / 123456` 可以进入后台统计、知识库、Prompt、报告和高风险管理；
+- 使用同一演示密码，`admin_demo` 可以进入后台统计、知识库、Prompt、报告和高风险管理；
 - 普通用户访问管理员接口返回 403；
 - 配置真实 `DEEPSEEK_API_KEY` 后，`POST /api/detect/news` 可以进入真实检测流程。

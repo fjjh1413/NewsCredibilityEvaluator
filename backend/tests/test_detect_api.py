@@ -9,10 +9,7 @@ from app.api.v1 import detect as detect_api
 from app.api.v1.detect import get_db, get_optional_current_user
 from app.main import app
 from app.schemas.detection import DetectNewsRequest
-from app.services.detection_service import (
-    LLMAnalysisFailedError,
-    detect_news_credibility,
-)
+from app.services.detection_service import detect_news_credibility
 
 
 VALID_NEWS_CONTENT = "News content with enough detail for validation."
@@ -128,13 +125,14 @@ class DetectServiceTestCase(unittest.TestCase):
         self.assertIsNone(saved_payload.user_id)
         self.assertEqual(saved_payload.evidence_matches, [])
 
-    def test_detect_news_raises_when_deepseek_fails(self) -> None:
+    def test_detect_news_degrades_and_saves_when_deepseek_fails(self) -> None:
         with (
             patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
             patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
+            patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
         ):
-            mocked_search.return_value = []
+            mocked_search.return_value = [_vector_result(1, 0.8)]
             mocked_llm.return_value = {
                 "llm_score": 0,
                 "risk_level": "存疑信息",
@@ -144,22 +142,40 @@ class DetectServiceTestCase(unittest.TestCase):
                 "suggestion": "配置 API Key。",
                 "error": "模型调用失败",
             }
+            mocked_rule.return_value = {
+                "rule_score": 70,
+                "hit_rules": [{"rule_name": "缺少明确来源"}],
+            }
+            mocked_save.return_value = SimpleNamespace(id=125)
 
-            with self.assertRaises(LLMAnalysisFailedError):
-                detect_news_credibility(
-                    db=Mock(),
-                    payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
-                    current_user=None,
-                )
+            result = detect_news_credibility(
+                db=Mock(),
+                payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
+                current_user=None,
+            )
 
-            mocked_save.assert_not_called()
+            self.assertEqual(result["detection_id"], 125)
+            self.assertEqual(result["evidence_score"], 80)
+            self.assertEqual(result["llm_score"], 0)
+            self.assertEqual(result["rule_score"], 70)
+            self.assertEqual(result["final_score"], 76.67)
+            self.assertIn("LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成", result["reason"])
+            self.assertIn("模型调用失败", result["reason"])
+            self.assertIn("LLM 分析暂不可用", result["suggestion"])
+            self.assertIn("缺少明确来源", result["risk_points"])
+            saved_payload = mocked_save.call_args.args[1]
+            self.assertEqual(saved_payload.llm_score, 0)
+            self.assertEqual(saved_payload.final_score, 76.67)
+            self.assertIn("LLM 分析暂不可用", saved_payload.reason)
+            self.assertEqual(len(saved_payload.evidence_matches), 1)
 
-    def test_invalid_default_and_fallback_prompt_never_saves_detection(self) -> None:
+    def test_invalid_default_and_fallback_prompt_uses_degraded_detection(self) -> None:
         with (
             patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
             patch("app.services.detection_service.get_default_prompt_content") as mocked_prompt,
             patch("app.services.llm_service.get_default_prompt_template") as mocked_fallback,
             patch("app.services.llm_service._load_deepseek_config") as mocked_config,
+            patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
         ):
             mocked_search.return_value = []
@@ -171,16 +187,21 @@ class DetectServiceTestCase(unittest.TestCase):
                 "model": "deepseek-chat",
                 "timeout_seconds": 1,
             }
+            mocked_rule.return_value = {"rule_score": 90, "hit_rules": []}
+            mocked_save.return_value = SimpleNamespace(id=126)
 
             with self.assertLogs("app.services.llm_service", level="WARNING"):
-                with self.assertRaises(LLMAnalysisFailedError):
-                    detect_news_credibility(
-                        db=Mock(),
-                        payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
-                        current_user=None,
-                    )
+                result = detect_news_credibility(
+                    db=Mock(),
+                    payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
+                    current_user=None,
+                )
 
-            mocked_save.assert_not_called()
+            self.assertEqual(result["detection_id"], 126)
+            self.assertEqual(result["llm_score"], 0)
+            self.assertEqual(result["final_score"], 30)
+            self.assertIn("LLM 分析暂不可用", result["reason"])
+            mocked_save.assert_called_once()
 
 
 class DetectApiTestCase(unittest.TestCase):
@@ -231,16 +252,41 @@ class DetectApiTestCase(unittest.TestCase):
         self.assertEqual(body["data"]["detection_id"], 1)
 
     @patch("app.api.v1.detect.detect_news_credibility")
-    def test_detect_news_endpoint_returns_error_when_llm_fails(self, mocked_detect) -> None:
-        mocked_detect.side_effect = LLMAnalysisFailedError("DeepSeek API Key 未配置")
+    def test_detect_news_endpoint_returns_degraded_result_when_llm_unavailable(self, mocked_detect) -> None:
+        mocked_detect.return_value = {
+            "detection_id": 2,
+            "final_score": 76.67,
+            "evidence_score": 80,
+            "llm_score": 0,
+            "rule_score": 70,
+            "risk_level": "存疑信息",
+            "judgement_result": "该新闻存在一定疑点，建议进一步核查",
+            "reason": "LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成。模型调用失败：DeepSeek API Key 未配置",
+            "risk_points": ["模型调用失败：DeepSeek API Key 未配置", "缺少明确来源"],
+            "keywords": ["官方通报"],
+            "evidence_list": [],
+            "similar_news": [],
+            "suggestion": "LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成。建议结合权威来源进行人工复核。",
+            "agent_steps": [
+                "关键词提取完成",
+                "知识库证据检索完成",
+                "LLM 分析暂不可用，已启用降级检测",
+                "风险规则评分完成",
+                "检测结果生成完成",
+            ],
+            "disclaimer": "检测结果仅供参考。",
+        }
 
         response = self.client.post(
             "/api/detect/news",
             json={"title": "News title", "content": VALID_NEWS_CONTENT},
         )
 
-        self.assertEqual(response.status_code, 503)
-        self.assertIn("DeepSeek 分析失败", response.json()["message"])
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["data"]["detection_id"], 2)
+        self.assertEqual(body["data"]["llm_score"], 0)
+        self.assertIn("LLM 分析暂不可用", body["data"]["reason"])
 
 
 class DetectRateLimitApiTestCase(unittest.TestCase):

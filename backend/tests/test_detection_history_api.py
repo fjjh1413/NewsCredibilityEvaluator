@@ -31,6 +31,7 @@ def _history_record(record_id: int, user_id: int = 1):
         risk_level="存疑信息",
         is_high_risk=False,
         created_at=datetime(2026, 1, 2, 8, 0, 0),
+        updated_at=datetime(2026, 1, 2, 8, 0, 0),
     )
 
 
@@ -54,6 +55,7 @@ def _detail_record(record_id: int, user_id: int = 1):
         is_high_risk=False,
         report_url=None,
         created_at=datetime(2026, 1, 2, 8, 0, 0),
+        updated_at=datetime(2026, 1, 2, 8, 0, 0),
         evidence_matches=[
             SimpleNamespace(
                 id=1,
@@ -65,6 +67,7 @@ def _detail_record(record_id: int, user_id: int = 1):
                 similarity_score=0.83,
                 rank_order=1,
                 created_at=datetime(2026, 1, 2, 8, 0, 1),
+                updated_at=datetime(2026, 1, 2, 8, 0, 1),
             )
         ],
     )

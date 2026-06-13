@@ -157,6 +157,7 @@ def _admin_item(record: DetectionRecord) -> dict[str, Any]:
         "is_public": bool(record.is_public),
         "admin_remark": record.admin_remark,
         "created_at": record.created_at,
+        "updated_at": record.updated_at,
         "reviewed_at": record.reviewed_at,
         "reviewed_by": record.reviewed_by,
     }

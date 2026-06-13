@@ -176,8 +176,7 @@
         </el-table>
 
         <div class="admin-knowledge__pagination">
-          <span v-if="filters.vectorStatus">当前页匹配 {{ displayRows.length }} 条 / 共 {{ total }} 条</span>
-          <span v-else>共 {{ total }} 条知识</span>
+          <span>共 {{ total }} 条知识</span>
           <el-pagination
             background
             layout="sizes, prev, pager, next"
@@ -371,11 +370,7 @@ const queryParams = computed(() => {
 })
 
 const displayRows = computed(() => {
-  if (!filters.vectorStatus) {
-    return rows.value
-  }
-
-  return rows.value.filter((row) => row.vectorStatus === filters.vectorStatus)
+  return rows.value
 })
 
 const emptyTitle = computed(() => {
@@ -400,7 +395,7 @@ const emptyDescription = computed(() => {
   }
 
   if (filters.vectorStatus) {
-    return '当前页没有匹配该向量同步状态的知识库数据。'
+    return '当前筛选条件下没有匹配该向量同步状态的知识库数据。'
   }
 
   return '当前筛选条件下没有知识库数据。'

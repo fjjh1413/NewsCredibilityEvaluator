@@ -46,6 +46,7 @@ def generate_report(
         report_title=report.report_title,
         download_url=get_report_download_url(report),
         created_at=report.created_at,
+        updated_at=report.updated_at,
     ).model_dump(mode="json")
     return success_response(message="报告生成成功", data=data)
 

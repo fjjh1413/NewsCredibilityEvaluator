@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -20,6 +20,7 @@ from app.schemas.detection import (
     DetectionHistoryData,
     DetectionHistoryItem,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -77,6 +78,7 @@ def read_admin_detection_detail(
 
 @router.delete("/{id}", response_model=DetectionDeleteApiResponse)
 def delete_admin_detection(
+    request: Request,
     id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -88,4 +90,12 @@ def delete_admin_detection(
             content=error_response("Detection record not found", code=404),
         )
 
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="admin",
+        action="delete_detection",
+        description=f"管理员删除检测记录 detection_id={id}",
+        ip_address=get_request_ip(request),
+    )
     return success_response(message="deleted", data={"id": id})

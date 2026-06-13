@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.crud import knowledge_crud
 from app.models.knowledge_item import KnowledgeItem
-from app.schemas.knowledge import KnowledgeCreate, KnowledgeUpdate
+from app.schemas.knowledge import KnowledgeCreate, KnowledgeUpdate, VectorSyncStatus
 from app.services.chroma_service import (
     ChromaServiceError,
     delete_knowledge_item_vector,
@@ -213,6 +213,7 @@ def list_knowledge_items(
     category: str | None = None,
     truth_label: str | None = None,
     risk_level: str | None = None,
+    vector_sync_status: VectorSyncStatus | None = None,
     keyword: str | None = None,
 ) -> tuple[list[KnowledgeItem], int]:
     skip = (page - 1) * page_size
@@ -223,6 +224,7 @@ def list_knowledge_items(
         category=category,
         truth_label=truth_label,
         risk_level=risk_level,
+        vector_sync_status=vector_sync_status,
         keyword=keyword,
     )
 

@@ -35,6 +35,7 @@ class EvidenceMatchOut(EvidenceMatchBase):
     id: int
     detection_id: int
     created_at: datetime
+    updated_at: datetime
 
 
 class DetectionCreate(BaseModel):
@@ -93,6 +94,7 @@ class DetectionRecordOut(BaseModel):
     is_high_risk: bool
     report_url: str | None = None
     created_at: datetime
+    updated_at: datetime
 
     @field_validator(
         "final_score",
@@ -124,6 +126,7 @@ class DetectionHistoryItem(BaseModel):
     is_high_risk: bool
     report_url: str | None = None
     created_at: datetime
+    updated_at: datetime
 
     @field_validator("final_score", mode="before")
     @classmethod

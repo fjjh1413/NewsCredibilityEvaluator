@@ -310,7 +310,7 @@ def _build_admin_report_item(db: Session, report: Report) -> dict[str, Any]:
         "status": report_status,
         "download_url": get_admin_report_download_url(report) if report_status == "generated" else None,
         "created_at": report.created_at,
-        "updated_at": report.created_at,
+        "updated_at": report.updated_at,
     }
 
 

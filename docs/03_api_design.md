@@ -93,7 +93,7 @@ POST /api/auth/register
 ```json
 {
   "username": "test_user",
-  "password": "123456",
+  "password": "your-password-here",
   "email": "test@example.com"
 }
 ```
@@ -129,7 +129,7 @@ POST /api/auth/login
 ```json
 {
   "username": "test_user",
-  "password": "123456"
+  "password": "your-password-here"
 }
 ```
 
@@ -405,12 +405,12 @@ POST /api/rag/search
 ### 4.2 重建向量索引
 
 ```http
-POST /api/rag/rebuild-index
+POST /api/admin/knowledge/rebuild-index
 ```
 
 #### 功能说明
 
-管理员重新将 MySQL 中的知识库数据写入 Chroma。
+管理员重新将 MySQL 中的知识库数据写入 Chroma。切换 `EMBEDDING_PROVIDER` 或 `EMBEDDING_DIMENSION` 后必须调用该接口，或清空旧 Chroma 数据后重新执行 seed，以重新生成与当前 embedding 配置一致的向量索引。
 
 #### 权限
 

@@ -20,9 +20,9 @@ from app.schemas.detection import (
 from app.services.detection_service import (
     DetectionServiceError,
     KnowledgeRetrievalFailedError,
-    LLMAnalysisFailedError,
     detect_news_credibility,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -68,6 +68,7 @@ def enforce_detect_news_rate_limit(request: Request) -> None:
 )
 def detect_news(
     payload: DetectNewsRequest,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
 ) -> dict:
@@ -76,14 +77,6 @@ def detect_news(
             db=db,
             payload=payload,
             current_user=current_user,
-        )
-    except LLMAnalysisFailedError as exc:
-        return JSONResponse(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content=error_response(
-                message=f"DeepSeek 分析失败：{exc}",
-                code=503,
-            ),
         )
     except KnowledgeRetrievalFailedError as exc:
         return JSONResponse(
@@ -96,6 +89,18 @@ def detect_news(
             content=error_response(message=str(exc), code=400),
         )
 
+    record_system_log(
+        db,
+        user_id=getattr(current_user, "id", None),
+        module="detection",
+        action="detect_news",
+        description=(
+            f"完成新闻检测 detection_id={result.get('detection_id')} "
+            f"risk_level={result.get('risk_level')} "
+            f"final_score={result.get('final_score')}"
+        ),
+        ip_address=get_request_ip(request),
+    )
     return success_response(message="检测完成", data=result)
 
 

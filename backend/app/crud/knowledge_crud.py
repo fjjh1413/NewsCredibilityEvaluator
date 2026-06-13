@@ -16,6 +16,7 @@ def get_knowledge_items(
     category: str | None = None,
     truth_label: str | None = None,
     risk_level: str | None = None,
+    vector_sync_status: str | None = None,
     keyword: str | None = None,
 ) -> tuple[list[KnowledgeItem], int]:
     query = db.query(KnowledgeItem)
@@ -26,6 +27,8 @@ def get_knowledge_items(
         query = query.filter(KnowledgeItem.truth_label == truth_label)
     if risk_level:
         query = query.filter(KnowledgeItem.risk_level == risk_level)
+    if vector_sync_status:
+        query = query.filter(KnowledgeItem.vector_sync_status == vector_sync_status)
     if keyword:
         keyword_pattern = f"%{keyword}%"
         query = query.filter(

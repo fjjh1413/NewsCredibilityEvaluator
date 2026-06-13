@@ -10,6 +10,7 @@ class ReportOut(BaseModel):
     report_title: str
     download_url: str
     created_at: datetime
+    updated_at: datetime
 
 
 class ReportGenerateApiResponse(BaseModel):
@@ -31,7 +32,7 @@ class AdminReportItem(BaseModel):
     status: str
     download_url: str | None = None
     created_at: datetime
-    updated_at: datetime | None = None
+    updated_at: datetime
 
 
 class AdminReportListData(BaseModel):

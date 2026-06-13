@@ -99,7 +99,7 @@ zhiyun-bianzhen/
 │   │   ├── test_rag.py
 │   │   └── test_detect.py
 │   ├── chroma_db/                   # Chroma 本地持久化目录
-│   ├── alembic/                     # 数据库迁移目录，可选
+│   ├── alembic/                     # Alembic 数据库迁移目录
 │   ├── requirements.txt             # Python 依赖
 │   ├── .env.example                 # 环境变量示例
 │   └── README.md                    # 后端说明

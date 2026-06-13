@@ -55,6 +55,7 @@ def _admin_detail():
         "is_public": False,
         "admin_remark": "内部备注",
         "created_at": datetime(2026, 6, 3, 10, 0, 0),
+        "updated_at": datetime(2026, 6, 4, 10, 0, 0),
         "reviewed_at": datetime(2026, 6, 4, 10, 0, 0),
         "reviewed_by": 1,
         "evidence_matches": [],

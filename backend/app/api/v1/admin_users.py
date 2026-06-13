@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -30,6 +30,7 @@ from app.services.admin_user_service import (
     list_admin_users,
     update_admin_user_role,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -107,6 +108,7 @@ def read_admin_user(
 
 @router.post("/{user_id}/enable", response_model=AdminUserItemApiResponse)
 def enable_user(
+    request: Request,
     user_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -116,11 +118,20 @@ def enable_user(
         _, detection_count = get_admin_user(db, user_id)
     except AdminUserNotFoundError as exc:
         return _not_found(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="admin",
+        action="enable_user",
+        description=f"管理员启用用户 target_user_id={user_id}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(user, detection_count, message="用户已启用")
 
 
 @router.post("/{user_id}/disable", response_model=AdminUserItemApiResponse)
 def disable_user(
+    request: Request,
     user_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -132,12 +143,21 @@ def disable_user(
         return _not_found(exc)
     except (AdminUserSelfOperationError, AdminUserLastAdminError) as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="admin",
+        action="disable_user",
+        description=f"管理员禁用用户 target_user_id={user_id}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(user, detection_count, message="用户已禁用")
 
 
 @router.post("/{user_id}/role", response_model=AdminUserItemApiResponse)
 def update_user_role(
     payload: AdminUserRoleUpdate,
+    request: Request,
     user_id: int = Path(..., ge=1),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
@@ -149,6 +169,14 @@ def update_user_role(
         return _not_found(exc)
     except (AdminUserSelfOperationError, AdminUserLastAdminError) as exc:
         return _conflict(exc)
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="admin",
+        action="update_user_role",
+        description=f"管理员更新用户角色 target_user_id={user_id} role={payload.role}",
+        ip_address=get_request_ip(request),
+    )
     return _item_response(user, detection_count, message="用户角色已更新")
 
 

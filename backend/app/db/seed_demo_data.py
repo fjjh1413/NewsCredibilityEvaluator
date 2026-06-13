@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import secrets
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -12,7 +14,7 @@ from app.core.config import get_settings
 from app.core.security import get_password_hash
 from app.crud.report_crud import get_report_by_detection_id
 from app.crud.user import create_user, get_user_by_username
-from app.db.base import Base
+from app.db.migration_guard import assert_database_at_head
 from app.db.session import SessionLocal, engine
 from app.models.detection_record import DetectionRecord
 from app.models.knowledge_item import KnowledgeItem
@@ -34,7 +36,15 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-DEMO_PASSWORD = "123456"
+DEMO_PASSWORD_ENV_VARS = ("DEMO_PASSWORD", "ADMIN_DEMO_PASSWORD")
+
+
+def resolve_demo_password() -> tuple[str, bool]:
+    for env_var in DEMO_PASSWORD_ENV_VARS:
+        password = os.environ.get(env_var)
+        if password:
+            return password, False
+    return secrets.token_urlsafe(24), True
 
 DEMO_USERS = (
     {
@@ -819,7 +829,7 @@ def _demo_detection_rows(now: datetime) -> list[dict[str, Any]]:
 
 
 def ensure_schema_ready() -> None:
-    Base.metadata.create_all(bind=engine)
+    assert_database_at_head()
 
     required_columns = {
         "users": {"username", "password_hash", "role", "status"},
@@ -852,8 +862,11 @@ def ensure_schema_ready() -> None:
             "is_high_risk",
             "review_status",
             "is_public",
+            "admin_remark",
             "reviewed_at",
             "reviewed_by",
+            "report_url",
+            "updated_at",
         },
         "evidence_matches": {
             "detection_id",
@@ -863,24 +876,28 @@ def ensure_schema_ready() -> None:
             "source_name",
             "similarity_score",
             "rank_order",
+            "updated_at",
         },
-        "reports": {"detection_id", "pdf_path"},
+        "reports": {"detection_id", "pdf_path", "updated_at"},
         "prompt_templates": {"name", "type", "content", "is_default", "status"},
+        "system_logs": {"user_id", "action", "module", "created_at"},
     }
 
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
     for table_name, columns in required_columns.items():
         if table_name not in existing_tables:
-            raise RuntimeError(f"数据库表缺失：{table_name}。请先执行 python -m app.db.init_db。")
+            raise RuntimeError(
+                f"数据库表缺失：{table_name}。请先执行 python -m app.db.migrate。"
+            )
         existing_columns = {column["name"] for column in inspector.get_columns(table_name)}
         missing_columns = sorted(columns - existing_columns)
         if missing_columns:
             hint = ""
             if table_name == "detection_records":
                 hint = (
-                    " 现有库可能缺少高风险审核字段，请执行 "
-                    "backend/migrations/20260604_add_high_risk_review_fields.sql。"
+                    " 当前数据库可能缺少 Alembic 迁移字段，请执行 "
+                    "`alembic upgrade head`。"
                 )
             raise RuntimeError(
                 f"数据库表 {table_name} 缺少字段：{', '.join(missing_columns)}。{hint}"
@@ -893,18 +910,18 @@ def ensure_output_dirs() -> None:
     Path(settings.report_path).mkdir(parents=True, exist_ok=True)
 
 
-def ensure_demo_users(db: Session) -> dict[str, User]:
+def ensure_demo_users(db: Session, demo_password: str) -> dict[str, User]:
     users: dict[str, User] = {}
     for row in DEMO_USERS:
         user = get_user_by_username(db, row["username"])
         if user is None:
             user = db.query(User).filter(User.email == row["email"]).first()
-        password_hash = get_password_hash(DEMO_PASSWORD)
+        password_hash = get_password_hash(demo_password)
         if user is None:
             payload = UserAdminCreate(
                 username=row["username"],
                 email=row["email"],
-                password=DEMO_PASSWORD,
+                password=demo_password,
                 role=row["role"],
                 status=row["status"],
             )
@@ -1135,10 +1152,11 @@ def chroma_count() -> int | None:
 def main() -> None:
     now = datetime.now().replace(microsecond=0)
     try:
+        demo_password, generated_demo_password = resolve_demo_password()
         ensure_schema_ready()
         ensure_output_dirs()
         with SessionLocal() as db:
-            users = ensure_demo_users(db)
+            users = ensure_demo_users(db, demo_password)
             admin = users["admin_demo"]
             prompt = ensure_demo_prompt(db, admin)
             knowledge_items = ensure_knowledge_items(db, now)
@@ -1164,7 +1182,11 @@ def main() -> None:
             settings = get_settings()
             vector_count = chroma_count()
 
-        print("[ok] 演示账号已初始化：user_demo / user_demo2 / admin_demo，密码均为 123456")
+        print("[ok] Demo accounts initialized: user_demo / user_demo2 / admin_demo")
+        if generated_demo_password:
+            print(f"[demo] Generated demo password for this seed run: {demo_password}")
+        else:
+            print("[ok] Demo password loaded from DEMO_PASSWORD or ADMIN_DEMO_PASSWORD")
         print(f"[ok] Prompt 模板已初始化：id={prompt_id}")
         print(f"[ok] 知识库演示数据已初始化：{knowledge_count} 条，MySQL synced={synced_knowledge}")
         print(f"[ok] 检测记录演示数据已初始化：{record_count} 条")
