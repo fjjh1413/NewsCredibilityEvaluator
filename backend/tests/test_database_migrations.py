@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -12,7 +13,7 @@ class MigrationGuardTestCase(unittest.TestCase):
         with (
             patch(
                 "app.db.migration_guard.get_head_revisions",
-                return_value={"0004_add_business_updated_at"},
+                return_value={"0006_create_crawl_tasks"},
             ),
             patch("app.db.migration_guard.get_current_revisions", return_value=set()),
         ):
@@ -25,7 +26,7 @@ class MigrationGuardTestCase(unittest.TestCase):
         with (
             patch(
                 "app.db.migration_guard.get_head_revisions",
-                return_value={"0004_add_business_updated_at"},
+                return_value={"0006_create_crawl_tasks"},
             ),
             patch(
                 "app.db.migration_guard.get_current_revisions",
@@ -41,11 +42,11 @@ class MigrationGuardTestCase(unittest.TestCase):
         with (
             patch(
                 "app.db.migration_guard.get_head_revisions",
-                return_value={"0004_add_business_updated_at"},
+                return_value={"0006_create_crawl_tasks"},
             ),
             patch(
                 "app.db.migration_guard.get_current_revisions",
-                return_value={"0004_add_business_updated_at"},
+                return_value={"0006_create_crawl_tasks"},
             ),
         ):
             migration_guard.assert_database_at_head()
@@ -151,6 +152,21 @@ class SeedDemoDataMigrationTestCase(unittest.TestCase):
 
         assert_at_head.assert_called_once_with()
         create_all.assert_not_called()
+
+
+class AlembicSchemaCoverageTestCase(unittest.TestCase):
+    def test_crawl_tasks_table_is_managed_by_alembic(self) -> None:
+        versions_dir = (
+            Path(__file__).resolve().parents[1] / "alembic" / "versions"
+        )
+        migration_text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in versions_dir.glob("*.py")
+        )
+
+        self.assertIn('"crawl_tasks"', migration_text)
+        self.assertIn('revision = "0005_add_evidence_web_source"', migration_text)
+        self.assertIn('down_revision = "0005_add_evidence_web_source"', migration_text)
 
 
 if __name__ == "__main__":

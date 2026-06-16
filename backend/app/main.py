@@ -1,3 +1,5 @@
+import logging
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, status
@@ -8,7 +10,20 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.router import api_router
 from app.core.config import get_settings
+from app.core.scheduler import init_scheduler, shutdown_scheduler
 from app.utils.response import error_response
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI lifespan: start scheduler on boot, stop on shutdown."""
+    logger.info("Starting application lifespan...")
+    init_scheduler()
+    yield
+    logger.info("Shutting down application lifespan...")
+    shutdown_scheduler()
 
 
 def create_app() -> FastAPI:
@@ -22,6 +37,7 @@ def create_app() -> FastAPI:
         version=settings.project_version,
         docs_url="/docs",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     app.add_middleware(

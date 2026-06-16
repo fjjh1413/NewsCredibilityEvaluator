@@ -145,3 +145,42 @@ All in `backend/.env`. Two MySQL config modes: split fields (`DATABASE_HOST`, `D
 ### Git-Ignored Paths
 
 `backend/.env`, `data/reports/`, `data/chroma/`, `backend/chroma_db/`, `node_modules/`, `dist/`.
+
+## Web Search & Scheduled Crawling (Bocha AI)
+
+The system integrates **Bocha AI Web Search API** (`https://api.bocha.cn/v1/web-search`) for two
+purposes:
+
+### Real-Time Web Search During Detection
+
+During news detection (`detect_news_credibility`), if the local Chroma RAG retrieval returns
+insufficient evidence (top-1 similarity < 0.4, or < 0.6 with fewer than 3 results), the system
+automatically triggers a Bocha web search to supplement the evidence pool.  Users can toggle this
+behaviour off via the `enable_web_search` switch on the Detect page.
+
+Key files:
+- `services/web/bocha_client.py` — Bocha HTTP client (auth, retry, error classification)
+- `services/web/web_search_service.py` — trigger logic, query building, evidence merging
+- `services/detection_service.py` — integration point (RAG → web search → merged evidence → LLM)
+
+### Scheduled News Crawling Into Knowledge Base
+
+APScheduler runs a configurable cron job that periodically searches Bocha for news across 9
+categories (社会, AI, 科技, 财经, 健康, 教育, 国际, 娱乐, 体育), fetches full article content,
+deduplicates against the existing knowledge base, and ingests new entries with
+`truth_label="待核查"` and `admin_note="[自动导入]"`.
+
+Key files:
+- `services/web/news_crawler.py` — crawl job definitions and execution logic
+- `services/web/web_content_fetcher.py` — SSRF-safe HTML fetching + BeautifulSoup extraction
+- `core/scheduler.py` — APScheduler lifecycle (startup/shutdown via FastAPI lifespan)
+- `models/crawl_task.py` — execution log ORM model
+
+### Configuration
+
+```bash
+BOCHA_API_KEY=sk-...           # required; from https://open.bochaai.com/
+WEB_SEARCH_ENABLED=true        # global toggle for real-time search
+CRAWL_ENABLED=true             # global toggle for scheduled crawling
+CRAWL_SCHEDULE=0 */6 * * *     # cron expression
+```

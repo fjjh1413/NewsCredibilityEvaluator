@@ -79,12 +79,24 @@
             />
           </el-form-item>
 
+          <el-form-item class="detect-web-search-item">
+            <div class="detect-web-search-toggle">
+              <div class="detect-web-search-label">
+                <span>🌐 启用联网搜索</span>
+                <el-switch v-model="form.enable_web_search" :disabled="submitting" />
+              </div>
+              <p class="detect-web-search-hint">
+                开启后，当本地知识库证据不足时，自动通过搜索引擎检索相关新闻作为补充证据，提升检测准确性。
+              </p>
+            </div>
+          </el-form-item>
+
           <div class="detect-actions">
             <el-button class="detect-submit" type="primary" native-type="submit" :loading="submitting">
               {{ submitting ? '检测中请耐心等待' : '提交可信度检测' }}
             </el-button>
             <el-button class="detect-reset" @click="resetForm">清空输入</el-button>
-            <p v-if="submitting" class="detect-loading-hint">长文本可能需要更长时间。</p>
+            <p v-if="submitting" class="detect-loading-hint">长文本可能需要更长时间，启用联网搜索时检测时间会略有延长。</p>
           </div>
         </el-form>
       </section>
@@ -147,7 +159,8 @@ const form = reactive({
   title: '',
   content: '',
   category: '',
-  source_name: ''
+  source_name: '',
+  enable_web_search: true
 })
 
 const rules = {
@@ -193,7 +206,8 @@ function resetForm() {
     title: '',
     content: '',
     category: '',
-    source_name: ''
+    source_name: '',
+    enable_web_search: true
   })
   errorMessage.value = ''
 }
@@ -217,7 +231,8 @@ async function handleSubmit() {
       title: form.title,
       content: form.content,
       category: form.category || undefined,
-      source_name: form.source_name || undefined
+      source_name: form.source_name || undefined,
+      enable_web_search: form.enable_web_search
     }
 
     const response = await submitNewsDetection(payload)
@@ -348,6 +363,43 @@ async function handleSubmit() {
   min-height: 44px;
   border-radius: var(--radius-sm);
   font-weight: 700;
+}
+
+.detect-web-search-item {
+  margin-bottom: 0;
+}
+
+.detect-web-search-item :deep(.el-form-item__label) {
+  display: none;
+}
+
+.detect-web-search-toggle {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.detect-web-search-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.detect-web-search-label span {
+  color: var(--color-text-strong);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.detect-web-search-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .detect-loading-hint {

@@ -99,6 +99,7 @@ class DetectServiceTestCase(unittest.TestCase):
             patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
             patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
+            patch("app.services.detection_service.should_trigger_web_search", return_value=False),
         ):
             mocked_search.return_value = []
             mocked_llm.return_value = {
@@ -124,6 +125,51 @@ class DetectServiceTestCase(unittest.TestCase):
         saved_payload = mocked_save.call_args.args[1]
         self.assertIsNone(saved_payload.user_id)
         self.assertEqual(saved_payload.evidence_matches, [])
+
+    def test_global_web_search_disabled_skips_bocha(self) -> None:
+        with (
+            patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
+            patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
+            patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
+            patch("app.services.detection_service.save_detection_record") as mocked_save,
+            patch("app.services.detection_service.get_default_prompt_content") as mocked_prompt,
+            patch("app.services.detection_service.get_settings") as mocked_get_settings,
+            patch("app.services.detection_service.should_trigger_web_search") as mocked_should_trigger,
+            patch("app.services.detection_service.BochaClient") as mocked_bocha_client,
+            patch("app.services.detection_service.search_evidence") as mocked_search_evidence,
+        ):
+            mocked_get_settings.return_value = SimpleNamespace(
+                web_search_enabled=False,
+                bocha_api_key="test-key",
+                web_search_timeout_seconds=8,
+                web_search_count=5,
+                web_search_freshness="oneMonth",
+            )
+            mocked_should_trigger.return_value = True
+            mocked_search.return_value = []
+            mocked_llm.return_value = {
+                "llm_score": 60,
+                "risk_level": "存疑信息",
+                "reason": "证据较少。",
+                "risk_points": [],
+                "keywords": [],
+                "suggestion": "人工复核。",
+            }
+            mocked_rule.return_value = {"rule_score": 90, "hit_rules": []}
+            mocked_save.return_value = SimpleNamespace(id=125)
+            mocked_prompt.return_value = "Configured prompt {title} {content} {evidence_list}"
+
+            result = detect_news_credibility(
+                db=Mock(),
+                payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
+                current_user=None,
+            )
+
+        self.assertEqual(result["detection_id"], 125)
+        self.assertFalse(result["web_search_triggered"])
+        mocked_should_trigger.assert_not_called()
+        mocked_bocha_client.assert_not_called()
+        mocked_search_evidence.assert_not_called()
 
     def test_detect_news_degrades_and_saves_when_deepseek_fails(self) -> None:
         with (

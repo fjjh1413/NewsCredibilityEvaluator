@@ -176,6 +176,7 @@ class DetectNewsRequest(BaseModel):
     content: str = Field(..., min_length=1)
     category: str | None = Field(default=None, max_length=50)
     source_name: str | None = Field(default=None, max_length=100)
+    enable_web_search: bool = Field(default=True, description="是否启用联网检索增强检测")
 
     @field_validator("title")
     @classmethod
@@ -232,6 +233,8 @@ class DetectNewsResult(BaseModel):
     suggestion: str
     agent_steps: list[str]
     disclaimer: str
+    web_search_triggered: bool = False
+    web_search_sources: int = 0
 
 
 class DetectNewsApiResponse(BaseModel):

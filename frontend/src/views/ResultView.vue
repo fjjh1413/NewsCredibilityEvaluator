@@ -129,7 +129,14 @@
         </ResultSection>
       </section>
 
-      <ResultSection title="检索证据 Top10" description="来自知识库或相似新闻召回的证据材料。">
+      <ResultSection title="检索证据 Top10" :description="evidenceDescription">
+        <div
+          v-if="webSearchTriggered"
+          class="web-search-notice"
+        >
+          🌐 本次检测启用了<strong>联网搜索</strong>，从网络检索到
+          <strong>{{ webSearchSources }}</strong> 条补充证据（标记为橙色"网络检索"标签）。
+        </div>
         <EvidenceList :items="evidenceList" />
       </ResultSection>
 
@@ -496,6 +503,17 @@ const similarNews = computed(() =>
 )
 const agentSteps = computed(() =>
   getArray(resultData.value?.agent_steps || resultData.value?.agentSteps || resultData.value?.analysis_steps)
+)
+const webSearchTriggered = computed(() =>
+  Boolean(resultData.value?.web_search_triggered || resultData.value?.webSearchTriggered)
+)
+const webSearchSources = computed(() =>
+  Number(resultData.value?.web_search_sources || resultData.value?.webSearchSources || 0)
+)
+const evidenceDescription = computed(() =>
+  webSearchTriggered.value
+    ? `来自知识库（📚）和网络检索（🌐）的证据材料，共 ${evidenceList.value.length} 条。`
+    : '来自知识库或相似新闻召回的证据材料。'
 )
 
 const scorePercent = computed(() => {
@@ -887,6 +905,21 @@ watch(
 .result-disclaimer p {
   margin: 0;
   line-height: 1.75;
+}
+
+.web-search-notice {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  color: #92400e;
+  background: #fffbeb;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.web-search-notice strong {
+  color: #78350f;
 }
 
 .result-error-actions {

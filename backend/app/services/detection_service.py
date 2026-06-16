@@ -1,8 +1,10 @@
+import logging
 import re
 from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.constants import (
     RISK_LEVEL_HIGH,
     RISK_LEVEL_RUMOR,
@@ -19,29 +21,39 @@ from app.services.knowledge_service import (
 from app.services.llm_service import LLM_FAILURE_ERROR, analyze_news_credibility
 from app.services.prompt_service import get_default_prompt_content
 from app.services.rule_score_service import calculate_rule_score
+from app.services.web.bocha_client import BochaClient, BochaServiceError
+from app.services.web.web_search_service import (
+    merge_evidence,
+    search_evidence,
+    should_trigger_web_search,
+)
 from app.utils.high_risk import should_mark_high_risk
 from app.utils.risk_level import get_risk_level_from_score
 from app.utils.text_cleaner import clean_text
+
+logger = logging.getLogger(__name__)
 
 
 RAG_TOP_K = 10
 PROMPT_EVIDENCE_LIMIT = 5
 
-AGENT_STEPS = [
-    "关键词提取完成",
-    "知识库证据检索完成",
-    "大模型可信度分析完成",
-    "风险规则评分完成",
-    "检测结果生成完成",
-]
 
-DEGRADED_AGENT_STEPS = [
-    "关键词提取完成",
-    "知识库证据检索完成",
-    "LLM 分析暂不可用，已启用降级检测",
-    "风险规则评分完成",
-    "检测结果生成完成",
-]
+def build_agent_steps(web_triggered: bool, is_llm_degraded: bool) -> list[str]:
+    """Build dynamic agent steps reflecting what actually happened."""
+    steps = ["关键词提取完成"]
+    if web_triggered:
+        steps.append("知识库证据检索 + 联网搜索完成")
+    else:
+        steps.append("知识库证据检索完成")
+
+    if is_llm_degraded:
+        steps.append("LLM 分析暂不可用，已启用降级检测")
+    else:
+        steps.append("大模型可信度分析完成")
+
+    steps.append("风险规则评分完成")
+    steps.append("检测结果生成完成")
+    return steps
 
 DISCLAIMER = (
     "本系统为新闻可信度辅助评估工具，检测结果仅供参考，"
@@ -89,6 +101,37 @@ def detect_news_credibility(
     keywords = extract_keywords(title=title, content=content)
     evidence_results = _search_top10_evidence(db=db, title=title, content=content)
     evidence_list = _format_evidence_list(evidence_results)
+
+    # ── web search (conditional) ──
+    web_triggered = False
+    web_sources_count = 0
+    settings = get_settings()
+    web_search_enabled = getattr(settings, "web_search_enabled", True)
+    if web_search_enabled and should_trigger_web_search(
+        evidence_list,
+        payload.enable_web_search,
+    ):
+        try:
+            bocha_client = BochaClient(
+                api_key=settings.bocha_api_key,
+                timeout=settings.web_search_timeout_seconds,
+            )
+            web_items = search_evidence(
+                client=bocha_client,
+                title=title,
+                keywords=keywords,
+                count=settings.web_search_count,
+                freshness=settings.web_search_freshness,
+            )
+            if web_items:
+                evidence_list = merge_evidence(evidence_list, web_items)
+                web_triggered = True
+                web_sources_count = sum(
+                    1 for e in evidence_list if e.get("source_type") == "web_search"
+                )
+        except BochaServiceError:
+            logger.warning("Bocha web search failed, continuing with RAG-only evidence")
+
     prompt_evidence = evidence_list[:PROMPT_EVIDENCE_LIMIT]
     prompt_template = get_default_prompt_content(db)
 
@@ -179,8 +222,10 @@ def detect_news_credibility(
         "evidence_list": evidence_list,
         "similar_news": _build_similar_news(evidence_list),
         "suggestion": suggestion,
-        "agent_steps": DEGRADED_AGENT_STEPS if is_llm_degraded else AGENT_STEPS,
+        "agent_steps": build_agent_steps(web_triggered, is_llm_degraded),
         "disclaimer": DISCLAIMER,
+        "web_search_triggered": web_triggered,
+        "web_search_sources": web_sources_count,
     }
 
 

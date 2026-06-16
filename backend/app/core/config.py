@@ -102,6 +102,24 @@ class Settings:
             "DETECT_RATE_LIMIT_WINDOW_SECONDS",
             DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS,
         )
+        # ── Bocha AI ──
+        self.bocha_api_key = os.getenv("BOCHA_API_KEY", "").strip()
+        self.bocha_api_base_url = (
+            os.getenv("BOCHA_API_BASE_URL", "https://api.bochaai.com").strip()
+        )
+        # ── 实时联网检索 ──
+        self.web_search_enabled = os.getenv("WEB_SEARCH_ENABLED", "true").strip().lower() == "true"
+        self.web_search_freshness = os.getenv("WEB_SEARCH_FRESHNESS", "oneMonth").strip()
+        self.web_search_count = _read_positive_int_env("WEB_SEARCH_COUNT", 5)
+        self.web_search_timeout_seconds = float(os.getenv("WEB_SEARCH_TIMEOUT_SECONDS", "8").strip() or "8")
+        # ── 定时抓取 ──
+        self.crawl_enabled = os.getenv("CRAWL_ENABLED", "true").strip().lower() == "true"
+        self.crawl_schedule = os.getenv("CRAWL_SCHEDULE", "0 */6 * * *").strip()
+        self.crawl_concurrent_fetches = _read_positive_int_env("CRAWL_CONCURRENT_FETCHES", 3)
+        self.crawl_fetch_timeout_seconds = float(os.getenv("CRAWL_FETCH_TIMEOUT_SECONDS", "10").strip() or "10")
+        self.crawl_fetch_max_bytes = _read_positive_int_env("CRAWL_FETCH_MAX_BYTES", 2 * 1024 * 1024)
+        self.crawl_allow_private_hosts = os.getenv("CRAWL_ALLOW_PRIVATE_HOSTS", "false").strip().lower() == "true"
+        self.crawl_auto_sync_vector = os.getenv("CRAWL_AUTO_SYNC_VECTOR", "true").strip().lower() == "true"
 
     @property
     def cors_origins(self) -> list[str]:
