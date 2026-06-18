@@ -41,6 +41,7 @@ class DetectionRecord(Base):
     reason = Column(Text, nullable=True)
     risk_points = Column(Text, nullable=True)
     suggestion = Column(Text, nullable=True)
+    analysis_payload = Column(Text, nullable=True)
     is_high_risk = Column(Boolean, nullable=False, default=False, server_default="0")
     review_status = Column(
         String(20),

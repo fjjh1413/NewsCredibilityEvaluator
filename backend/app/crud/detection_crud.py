@@ -20,6 +20,11 @@ def save_detection_record(
     detection_in: DetectionCreate,
 ) -> DetectionRecord:
     data = detection_in.model_dump(exclude={"evidence_matches"})
+    analysis_payload = data.pop("analysis_payload", {})
+    data["analysis_payload"] = json.dumps(
+        analysis_payload or {},
+        ensure_ascii=False,
+    )
     data["risk_points"] = _dump_risk_points(detection_in.risk_points)
     data["is_high_risk"] = should_mark_high_risk(
         detection_in.final_score,

@@ -5,8 +5,8 @@ results when the knowledge base lacks sufficient coverage for a news topic.
 """
 
 import logging
-from difflib import SequenceMatcher
 from typing import Any
+from urllib.parse import urlparse, urlunparse
 
 from app.services.web.bocha_client import BochaClient, BochaServiceError
 from app.schemas.web_search import WebEvidenceItem, WebSearchMeta
@@ -28,7 +28,6 @@ RAG_MIN_SIMILARITY = 0.30          # below this, a result is not considered mean
 DEFAULT_WEB_COUNT = 5
 DEFAULT_RAG_LIMIT = 5
 DEFAULT_WEB_LIMIT = 5
-DEDUP_TITLE_THRESHOLD = 0.75      # SequenceMatcher ratio above this → duplicate
 
 # ---------------------------------------------------------------------------
 # web search query building
@@ -159,48 +158,228 @@ def merge_evidence(
     rag_limit: int = DEFAULT_RAG_LIMIT,
     web_limit: int = DEFAULT_WEB_LIMIT,
 ) -> list[dict[str, Any]]:
-    """Merge RAG and web evidence, deduplicating by title similarity.
+    """Build a candidate pool from RAG and web evidence sources.
 
-    RAG results are placed first (higher trust from curated knowledge base).
+    This function **only** normalises, performs strong‑identity dedup within
+    each source, and applies per‑source limits.  It does **not** decide final
+    ordering, relevance, or which evidence to use — those decisions are
+    delegated to the LLM evidence‑arbitration step.
+
+    Each candidate receives a ``candidate_id`` that is unique within this
+    single call (per‑call unique, not cross‑call stable):
+
+    * RAG: ``"kb:{knowledge_id}"`` when *knowledge_id* is a positive int,
+      otherwise ``"kb:rag:{rag_idx}"`` (1‑based).
+    * Web: ``"web:{web_idx}"`` (1‑based).
+
+    Key invariants
+    --------------
+    * Input objects are never mutated — every output row is a fresh dict.
+    * No ``rank_order`` is set on candidates; final ranking comes from LLM.
+    * ``raw_rank_order`` records the original retrieval position for audit.
+    * ``raw_similarity_score`` records the original retrieval score for audit.
+    * Source type is used **only** to identify provenance and enforce
+      configured per‑source candidate limits.  It is never used as a quality
+      signal or final‑ranking factor.
+    * Only **strong‑identity** duplicates are removed (same knowledge_id, same
+      URL).  Candidates with merely similar titles are all preserved for LLM
+      judgment.  No cross‑source dedup is performed.
+    * The list order is not a quality or relevance signal — a source‑neutral
+      input order is built later, before the LLM call.
     """
-    merged: list[dict[str, Any]] = []
+    # ── validate limits ──────────────────────────────────────────────
+    if not isinstance(rag_limit, int) or isinstance(rag_limit, bool) or rag_limit < 0:
+        raise ValueError("rag_limit must be a non‑negative integer")
+    if not isinstance(web_limit, int) or isinstance(web_limit, bool) or web_limit < 0:
+        raise ValueError("web_limit must be a non‑negative integer")
 
-    # RAG evidence first
-    for item in rag_evidence[:rag_limit]:
-        item["source_type"] = item.get("source_type", "knowledge_base")
-        item["source_label"] = item.get("source_label", "📚 知识库")
-        merged.append(item)
+    # ══════════════════════════════════════════════════════════════════
+    # Step 1 — normalise RAG items (no input mutation)
+    # ══════════════════════════════════════════════════════════════════
+    rag_normalized: list[dict[str, Any]] = []
 
-    # web evidence appended with dedup
-    rag_titles = [
-        clean_text(item.get("title"), max_length=255).lower()
-        for item in rag_evidence[:rag_limit]
-    ]
-    added = 0
-    for web_item in web_evidence:
-        if added >= web_limit:
-            break
-        if _is_duplicate_title(web_item.title, rag_titles):
+    for rag_idx, item in enumerate(rag_evidence, start=1):
+        knowledge_id = item.get("knowledge_id")
+        raw_rank = item.get("rank_order")
+
+        rag_normalized.append({
+            "knowledge_id": knowledge_id,
+            "title": clean_text(item.get("title"), max_length=255),
+            "summary": clean_text(item.get("summary"), max_length=2000),
+            "category": clean_text(item.get("category"), max_length=50),
+            "truth_label": clean_text(item.get("truth_label"), max_length=30),
+            "source_name": clean_text(item.get("source_name"), max_length=100),
+            "source_url": item.get("source_url"),
+            "risk_level": clean_text(item.get("risk_level"), max_length=30),
+            "publish_time": item.get("publish_time"),
+            "similarity_score": item.get("similarity_score"),
+            "raw_similarity_score": item.get("similarity_score"),
+            "raw_rank_order": (
+                int(raw_rank)
+                if _is_positive_int(raw_rank)
+                else rag_idx
+            ),
+            "_orig_rag_idx": rag_idx,
+        })
+
+    # ══════════════════════════════════════════════════════════════════
+    # Step 2 — strong‑identity dedup within RAG
+    # ══════════════════════════════════════════════════════════════════
+    rag_unique: list[dict[str, Any]] = []
+    rag_seen_kids: set[int] = set()
+    rag_seen_urls: set[str] = set()
+    rag_seen_identities: set[tuple[str, str, str]] = set()
+
+    for item in rag_normalized:
+        kid = item["knowledge_id"]
+
+        # 2a — dedup by valid knowledge_id
+        if _is_positive_int(kid):
+            if kid in rag_seen_kids:
+                continue
+            rag_seen_kids.add(kid)
+            rag_unique.append(item)
             continue
-        merged.append({
-            "title": web_item.title,
-            "summary": web_item.summary,
-            "source_name": web_item.site_name,
-            "source_url": web_item.url,
+
+        # 2b — dedup by non‑empty source_url
+        url_key = _normalize_url(item.get("source_url"))
+        if url_key:
+            if url_key in rag_seen_urls:
+                continue
+            rag_seen_urls.add(url_key)
+            rag_unique.append(item)
+            continue
+
+        # 2c — dedup by (title, source_name, publish_time) only when
+        #      all three are non‑empty
+        pub_str = _normalize_publish_time(item.get("publish_time"))
+        title_lower = item["title"].lower()
+        source_lower = item["source_name"].lower()
+        if title_lower and source_lower and pub_str:
+            identity = (title_lower, source_lower, pub_str)
+            if identity in rag_seen_identities:
+                continue
+            rag_seen_identities.add(identity)
+            rag_unique.append(item)
+            continue
+
+        # 2d — insufficient identity for dedup → keep
+        rag_unique.append(item)
+
+    # ── apply rag_limit ──
+    rag_selected = rag_unique[:rag_limit]
+
+    # ══════════════════════════════════════════════════════════════════
+    # Step 3 — normalise Web items (no input mutation)
+    # ══════════════════════════════════════════════════════════════════
+    web_normalized: list[dict[str, Any]] = []
+
+    for web_idx, web_item in enumerate(web_evidence, start=1):
+        web_normalized.append({
+            "knowledge_id": None,
+            "title": clean_text(web_item.title, max_length=255),
+            "summary": clean_text(web_item.summary, max_length=2000),
+            "source_name": clean_text(web_item.site_name, max_length=100),
+            "source_url": web_item.url or "",
             "publish_time": web_item.date_published,
             "similarity_score": web_item.similarity_score,
-            "source_type": web_item.source_type,
-            "source_label": web_item.source_label,
-            "knowledge_id": None,
+            "raw_similarity_score": web_item.similarity_score,
+            "raw_rank_order": web_idx,
+            "_orig_web_idx": web_idx,
         })
-        rag_titles.append(clean_text(web_item.title, max_length=255).lower())
-        added += 1
 
-    # re-assign rank_order
-    for idx, item in enumerate(merged, start=1):
-        item["rank_order"] = idx
+    # ══════════════════════════════════════════════════════════════════
+    # Step 4 — strong‑identity dedup within Web
+    # ══════════════════════════════════════════════════════════════════
+    web_unique: list[dict[str, Any]] = []
+    web_seen_urls: set[str] = set()
+    web_seen_identities: set[tuple[str, str, str]] = set()
 
-    return merged
+    for item in web_normalized:
+        # 4a — dedup by non‑empty source_url
+        url_key = _normalize_url(item.get("source_url"))
+        if url_key:
+            if url_key in web_seen_urls:
+                continue
+            web_seen_urls.add(url_key)
+            web_unique.append(item)
+            continue
+
+        # 4b — dedup by (title, source_name, publish_time) only when
+        #      all three are non‑empty
+        pub_str = _normalize_publish_time(item.get("publish_time"))
+        title_lower = item["title"].lower()
+        source_lower = item["source_name"].lower()
+        if title_lower and source_lower and pub_str:
+            identity = (title_lower, source_lower, pub_str)
+            if identity in web_seen_identities:
+                continue
+            web_seen_identities.add(identity)
+            web_unique.append(item)
+            continue
+
+        # 4c — insufficient identity for dedup → keep
+        web_unique.append(item)
+
+    # ── apply web_limit ──
+    web_selected = web_unique[:web_limit]
+
+    # ══════════════════════════════════════════════════════════════════
+    # Step 5 — assemble candidates with per‑call unique candidate_id
+    # ══════════════════════════════════════════════════════════════════
+    candidate_ids: set[str] = set()
+
+    def _make_id(base_id: str) -> str:
+        cid = base_id
+        if cid in candidate_ids:
+            suffix = 2
+            while f"{base_id}:{suffix}" in candidate_ids:
+                suffix += 1
+            cid = f"{base_id}:{suffix}"
+        candidate_ids.add(cid)
+        return cid
+
+    candidates: list[dict[str, Any]] = []
+
+    for item in rag_selected:
+        kid = item["knowledge_id"]
+        base_id = f"kb:{kid}" if _is_positive_int(kid) else f"kb:rag:{item['_orig_rag_idx']}"
+
+        candidates.append({
+            "candidate_id": _make_id(base_id),
+            "knowledge_id": int(kid) if _is_positive_int(kid) else None,
+            "title": item["title"],
+            "summary": item["summary"],
+            "category": item["category"],
+            "truth_label": item["truth_label"],
+            "source_name": item["source_name"],
+            "source_url": item["source_url"],
+            "risk_level": item["risk_level"],
+            "publish_time": item.get("publish_time"),
+            "source_type": "knowledge_base",
+            "source_label": "📚 知识库",
+            "similarity_score": item["similarity_score"],
+            "raw_similarity_score": item["raw_similarity_score"],
+            "raw_rank_order": item["raw_rank_order"],
+        })
+
+    for item in web_selected:
+        candidates.append({
+            "candidate_id": _make_id(f"web:{item['_orig_web_idx']}"),
+            "knowledge_id": None,
+            "title": item["title"],
+            "summary": item["summary"],
+            "source_name": item["source_name"],
+            "source_url": item["source_url"],
+            "publish_time": item.get("publish_time"),
+            "source_type": "web_search",
+            "source_label": "🌐 网络检索",
+            "similarity_score": item["similarity_score"],
+            "raw_similarity_score": item["raw_similarity_score"],
+            "raw_rank_order": item["raw_rank_order"],
+        })
+
+    return candidates
 
 
 # ---------------------------------------------------------------------------
@@ -214,16 +393,52 @@ def _safe_float(value: Any) -> float:
         return 0.0
 
 
-def _is_duplicate_title(title: str, existing_titles: list[str]) -> bool:
-    """Check whether *title* is too similar to any title already present."""
-    if not title:
-        return True
-    lower = title.lower()
-    for existing in existing_titles:
-        if not existing:
-            continue
-        if lower == existing:
-            return True
-        if SequenceMatcher(None, lower, existing).ratio() > DEDUP_TITLE_THRESHOLD:
-            return True
-    return False
+def _is_positive_int(value: Any) -> bool:
+    """Return ``True`` when *value* is a non‑bool positive ``int``."""
+    return (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and value > 0
+    )
+
+
+def _normalize_url(value: Any) -> str:
+    """Return a dedup‑safe URL key, or ``""`` when not usable as strong identity.
+
+    * Only absolute URLs (scheme + netloc present) produce a non‑empty key.
+    * Scheme and host are lowercased.
+    * Fragment is removed.
+    * Trailing ``/`` is stripped from the path only when path is not ``"/"``.
+    * Path and query are preserved as‑is (not lowercased).
+    * This function produces a **comparison key only** — the original
+      ``source_url`` is never overwritten.
+    """
+    if not isinstance(value, str):
+        return ""
+    raw = value.strip()
+    if not raw:
+        return ""
+    try:
+        parsed = urlparse(raw)
+    except (TypeError, ValueError):
+        return ""
+    if not parsed.scheme or not parsed.netloc:
+        return ""
+    scheme = parsed.scheme.lower()
+    netloc = parsed.netloc.lower()
+    path = parsed.path
+    if len(path) > 1 and path.endswith("/"):
+        path = path.rstrip("/")
+    return urlunparse((scheme, netloc, path, parsed.params, parsed.query, ""))
+
+
+def _normalize_publish_time(value: Any) -> str:
+    """Return *value* as a stable lowercased string for dedup comparison.
+
+    Returns ``""`` when *value* is ``None`` or empty.  The original
+    ``publish_time`` on the candidate is never overwritten.
+    """
+    if value is None:
+        return ""
+    text = str(value).strip()
+    return text.lower()

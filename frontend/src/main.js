@@ -8,6 +8,7 @@ import { ElIcon } from 'element-plus/es/components/icon/index.mjs'
 import { ElInput } from 'element-plus/es/components/input/index.mjs'
 import { ElLoading } from 'element-plus/es/components/loading/index.mjs'
 import { ElOption, ElSelect } from 'element-plus/es/components/select/index.mjs'
+import { ElSwitch } from 'element-plus/es/components/switch/index.mjs'
 import { ElPagination } from 'element-plus/es/components/pagination/index.mjs'
 import { ElTable, ElTableColumn } from 'element-plus/es/components/table/index.mjs'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -33,6 +34,7 @@ app.use(router)
   ElOption,
   ElPagination,
   ElSelect,
+  ElSwitch,
   ElTable,
   ElTableColumn
 ].forEach((component) => {

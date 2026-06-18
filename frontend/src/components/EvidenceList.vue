@@ -25,13 +25,6 @@
           <span v-if="item.time">{{ formatDateTime(item.time) }}</span>
         </div>
       </div>
-
-      <div class="evidence-item__score" aria-label="相似度">
-        <span>{{ item.similarityText }}</span>
-        <div class="evidence-item__bar">
-          <i :style="{ width: item.similarityWidth }" />
-        </div>
-      </div>
     </article>
   </div>
 </template>
@@ -40,7 +33,7 @@
 import { computed } from 'vue'
 import EmptyState from './EmptyState.vue'
 import LoadingState from './LoadingState.vue'
-import { formatDateTime, formatPercent } from '@/utils/format'
+import { formatDateTime } from '@/utils/format'
 
 const props = defineProps({
   items: {
@@ -53,24 +46,8 @@ const props = defineProps({
   }
 })
 
-function getSimilarityValue(item) {
-  return item.similarity_score ?? item.similarity ?? item.score ?? item.match_score ?? item.distance_score
-}
-
-function getSimilarityWidth(value) {
-  const numberValue = Number(value)
-
-  if (Number.isNaN(numberValue)) {
-    return '0%'
-  }
-
-  const percent = numberValue <= 1 ? numberValue * 100 : numberValue
-  return `${Math.max(0, Math.min(100, Math.round(percent)))}%`
-}
-
 const normalizedItems = computed(() =>
   props.items.map((item, index) => {
-    const similarity = getSimilarityValue(item)
     const sourceType = item.source_type || item.sourceType || ''
     const sourceLabel = item.source_label || item.sourceLabel || (
       sourceType === 'web_search' ? '🌐 网络检索' : '📚 知识库'
@@ -84,8 +61,6 @@ const normalizedItems = computed(() =>
       source: item.source_name || item.source || item.media || '未知来源',
       url: item.source_url || item.url || item.link || '',
       time: item.publish_time || item.created_at || item.time || '',
-      similarityText: formatPercent(similarity),
-      similarityWidth: getSimilarityWidth(similarity),
       sourceType,
       sourceLabel
     }
@@ -101,7 +76,7 @@ const normalizedItems = computed(() =>
 
 .evidence-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 132px;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--space-4);
   align-items: center;
   min-height: 96px;
@@ -165,22 +140,6 @@ const normalizedItems = computed(() =>
   font-size: 12px;
 }
 
-.evidence-item__score {
-  display: grid;
-  gap: 8px;
-  color: var(--color-primary-strong);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.evidence-item__bar {
-  width: 100%;
-  height: 8px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e6eef6;
-}
-
 .evidence-item__source-badge {
   display: inline-flex;
   align-items: center;
@@ -199,14 +158,6 @@ const normalizedItems = computed(() =>
   color: #92400e;
   border-color: #fde68a;
   background: #fffbeb;
-}
-
-.evidence-item__bar i {
-  display: block;
-  height: 100%;
-  max-width: 100%;
-  border-radius: inherit;
-  background: var(--color-primary);
 }
 
 @media (max-width: 720px) {

@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import datetime
 from types import SimpleNamespace
@@ -70,6 +71,38 @@ def _detail_record(record_id: int, user_id: int = 1):
                 updated_at=datetime(2026, 1, 2, 8, 0, 1),
             )
         ],
+        analysis_payload=json.dumps(
+            {
+                "evidence_quality": {
+                    "coverage": 85,
+                    "consistency": 80,
+                    "score": 83,
+                    "assessment": "有效证据覆盖核心事实。",
+                },
+                "excluded_evidence": [
+                    {
+                        "candidate_id": "kb:5",
+                        "title": "Irrelevant railway evidence",
+                        "rejection_reason": "与地震核心事实无关。",
+                    }
+                ],
+                "similar_news": [
+                    {
+                        "candidate_id": "web:1",
+                        "title": "Related earthquake report",
+                        "risk_level": "可信新闻",
+                        "relevance_reason": "同一事件。",
+                    }
+                ],
+                "arbitration_status": "ok",
+                "publish_time": "2026-06-18T09:30:00+08:00",
+                "source_name": "Example News",
+                "source_url": "https://example.com/news/1",
+                "knowledge_has_relevant_match": False,
+                "web_has_relevant_match": True,
+            },
+            ensure_ascii=False,
+        ),
     )
 
 
@@ -116,6 +149,24 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         self.assertEqual(data["evidence_matches"][0]["title"], "Evidence title")
 
     @patch("app.api.v1.detect.get_detection_detail")
+    def test_user_detail_restores_analysis_payload(self, mocked_detail) -> None:
+        mocked_detail.return_value = _detail_record(1)
+
+        response = self.client.get("/api/detect/1")
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["data"]
+        self.assertEqual(data["arbitration_status"], "ok")
+        self.assertFalse(data["knowledge_has_relevant_match"])
+        self.assertTrue(data["web_has_relevant_match"])
+        self.assertEqual(data["evidence_quality"]["score"], 83)
+        self.assertEqual(data["excluded_evidence"][0]["candidate_id"], "kb:5")
+        self.assertEqual(data["similar_news"][0]["risk_level"], "可信新闻")
+        self.assertEqual(data["publish_time"], "2026-06-18T09:30:00+08:00")
+        self.assertEqual(data["source_name"], "Example News")
+        self.assertEqual(data["source_url"], "https://example.com/news/1")
+
+    @patch("app.api.v1.detect.get_detection_detail")
     def test_user_detail_returns_404_when_not_owned_or_missing(self, mocked_detail) -> None:
         mocked_detail.return_value = None
 
@@ -153,6 +204,7 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["id"], 2)
+        self.assertEqual(response.json()["data"]["arbitration_status"], "ok")
 
     @patch("app.api.v1.admin_detections.delete_detection_record")
     def test_admin_can_delete_detection(self, mocked_delete) -> None:

@@ -120,6 +120,11 @@ class Settings:
         self.crawl_fetch_max_bytes = _read_positive_int_env("CRAWL_FETCH_MAX_BYTES", 2 * 1024 * 1024)
         self.crawl_allow_private_hosts = os.getenv("CRAWL_ALLOW_PRIVATE_HOSTS", "false").strip().lower() == "true"
         self.crawl_auto_sync_vector = os.getenv("CRAWL_AUTO_SYNC_VECTOR", "true").strip().lower() == "true"
+        # ── 链接识别（检测页 paste-URL → 提取预览）──
+        # SSRF default-deny：默认拒绝抓取私有/内网地址；仅本地联调时设为 true.
+        self.article_fetch_allow_private_hosts = (
+            os.getenv("ARTICLE_FETCH_ALLOW_PRIVATE_HOSTS", "false").strip().lower() == "true"
+        )
 
     @property
     def cors_origins(self) -> list[str]:

@@ -6,7 +6,7 @@
       <PageHeader
         eyebrow="检测结果"
         :title="newsTitle"
-        :description="`检测时间：${displayTime}`"
+        :description="resultTimeDescription"
       >
         <template #actions>
           <button
@@ -87,10 +87,30 @@
       </section>
 
       <section class="score-grid" aria-label="三项评分">
-        <ScoreCard title="证据相关度" :score="evidenceScore" subtitle="基于检索证据相似度" tone="primary" />
+        <ScoreCard title="证据质量" :score="eqScore" subtitle="LLM 对有效证据覆盖度与一致性的评价" :show-unit="eqScore !== null" tone="primary" />
         <ScoreCard title="大模型判断" :score="llmScore" subtitle="基于 DeepSeek 分析结果" tone="neutral" />
         <ScoreCard title="来源/规则评分" :score="ruleScore" subtitle="基于风险规则和来源特征" :tone="ruleTone" />
       </section>
+
+      <ResultSection
+        v-if="evidenceQuality"
+        title="证据质量评估"
+        description="LLM 对有效证据覆盖度（能否覆盖新闻核心主张）和一致性（证据间是否互相印证）的详细评价。"
+      >
+        <div class="eq-panel">
+          <div class="eq-row">
+            <span class="eq-label">覆盖度</span>
+            <div class="eq-bar"><i :style="{ width: (eqCoverage ?? 0) + '%' }" /></div>
+            <strong>{{ eqCoverage ?? '--' }} 分</strong>
+          </div>
+          <div class="eq-row">
+            <span class="eq-label">一致性</span>
+            <div class="eq-bar"><i :style="{ width: (eqConsistency ?? 0) + '%' }" /></div>
+            <strong>{{ eqConsistency ?? '--' }} 分</strong>
+          </div>
+          <p v-if="eqAssessment" class="eq-assessment">{{ eqAssessment }}</p>
+        </div>
+      </ResultSection>
 
       <section class="result-two-column">
         <ResultSection title="判断理由" description="系统结合证据检索、模型分析和规则评分生成。">
@@ -129,7 +149,13 @@
         </ResultSection>
       </section>
 
-      <ResultSection title="检索证据 Top10" :description="evidenceDescription">
+      <ResultSection title="有效证据" :description="evidenceDescription">
+        <div
+          v-if="arbitrationUnavailable"
+          class="web-search-notice"
+        >
+          ⚠️ 本次检测的<strong>证据仲裁暂不可用</strong>，以下证据尚未经过 LLM 相关性排序，请结合判断理由和风险点评级综合评估。
+        </div>
         <div
           v-if="webSearchTriggered"
           class="web-search-notice"
@@ -140,19 +166,54 @@
         <EvidenceList :items="evidenceList" />
       </ResultSection>
 
-      <ResultSection title="相似新闻" description="与当前检测内容相近的新闻或案例，和检索证据分区展示。">
+      <ResultSection
+        v-if="excludedEvidence.length"
+        title="排除证据"
+        description="以下候选证据经 LLM 判定与本次新闻核心事实无关，未参与评分和排序。"
+      >
+        <div class="excluded-evidence-list">
+          <article v-for="item in excludedEvidence" :key="item.candidate_id || item.title" class="excluded-evidence-item">
+            <div class="excluded-evidence-item__main">
+              <h4>{{ item.title || '未命名证据' }}</h4>
+              <p v-if="item.rejection_reason" class="excluded-evidence-item__reason">
+                排除原因：{{ item.rejection_reason }}
+              </p>
+              <div class="evidence-item__meta">
+                <span v-if="item.source_type" class="evidence-item__source-badge" :class="{ 'evidence-item__source-badge--web': item.source_type === 'web_search' }">
+                  {{ item.source_label || (item.source_type === 'web_search' ? '🌐 网络检索' : '📚 知识库') }}
+                </span>
+                <span>{{ item.source_name || '未知来源' }}</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </ResultSection>
+
+      <ResultSection title="相似新闻" :description="similarNewsDescription">
+        <div v-if="similarNewsIsFallback" class="web-search-notice">
+          ⚠️ 证据仲裁暂不可用，以下为检索阶段召回的候选相似新闻，尚未经过 LLM 风险评级。
+        </div>
         <EmptyState
           v-if="!similarNews.length"
           title="暂无相似新闻"
           description="后端未返回相似新闻。"
         />
         <div v-else class="similar-news-list">
-          <article v-for="(item, index) in similarNews" :key="item.id || item.title || index" class="similar-news-item">
+          <article v-for="(item, index) in similarNews" :key="item.candidate_id || item.title || index" class="similar-news-item">
             <div>
-              <h3>{{ item.title || item.news_title || '未命名新闻' }}</h3>
-              <p v-if="item.summary || item.content">{{ item.summary || item.content }}</p>
+              <h3>{{ item.title || '未命名新闻' }}</h3>
+              <p v-if="item.arbitration_reason">{{ item.arbitration_reason }}</p>
+              <div class="similar-news-item__meta">
+                <span v-if="item.source_name">{{ item.source_name }}</span>
+                <span v-if="item.publish_time">{{ formatDateTime(item.publish_time) }}</span>
+                <span v-if="item.relevance_score != null">相关性 {{ item.relevance_score }}</span>
+                <span v-if="item.quality_score != null">质量 {{ item.quality_score }}</span>
+              </div>
             </div>
-            <RiskLevelTag :level="item.risk_level ?? item.riskLevel" :score="item.final_score ?? item.score" />
+            <RiskLevelTag
+              :level="similarNewsRiskLevel(item)"
+              :score="item.final_score ?? item.score"
+            />
           </article>
         </div>
       </ResultSection>
@@ -466,6 +527,18 @@ const displayTime = computed(() =>
     )
   )
 )
+const displayPublishTime = computed(() =>
+  formatDateTime(
+    pick(
+      resultData.value?.publish_time,
+      resultData.value?.published_at,
+      resultData.value?.publishTime
+    )
+  )
+)
+const resultTimeDescription = computed(() =>
+  `检测时间：${displayTime.value} · 新闻发布时间：${displayPublishTime.value}`
+)
 
 const finalScore = computed(() =>
   pick(resultData.value?.final_score, resultData.value?.credibility_score, resultData.value?.score)
@@ -473,6 +546,24 @@ const finalScore = computed(() =>
 const formattedFinalScore = computed(() => formatScore(finalScore.value))
 const hasFinalScore = computed(() => isValidScore(finalScore.value))
 const evidenceScore = computed(() => pick(resultData.value?.evidence_score, resultData.value?.retrieval_score))
+
+const arbitrationStatus = computed(() =>
+  resultData.value?.arbitration_status ?? ''
+)
+const arbitrationUnavailable = computed(() =>
+  arbitrationStatus.value === 'unavailable'
+)
+
+const evidenceQuality = computed(() => {
+  if (arbitrationUnavailable.value) return null
+  const eq = resultData.value?.evidence_quality || resultData.value?.evidenceQuality
+  if (!eq || (eq.coverage === null && eq.consistency === null && eq.score === null)) return null
+  return eq
+})
+const eqScore = computed(() => evidenceQuality.value?.score ?? null)
+const eqCoverage = computed(() => evidenceQuality.value?.coverage ?? null)
+const eqConsistency = computed(() => evidenceQuality.value?.consistency ?? null)
+const eqAssessment = computed(() => evidenceQuality.value?.assessment ?? '')
 const llmScore = computed(() => pick(resultData.value?.llm_score, resultData.value?.model_score))
 const ruleScore = computed(() => pick(resultData.value?.rule_score, resultData.value?.source_score))
 const riskLevel = computed(() => pick(resultData.value?.risk_level, resultData.value?.riskLevel))
@@ -495,11 +586,39 @@ const reportBusy = computed(() => reportGenerating.value || reportDownloading.va
 
 const riskPoints = computed(() => getArray(resultData.value?.risk_points || resultData.value?.riskPoints))
 const keywords = computed(() => getArray(resultData.value?.keywords || resultData.value?.keyword_list))
-const evidenceList = computed(() =>
-  getArray(resultData.value?.evidence_list || resultData.value?.evidenceList || resultData.value?.evidences || resultData.value?.evidence_matches)
+const candidateEvidenceList = computed(() =>
+  getArray(resultData.value?.candidate_evidence_list || resultData.value?.candidateEvidenceList)
 )
-const similarNews = computed(() =>
+const evidenceList = computed(() => {
+  const effective = getArray(
+    resultData.value?.evidence_list || resultData.value?.evidenceList || resultData.value?.evidences || resultData.value?.evidence_matches
+  )
+  if (effective.length || !arbitrationUnavailable.value) return effective
+  return candidateEvidenceList.value
+})
+const excludedEvidence = computed(() =>
+  getArray(resultData.value?.excluded_evidence || resultData.value?.excludedEvidence)
+)
+const returnedSimilarNews = computed(() =>
   getArray(resultData.value?.similar_news || resultData.value?.similarNews || resultData.value?.similar_list)
+)
+const fallbackSimilarNews = computed(() => {
+  if (!arbitrationUnavailable.value) return []
+  const knowledgeCandidates = candidateEvidenceList.value.filter(
+    (item) => (item.source_type || item.sourceType) === 'knowledge_base'
+  )
+  return knowledgeCandidates.length ? knowledgeCandidates : candidateEvidenceList.value
+})
+const similarNews = computed(() =>
+  returnedSimilarNews.value.length ? returnedSimilarNews.value : fallbackSimilarNews.value
+)
+const similarNewsIsFallback = computed(() =>
+  !returnedSimilarNews.value.length && fallbackSimilarNews.value.length > 0
+)
+const similarNewsDescription = computed(() =>
+  similarNewsIsFallback.value
+    ? `检索阶段召回的候选相似新闻，共 ${similarNews.value.length} 条。`
+    : '经 LLM 证据仲裁后，与当前检测内容相近的新闻或案例。'
 )
 const agentSteps = computed(() =>
   getArray(resultData.value?.agent_steps || resultData.value?.agentSteps || resultData.value?.analysis_steps)
@@ -510,11 +629,25 @@ const webSearchTriggered = computed(() =>
 const webSearchSources = computed(() =>
   Number(resultData.value?.web_search_sources || resultData.value?.webSearchSources || 0)
 )
-const evidenceDescription = computed(() =>
-  webSearchTriggered.value
-    ? `来自知识库（📚）和网络检索（🌐）的证据材料，共 ${evidenceList.value.length} 条。`
-    : '来自知识库或相似新闻召回的证据材料。'
-)
+const evidenceDescription = computed(() => {
+  if (arbitrationUnavailable.value) {
+    return `证据仲裁暂不可用，当前展示检索阶段召回的全部候选证据，共 ${evidenceList.value.length} 条。`
+  }
+  const base = webSearchTriggered.value
+    ? `经 LLM 证据仲裁后的有效证据，来自知识库（📚）和网络检索（🌐），共 ${evidenceList.value.length} 条。`
+    : `经 LLM 证据仲裁后的有效证据，共 ${evidenceList.value.length} 条。`
+  return base
+})
+
+function similarNewsRiskLevel(item) {
+  const level = item.risk_level ?? item.riskLevel
+  if (level) return level
+  // web evidence without risk level → auxiliary
+  if ((item.source_type || item.sourceType) === 'web_search') return '辅助证据'
+  // knowledge_base without risk level → unrated
+  if ((item.source_type || item.sourceType) === 'knowledge_base') return '未评级案例'
+  return '未返回风险等级'
+}
 
 const scorePercent = computed(() => {
   const value = normalizeScorePercent(finalScore.value)
@@ -886,6 +1019,87 @@ watch(
   line-height: 1.6;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.similar-news-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+/* -- excluded evidence -- */
+.excluded-evidence-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.excluded-evidence-item {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  background: #f9fafb;
+}
+
+.excluded-evidence-item__main h4 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.excluded-evidence-item__reason {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* -- evidence quality panel -- */
+.eq-panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.eq-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 64px;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.eq-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.eq-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #e6eef6;
+  overflow: hidden;
+}
+
+.eq-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width 0.6s ease;
+}
+
+.eq-assessment {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .result-disclaimer {

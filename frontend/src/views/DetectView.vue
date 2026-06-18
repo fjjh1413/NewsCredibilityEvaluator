@@ -32,6 +32,28 @@
           :closable="false"
         />
 
+        <section class="detect-url-block">
+          <div class="detect-url-block__head">
+            <span class="detect-url-block__title">🔗 通过链接识别</span>
+            <p class="detect-url-block__hint">
+              粘贴新闻链接，系统自动提取标题与正文并回填到下方表单，可检查或编辑后再提交检测。
+            </p>
+          </div>
+          <div class="detect-url-block__row">
+            <el-input
+              v-model.trim="articleUrl"
+              size="large"
+              clearable
+              :disabled="submitting"
+              placeholder="粘贴新闻链接，如 https://..."
+              @keyup.enter="handleExtract"
+            />
+            <el-button type="primary" plain :loading="extracting" :disabled="submitting" @click="handleExtract">
+              {{ extracting ? '提取中' : '提取' }}
+            </el-button>
+          </div>
+        </section>
+
         <el-form
           ref="formRef"
           class="detect-form"
@@ -67,6 +89,15 @@
             </el-form-item>
           </div>
 
+          <el-form-item label="新闻发布时间" prop="publish_time">
+            <el-input
+              v-model="form.publish_time"
+              type="datetime-local"
+              size="large"
+              placeholder="可选；通过链接识别时将自动提取"
+            />
+          </el-form-item>
+
           <el-form-item label="新闻正文" prop="content">
             <el-input
               v-model.trim="form.content"
@@ -86,7 +117,7 @@
                 <el-switch v-model="form.enable_web_search" :disabled="submitting" />
               </div>
               <p class="detect-web-search-hint">
-                开启后，当本地知识库证据不足时，自动通过搜索引擎检索相关新闻作为补充证据，提升检测准确性。
+                启用后系统将在检测过程中进行联网搜索以获取最新信息，可能会略微增加检测时间。建议在新闻内容涉及时效性较强的事件时启用。
               </p>
             </div>
           </el-form-item>
@@ -132,7 +163,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { DocumentAdd } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
-import { submitNewsDetection } from '@/api/detect'
+import { submitNewsDetection, extractNewsPreview } from '@/api/detect'
 import PageHeader from '@/components/PageHeader.vue'
 import { writeDetectionResultCache } from '@/utils/detectionResultCache'
 import { unwrapApiResponse } from '@/utils/response'
@@ -140,6 +171,8 @@ import { unwrapApiResponse } from '@/utils/response'
 const router = useRouter()
 const formRef = ref(null)
 const submitting = ref(false)
+const extracting = ref(false)
+const articleUrl = ref('')
 const errorMessage = ref('')
 
 const disclaimer =
@@ -160,6 +193,8 @@ const form = reactive({
   content: '',
   category: '',
   source_name: '',
+  source_url: '',
+  publish_time: '',
   enable_web_search: true
 })
 
@@ -178,6 +213,8 @@ const exampleNews = {
   title: '网传某地出现异常天气并引发大规模抢购，官方回应正在核查',
   category: '社会',
   source_name: '网络来源',
+  source_url: '',
+  publish_time: '',
   content:
     '近日，社交平台流传一则消息称某地将出现罕见异常天气，并建议居民立即囤积生活物资。相关内容在多个群组中快速传播，但消息中未注明明确发布机构，也未附权威气象部门通报。当地有关部门表示，已关注到网传信息，正在核查相关情况，并提醒公众以官方渠道发布的信息为准，不要盲目转发未经证实的内容。'
 }
@@ -207,9 +244,46 @@ function resetForm() {
     content: '',
     category: '',
     source_name: '',
+    source_url: '',
+    publish_time: '',
     enable_web_search: true
   })
+  articleUrl.value = ''
   errorMessage.value = ''
+}
+
+async function handleExtract() {
+  const url = articleUrl.value.trim()
+  if (!url) {
+    ElMessage.warning('请先粘贴新闻链接')
+    return
+  }
+  if (!/^https?:\/\//i.test(url)) {
+    ElMessage.warning('链接必须以 http:// 或 https:// 开头')
+    return
+  }
+
+  extracting.value = true
+  errorMessage.value = ''
+  try {
+    const response = await extractNewsPreview(url)
+    const data = unwrapApiResponse(response, '链接提取失败，请稍后重试')
+
+    form.title = data.title || form.title
+    form.content = data.content || form.content
+    if (data.source_name) {
+      form.source_name = data.source_name
+    }
+    form.source_url = data.source_url || ''
+    form.publish_time = toDateTimeLocalValue(data.publish_time)
+    formRef.value?.clearValidate()
+    articleUrl.value = ''
+    ElMessage.success('提取成功，请核对内容后提交检测')
+  } catch (error) {
+    ElMessage.error(getErrorMessage(error))
+  } finally {
+    extracting.value = false
+  }
 }
 
 async function handleSubmit() {
@@ -232,6 +306,8 @@ async function handleSubmit() {
       content: form.content,
       category: form.category || undefined,
       source_name: form.source_name || undefined,
+      source_url: form.source_url || undefined,
+      publish_time: form.publish_time || undefined,
       enable_web_search: form.enable_web_search
     }
 
@@ -249,7 +325,10 @@ async function handleSubmit() {
       input_title: data.input_title || data.title || form.title,
       input_content: data.input_content || form.content,
       category: data.category || form.category,
-      source_name: data.source_name || form.source_name
+      source_name: data.source_name || form.source_name,
+      source_url: data.source_url || form.source_url,
+      publish_time: data.publish_time || form.publish_time,
+      created_at: data.created_at || new Date().toISOString()
     }
 
     writeDetectionResultCache(detectionId, cachedResult)
@@ -260,6 +339,12 @@ async function handleSubmit() {
   } finally {
     submitting.value = false
   }
+}
+
+function toDateTimeLocalValue(value) {
+  if (!value) return ''
+  const match = String(value).match(/^(\d{4}-\d{2}-\d{2})[T\s](\d{2}:\d{2})/)
+  return match ? `${match[1]}T${match[2]}` : ''
 }
 </script>
 
@@ -307,6 +392,62 @@ async function handleSubmit() {
 
 .detect-alert {
   border-radius: var(--radius-md);
+}
+
+.detect-url-block {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.detect-url-block__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.detect-url-block__title {
+  color: var(--color-text-strong);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.detect-url-block__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.detect-url-block__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.detect-url-block__row :deep(.el-input__wrapper) {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--color-border) inset;
+}
+
+.detect-url-block__row :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--color-primary) inset, var(--shadow-focus);
+}
+
+.detect-url-block__row .el-button {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  .detect-url-block__row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .detect-form {

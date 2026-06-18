@@ -23,6 +23,7 @@ def _payload(
     user_id: int,
     title: str = "Test news",
     risk_level: str = "存疑信息",
+    analysis_payload: dict | None = None,
 ) -> DetectionCreate:
     return DetectionCreate(
         user_id=user_id,
@@ -41,6 +42,7 @@ def _payload(
         suggestion="建议查看官方通报。",
         is_high_risk=False,
         report_url="/api/report/download/1",
+        analysis_payload=analysis_payload or {},
         evidence_matches=[
             {
                 "knowledge_id": 1,
@@ -84,6 +86,29 @@ class DetectionCrudTestCase(unittest.TestCase):
         self.assertEqual(output.evidence_matches[0].rank_order, 1)
         self.assertIsNotNone(output.updated_at)
         self.assertIsNotNone(output.evidence_matches[0].updated_at)
+
+    def test_save_detection_record_persists_analysis_payload(self) -> None:
+        payload = {
+            "arbitration_status": "ok",
+            "knowledge_has_relevant_match": False,
+            "web_has_relevant_match": True,
+            "excluded_evidence": [{"candidate_id": "kb:5", "title": "Irrelevant"}],
+            "similar_news": [
+                {
+                    "candidate_id": "web:1",
+                    "title": "Related",
+                    "risk_level": "可信新闻",
+                }
+            ],
+        }
+
+        record = save_detection_record(
+            self.db,
+            _payload(user_id=1, analysis_payload=payload),
+        )
+
+        self.assertIsInstance(record.analysis_payload, str)
+        self.assertIn('"arbitration_status": "ok"', record.analysis_payload)
 
     def test_user_history_only_returns_own_records(self) -> None:
         save_detection_record(self.db, _payload(user_id=1, title="User 1 news"))

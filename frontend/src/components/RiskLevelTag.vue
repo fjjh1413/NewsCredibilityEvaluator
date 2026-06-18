@@ -31,6 +31,16 @@ const riskMap = {
     className: 'risk-level-tag--unknown',
     icon: InfoFilled
   },
+  auxiliary: {
+    label: '辅助证据',
+    className: 'risk-level-tag--auxiliary',
+    icon: InfoFilled
+  },
+  unrated: {
+    label: '未评级案例',
+    className: 'risk-level-tag--unrated',
+    icon: InfoFilled
+  },
   trusted: {
     label: '可信新闻',
     className: 'risk-level-tag--trusted',
@@ -89,6 +99,14 @@ function keyFromLevel(level) {
     normalized.endsWith('_rumour')
   ) {
     return 'rumor'
+  }
+
+  if (value.includes('辅助证据') || value.includes('auxiliary')) {
+    return 'auxiliary'
+  }
+
+  if (value.includes('未评级') || value.includes('unrated')) {
+    return 'unrated'
   }
 
   return 'unknown'
@@ -155,6 +173,16 @@ const sizeClass = computed(() => `risk-level-tag--${props.size}`)
 .risk-level-tag--unknown {
   color: var(--color-text-muted);
   background: var(--color-bg-subtle);
+}
+
+.risk-level-tag--auxiliary {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.risk-level-tag--unrated {
+  color: #9ca3af;
+  background: #f9fafb;
 }
 
 .risk-level-tag--suspicious {

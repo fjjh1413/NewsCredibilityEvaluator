@@ -57,6 +57,7 @@ class DetectionCreate(BaseModel):
     suggestion: str | None = None
     is_high_risk: bool = False
     report_url: str | None = Field(default=None, max_length=500)
+    analysis_payload: dict[str, Any] = Field(default_factory=dict)
     evidence_matches: list[EvidenceMatchCreate] = Field(default_factory=list)
 
     @field_validator("input_title", "input_content", "risk_level", "judgement_result")
@@ -138,6 +139,16 @@ class DetectionHistoryItem(BaseModel):
 
 class DetectionDetailOut(DetectionRecordOut):
     evidence_matches: list[EvidenceMatchOut] = Field(default_factory=list)
+    candidate_evidence_list: list["DetectEvidenceItem"] = Field(default_factory=list)
+    excluded_evidence: list["DetectEvidenceItem"] = Field(default_factory=list)
+    similar_news: list["SimilarNewsItem"] = Field(default_factory=list)
+    evidence_quality: "EvidenceQualityOut | None" = None
+    arbitration_status: str = "unavailable"
+    knowledge_has_relevant_match: bool = False
+    web_has_relevant_match: bool = False
+    publish_time: str | None = None
+    source_name: str | None = None
+    source_url: str | None = None
 
 
 class DetectionHistoryData(BaseModel):
@@ -176,6 +187,8 @@ class DetectNewsRequest(BaseModel):
     content: str = Field(..., min_length=1)
     category: str | None = Field(default=None, max_length=50)
     source_name: str | None = Field(default=None, max_length=100)
+    source_url: str | None = Field(default=None, max_length=2048)
+    publish_time: str | None = Field(default=None, max_length=100)
     enable_web_search: bool = Field(default=True, description="是否启用联网检索增强检测")
 
     @field_validator("title")
@@ -198,27 +211,70 @@ class DetectNewsRequest(BaseModel):
             raise ValueError("新闻正文长度不能少于 20 个字符")
         return cleaned
 
+    @field_validator("source_name", "source_url", "publish_time", mode="before")
+    @classmethod
+    def optional_metadata_must_be_clean_text(cls, value: Any) -> str | None:
+        if value is None:
+            return None
+        cleaned = str(value).strip()
+        return cleaned or None
+
 
 class DetectEvidenceItem(BaseModel):
     knowledge_id: int | None = None
+    candidate_id: str | None = None
     title: str
     summary: str | None = None
     category: str | None = None
     truth_label: str | None = None
     source_name: str | None = None
+    source_url: str | None = None
+    source_type: str | None = None
+    source_label: str | None = None
     risk_level: str | None = None
     similarity_score: float | None = None
-    rank_order: int
+    rank_order: int | None = None
+    # ── LLM arbitration fields ──
+    relevance_score: float | None = None
+    quality_score: float | None = None
+    stance: str | None = None
+    arbitration_reason: str | None = None
+    rejection_reason: str | None = None
+    publish_time: str | None = None
 
 
 class SimilarNewsItem(BaseModel):
     title: str
+    source_name: str | None = None
+    source_url: str | None = None
+    publish_time: str | None = None
+    source_type: str | None = None
     risk_level: str | None = None
     similarity_score: float | None = None
+    candidate_id: str | None = None
+    rank_order: int | None = None
+    relevance_score: float | None = None
+    quality_score: float | None = None
+    stance: str | None = None
+    arbitration_reason: str | None = None
+    relevance_reason: str | None = None
+
+
+class EvidenceQualityOut(BaseModel):
+    """LLM-evaluated evidence quality (coverage + consistency)."""
+
+    coverage: float | None = None
+    consistency: float | None = None
+    score: float | None = None
+    assessment: str | None = None
 
 
 class DetectNewsResult(BaseModel):
     detection_id: int
+    created_at: datetime | None = None
+    publish_time: str | None = None
+    source_name: str | None = None
+    source_url: str | None = None
     final_score: float
     evidence_score: float
     llm_score: float
@@ -229,18 +285,58 @@ class DetectNewsResult(BaseModel):
     risk_points: list[str]
     keywords: list[str]
     evidence_list: list[DetectEvidenceItem]
+    candidate_evidence_list: list[DetectEvidenceItem] = Field(default_factory=list)
+    excluded_evidence: list[DetectEvidenceItem] = Field(default_factory=list)
     similar_news: list[SimilarNewsItem]
     suggestion: str
     agent_steps: list[str]
     disclaimer: str
     web_search_triggered: bool = False
     web_search_sources: int = 0
+    evidence_quality: EvidenceQualityOut | None = None
+    arbitration_status: str = "unavailable"
+    knowledge_has_relevant_match: bool = False
+    web_has_relevant_match: bool = False
 
 
 class DetectNewsApiResponse(BaseModel):
     code: int
     message: str
     data: DetectNewsResult
+
+
+class ExtractPreviewRequest(BaseModel):
+    """Request body for the detect-by-link preview/extract endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    url: str = Field(..., min_length=1, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def url_must_use_http_scheme(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("链接不能为空")
+        if not (cleaned.lower().startswith("http://") or cleaned.lower().startswith("https://")):
+            raise ValueError("链接必须以 http:// 或 https:// 开头")
+        return cleaned
+
+
+class ExtractPreviewData(BaseModel):
+    """Auto-extracted article fields used to back-fill the detect form."""
+
+    title: str
+    content: str
+    source_name: str | None = None
+    source_url: str | None = None
+    publish_time: str | None = None
+
+
+class ExtractPreviewApiResponse(BaseModel):
+    code: int
+    message: str
+    data: ExtractPreviewData
 
 
 def parse_risk_points(value: Any) -> list[str]:

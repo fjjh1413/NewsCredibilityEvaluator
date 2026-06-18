@@ -1,4 +1,5 @@
 import ipaddress
+import json
 import logging
 import re
 import socket
@@ -116,6 +117,35 @@ class WebContentFetcher:
             logger.exception("Unexpected error fetching %s", url)
             return ""
 
+    def fetch_article(self, url: str) -> dict[str, str | None]:
+        """Fetch *url* and return structured article fields.
+
+        Returns ``{"title", "content", "source_name", "source_url", "publish_time"}``. Unlike
+        :meth:`fetch`, this RAISES ``WebContentFetchError`` / ``SSRFBlockedError``
+        on failure — the caller asked for this specific URL (e.g. the
+        detect-by-link preview endpoint) and must surface the error instead of
+        silently degrading to an empty result.
+        """
+        safe_url = _normalise_url(url)
+        hostname = urlparse(safe_url).hostname or ""
+        if not self._allow_private and _is_private_host(hostname):
+            raise SSRFBlockedError(f"SSRF 阻止：目标地址为私有/保留 IP，URL={safe_url}")
+
+        html_content, final_url = self._http_fetch_with_redirects(safe_url)
+        if not html_content:
+            raise WebContentFetchError(f"页面内容为空：{safe_url}")
+
+        title, body = self._extract_article_parts(html_content)
+        publish_time = self._extract_publish_time(html_content)
+        source_host = urlparse(final_url).hostname or hostname
+        return {
+            "title": title,
+            "content": clean_text(body, max_length=8000),
+            "source_name": source_host,
+            "source_url": final_url,
+            "publish_time": publish_time,
+        }
+
     # ------------------------------------------------------------------
     # internal
     # ------------------------------------------------------------------
@@ -127,14 +157,18 @@ class WebContentFetcher:
         if not self._allow_private and _is_private_host(hostname):
             raise SSRFBlockedError(f"SSRF 阻止：目标地址为私有/保留 IP，URL={safe_url}")
 
-        html_content = self._http_fetch_with_redirects(safe_url)
+        html_content, _final_url = self._http_fetch_with_redirects(safe_url)
         if not html_content:
             return ""
 
         return self._extract_text(html_content)
 
-    def _http_fetch_with_redirects(self, url: str) -> str:
-        """HTTP GET with manual redirect following and per-hop SSRF checks."""
+    def _http_fetch_with_redirects(self, url: str) -> tuple[str, str]:
+        """HTTP GET with manual redirect following and per-hop SSRF checks.
+
+        Returns ``(html_content, final_url)`` where ``final_url`` is the URL
+        actually served after following redirects.
+        """
         current_url = url
         for hop in range(MAX_REDIRECTS + 1):
             hostname = urlparse(current_url).hostname or ""
@@ -163,7 +197,7 @@ class WebContentFetcher:
                             f"非文本内容类型：{content_type}"
                         )
                     content = response.read(self._max_bytes)
-                    return content.decode("utf-8", errors="replace")
+                    return content.decode("utf-8", errors="replace"), current_url
             except urllib.error.HTTPError as exc:
                 if exc.code in (301, 302, 303, 307, 308):
                     new_url = exc.headers.get("Location") or exc.headers.get("location")
@@ -178,17 +212,22 @@ class WebContentFetcher:
 
         raise WebContentFetchError(f"超过最大重定向次数 ({MAX_REDIRECTS})")
 
-    def _extract_text(self, html: str) -> str:
-        """Extract readable text from HTML using BeautifulSoup if available."""
+    def _extract_article_parts(self, html: str) -> tuple[str, str]:
+        """Extract ``(title, body_text)`` from HTML.
+
+        ``body_text`` is the raw paragraph text joined by blank lines (not yet
+        passed through :func:`clean_text`); callers decide whether to clean it.
+        Falls back to a regex-based stripper when BeautifulSoup is unavailable.
+        """
         try:
             from bs4 import BeautifulSoup as bs4_BeautifulSoup
         except ImportError:
-            return self._extract_text_regex(html)
+            return self._extract_article_parts_regex(html)
 
         try:
             soup = bs4_BeautifulSoup(html, "html.parser")
         except Exception:
-            return self._extract_text_regex(html)
+            return self._extract_article_parts_regex(html)
 
         # title
         title = ""
@@ -224,18 +263,114 @@ class WebContentFetcher:
             body = root.get_text(separator="\n", strip=True) if root else ""
             body_parts = [body] if body else []
 
+        return title.strip(), "\n\n".join(body_parts)
+
+    def _extract_publish_time(self, html: str) -> str | None:
+        """Extract the article publication time from common metadata."""
+        try:
+            from bs4 import BeautifulSoup as bs4_BeautifulSoup
+        except ImportError:
+            return self._extract_publish_time_regex(html)
+
+        try:
+            soup = bs4_BeautifulSoup(html, "html.parser")
+        except Exception:
+            return self._extract_publish_time_regex(html)
+
+        selectors = (
+            ("meta[property='article:published_time']", "content"),
+            ("meta[property='og:published_time']", "content"),
+            ("meta[name='pubdate']", "content"),
+            ("meta[name='publishdate']", "content"),
+            ("meta[name='date']", "content"),
+            ("meta[itemprop='datePublished']", "content"),
+            ("time[datetime]", "datetime"),
+        )
+        for selector, attribute in selectors:
+            node = soup.select_one(selector)
+            if node:
+                value = clean_text(node.get(attribute, ""), max_length=100)
+                if value:
+                    return value
+
+        for node in soup.select("script[type='application/ld+json']"):
+            raw = node.string or node.get_text(strip=True)
+            if not raw:
+                continue
+            try:
+                payload = json.loads(raw)
+            except (json.JSONDecodeError, RecursionError, TypeError):
+                continue
+            value = self._find_json_ld_publish_time(payload)
+            if value:
+                return value
+
+        return None
+
+    @staticmethod
+    def _find_json_ld_publish_time(value: Any) -> str | None:
+        stack: list[tuple[Any, int]] = [(value, 0)]
+        visited = 0
+        while stack and visited < 256:
+            current, depth = stack.pop()
+            visited += 1
+            if isinstance(current, dict):
+                raw_published = current.get("datePublished")
+                if isinstance(raw_published, (str, int, float)):
+                    published = clean_text(str(raw_published), max_length=100)
+                    if published:
+                        return published
+                if depth < 12:
+                    stack.extend((child, depth + 1) for child in current.values())
+            elif isinstance(current, list) and depth < 12:
+                stack.extend((child, depth + 1) for child in current)
+        return None
+
+    @staticmethod
+    def _extract_publish_time_regex(html: str) -> str | None:
+        patterns = (
+            r'<meta[^>]+(?:property|name|itemprop)=["\'](?:article:published_time|og:published_time|pubdate|publishdate|date|datePublished)["\'][^>]+content=["\']([^"\']+)',
+            r'<time[^>]+datetime=["\']([^"\']+)',
+            r'["\']datePublished["\']\s*:\s*["\']([^"\']+)',
+        )
+        for pattern in patterns:
+            match = re.search(pattern, html, re.IGNORECASE)
+            if match:
+                value = clean_text(html_unescape(match.group(1)), max_length=100)
+                if value:
+                    return value
+        return None
+
+    def _extract_text(self, html: str) -> str:
+        """Extract readable text from HTML using BeautifulSoup if available."""
+        title, body = self._extract_article_parts(html)
         result_parts: list[str] = []
         if title:
             result_parts.append(title)
-        result_parts.extend(body_parts)
-
-        return clean_text("\n\n".join(result_parts), max_length=8000)
+        if body:
+            result_parts.append(body)
+        return clean_text("\n\n".join(result_parts), max_length=8000) if result_parts else ""
 
     def _extract_text_regex(self, html: str) -> str:
         """Simple HTML tag stripper used when BeautifulSoup is unavailable."""
+        title, body = self._extract_article_parts_regex(html)
+        result_parts: list[str] = []
+        if title:
+            result_parts.append(title)
+        if body:
+            result_parts.append(body)
+        return clean_text("\n\n".join(result_parts), max_length=8000) if result_parts else ""
+
+    def _extract_article_parts_regex(self, html: str) -> tuple[str, str]:
+        """Regex fallback for :meth:`_extract_article_parts`.
+
+        Returns ``("", cleaned_text)`` — title is not separated in this
+        fallback mode (BeautifulSoup is the supported path; this only runs if
+        the optional ``beautifulsoup4`` dependency is missing).
+        """
         text = re.sub(r"<script[^>]*>.*?</script>", " ", html, flags=re.DOTALL | re.IGNORECASE)
         text = re.sub(r"<style[^>]*>.*?</style>", " ", text, flags=re.DOTALL | re.IGNORECASE)
         text = re.sub(r"<[^>]+>", " ", text)
         text = html_unescape(text)
         text = re.sub(r"\s+", " ", text).strip()
-        return clean_text(text, max_length=8000)
+        return "", clean_text(text, max_length=8000)

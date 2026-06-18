@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Path, Query, Request, status
@@ -73,6 +74,31 @@ def read_admin_detection_detail(
         )
 
     data = DetectionDetailOut.model_validate(record).model_dump(mode="json")
+    raw_analysis_payload = getattr(record, "analysis_payload", None)
+    if isinstance(raw_analysis_payload, str) and raw_analysis_payload.strip():
+        try:
+            analysis_payload = json.loads(raw_analysis_payload)
+        except json.JSONDecodeError:
+            analysis_payload = {}
+    elif isinstance(raw_analysis_payload, dict):
+        analysis_payload = raw_analysis_payload
+    else:
+        analysis_payload = {}
+
+    for field_name in (
+        "publish_time",
+        "source_name",
+        "source_url",
+        "candidate_evidence_list",
+        "excluded_evidence",
+        "similar_news",
+        "evidence_quality",
+        "arbitration_status",
+        "knowledge_has_relevant_match",
+        "web_has_relevant_match",
+    ):
+        if field_name in analysis_payload:
+            data[field_name] = analysis_payload[field_name]
     return success_response(data=data)
 
 

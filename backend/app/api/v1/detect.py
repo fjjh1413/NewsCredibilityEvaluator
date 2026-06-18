@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -16,6 +18,8 @@ from app.schemas.detection import (
     DetectionHistoryApiResponse,
     DetectionHistoryData,
     DetectionHistoryItem,
+    ExtractPreviewApiResponse,
+    ExtractPreviewRequest,
 )
 from app.services.detection_service import (
     DetectionServiceError,
@@ -23,6 +27,11 @@ from app.services.detection_service import (
     detect_news_credibility,
 )
 from app.services.system_log_service import get_request_ip, record_system_log
+from app.services.web.web_content_fetcher import (
+    SSRFBlockedError,
+    WebContentFetchError,
+    WebContentFetcher,
+)
 from app.utils.response import error_response, success_response
 
 
@@ -104,6 +113,44 @@ def detect_news(
     return success_response(message="检测完成", data=result)
 
 
+@router.post(
+    "/extract-preview",
+    response_model=ExtractPreviewApiResponse,
+    dependencies=[Depends(enforce_detect_news_rate_limit)],
+)
+def extract_preview(
+    payload: ExtractPreviewRequest,
+    request: Request,
+    current_user: User | None = Depends(get_optional_current_user),
+) -> dict:
+    """Fetch + extract a news article from a URL for review before detection.
+
+    Returns ``{title, content, source_name, source_url}`` so the frontend can
+    back-fill the existing detect form (preview-then-edit). Shares the detect
+    rate limiter to prevent fetch abuse. Does not touch the detection core.
+    """
+    settings = get_settings()
+    fetcher = WebContentFetcher(allow_private_hosts=settings.article_fetch_allow_private_hosts)
+    try:
+        article = fetcher.fetch_article(payload.url)
+    except (SSRFBlockedError, WebContentFetchError) as exc:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=error_response(message=str(exc), code=422),
+        )
+
+    if not article.get("title") or not article.get("content"):
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=error_response(
+                message="未能从该链接提取到有效的标题或正文，请检查链接或改用手动输入",
+                code=422,
+            ),
+        )
+
+    return success_response(message="提取成功", data=article)
+
+
 @router.get("/history", response_model=DetectionHistoryApiResponse)
 def read_detection_history(
     page: int = Query(default=1, ge=1),
@@ -144,4 +191,30 @@ def read_detection_detail(
         )
 
     data = DetectionDetailOut.model_validate(record).model_dump(mode="json")
+    raw_analysis_payload = getattr(record, "analysis_payload", None)
+    if isinstance(raw_analysis_payload, str) and raw_analysis_payload.strip():
+        try:
+            analysis_payload = json.loads(raw_analysis_payload)
+        except json.JSONDecodeError:
+            analysis_payload = {}
+    elif isinstance(raw_analysis_payload, dict):
+        analysis_payload = raw_analysis_payload
+    else:
+        analysis_payload = {}
+
+    if isinstance(analysis_payload, dict):
+        for field_name in (
+            "publish_time",
+            "source_name",
+            "source_url",
+            "candidate_evidence_list",
+            "excluded_evidence",
+            "similar_news",
+            "evidence_quality",
+            "arbitration_status",
+            "knowledge_has_relevant_match",
+            "web_has_relevant_match",
+        ):
+            if field_name in analysis_payload:
+                data[field_name] = analysis_payload[field_name]
     return success_response(data=data)
