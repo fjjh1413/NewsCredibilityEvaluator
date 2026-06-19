@@ -144,6 +144,10 @@ class DetectionDetailOut(DetectionRecordOut):
     similar_news: list["SimilarNewsItem"] = Field(default_factory=list)
     evidence_quality: "EvidenceQualityOut | None" = None
     arbitration_status: str = "unavailable"
+    quality_status: str | None = None
+    arbitration_error: str | None = None
+    arbitration_attempts: int = Field(default=0, ge=0, le=2)
+    analysis_contract_version: str | None = None
     knowledge_has_relevant_match: bool = False
     web_has_relevant_match: bool = False
     publish_time: str | None = None
@@ -295,6 +299,10 @@ class DetectNewsResult(BaseModel):
     web_search_sources: int = 0
     evidence_quality: EvidenceQualityOut | None = None
     arbitration_status: str = "unavailable"
+    quality_status: str = "unavailable"
+    arbitration_error: str | None = None
+    arbitration_attempts: int = Field(default=0, ge=0, le=2)
+    analysis_contract_version: str | None = None
     knowledge_has_relevant_match: bool = False
     web_has_relevant_match: bool = False
 

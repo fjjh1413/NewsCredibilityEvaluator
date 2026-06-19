@@ -12,6 +12,10 @@ export function getDetectionDetail(id) {
   return request.get(`/detect/${id}`)
 }
 
+export function reEvaluateDetection(id) {
+  return request.post(`/detect/${id}/re-evaluate`, undefined, { timeout: 120000 })
+}
+
 export function getDetectionHistory(params) {
   return request.get('/detect/history', { params })
 }

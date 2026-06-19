@@ -38,6 +38,7 @@ DEFAULT_DEEPSEEK_MODEL = "deepseek-chat"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 DEFAULT_EVIDENCE_LIMIT = 10
 LLM_FAILURE_ERROR = "模型调用失败"
+ANALYSIS_CONTRACT_VERSION = "2.0"
 
 # Sentinel used to distinguish "field absent" from "field is None" in
 # LLM response dicts (data.get(key, sentinel)).
@@ -71,8 +72,9 @@ SYSTEM_MESSAGE = (
 )
 
 DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE = """\
-你是"智闻辨真"的新闻可信度辅助评估工具，用于帮助用户初步判断新闻内容的可信度和风险点。
+你是“智闻辨真”的新闻可信度辅助评估工具，用于帮助用户初步判断新闻内容的可信度和风险点。
 你的结论只作为辅助参考，不能绝对替代人工事实核查、权威媒体报道或官方通报。
+输出契约版本：2.0
 
 请基于以下输入进行分析：
 
@@ -261,6 +263,105 @@ def analyze_news_credibility(
         )
 
 
+def analyze_evidence_arbitration(
+    title: str,
+    content: str,
+    evidence_list: list[Any] | None,
+) -> dict[str, Any]:
+    """Retry only the evidence-dependent part of the analysis contract.
+
+    Keeping this request compact makes it substantially less likely that a
+    provider truncates or omits the nested arbitration object.  The caller is
+    still responsible for checking candidate ids against the original pool.
+    """
+
+    config = _load_deepseek_config()
+    if not config["api_key"]:
+        return _build_arbitration_error_result(
+            "DeepSeek API Key 未配置",
+            error_type="provider_error",
+        )
+
+    try:
+        prompt = build_evidence_arbitration_prompt(
+            title=title,
+            content=content,
+            evidence_list=evidence_list,
+        )
+        response_data = _post_chat_completion(config=config, prompt=prompt)
+        assistant_content = _extract_assistant_content(response_data)
+        if not assistant_content:
+            return _build_arbitration_error_result(
+                "模型返回内容为空",
+                error_type="invalid_response",
+            )
+        result = parse_analysis_response(assistant_content)
+        return {
+            "evidence_arbitration": result.get("evidence_arbitration"),
+            "evidence_quality": result.get("evidence_quality"),
+            "similar_news": result.get("similar_news") or [],
+        }
+    except DeepSeekServiceError as exc:
+        logger.exception("DeepSeek evidence arbitration call failed")
+        return _build_arbitration_error_result(
+            clean_text(exc, max_length=500) or "证据仲裁调用失败",
+            error_type="provider_error",
+        )
+
+
+def build_evidence_arbitration_prompt(
+    title: str,
+    content: str,
+    evidence_list: list[Any] | None,
+) -> str:
+    """Build the immutable compact contract used by the targeted retry."""
+
+    title_text = clean_text(title, max_length=1000)
+    content_text = clean_text(content, max_length=12000)
+    if not title_text or not content_text:
+        raise DeepSeekServiceError("新闻标题和正文不能为空，无法进行证据仲裁")
+
+    evidence_json = _dump_json(
+        _strip_retrieval_metadata(_limit_evidence_list(evidence_list)),
+        indent=2,
+    )
+    return clean_text(
+        f"""{PROMPT_INPUT_BOUNDARY_PREFIX}
+
+你只负责证据仲裁与证据质量评估。只输出一个 JSON 对象，不得输出 Markdown 或解释文字。
+
+新闻标题：
+{_wrap_xml_text("news_title", title_text)}
+
+新闻正文：
+{_wrap_xml_text("news_content", content_text)}
+
+候选证据：
+{evidence_json}
+
+输出契约版本：{ANALYSIS_CONTRACT_VERSION}
+必须返回且只返回以下三个顶层字段：
+1. evidence_arbitration：包含 ranked_evidence 和 rejected_evidence 两个数组。每个输入 candidate_id 必须且只能出现一次。
+2. evidence_quality：包含 coverage、consistency、score、assessment；前三个分数字段必须是 0-100 数字，assessment 必须是非空字符串。
+3. similar_news：数组；每项包含 candidate_id、risk_level、relevance_reason，candidate_id 必须来自 ranked_evidence。没有则返回空数组。
+
+ranked_evidence 每项必须包含 candidate_id、relevance_score、quality_score、stance、reason；stance 只能是 support、contradict、neutral。
+rejected_evidence 每项必须包含 candidate_id、reason。
+""",
+        max_length=None,
+    )
+
+
+def _build_arbitration_error_result(reason: str, error_type: str) -> dict[str, Any]:
+    return {
+        "evidence_arbitration": None,
+        "evidence_quality": None,
+        "similar_news": [],
+        "error": clean_text(reason, max_length=500),
+        "error_type": error_type,
+    }
+
+
 def build_analysis_prompt(
     title: str,
     content: str,
@@ -435,6 +536,7 @@ def _post_chat_completion(config: dict[str, Any], prompt: str) -> dict[str, Any]
         "model": config["model"],
         "stream": False,
         "temperature": 0.2,
+        "response_format": {"type": "json_object"},
         "messages": [
             {
                 "role": "system",
@@ -964,15 +1066,15 @@ def _normalize_string_list(value: Any, fallback: list[str]) -> list[str]:
 
 
 def _ensure_output_contract(prompt: str, template: str | None = None) -> str:
-    contract_source = template if template is not None else prompt
-    if all(field in contract_source for field in REQUIRED_RESULT_FIELDS):
+    contract_marker = f"输出契约版本：{ANALYSIS_CONTRACT_VERSION}"
+    if contract_marker in prompt:
         return prompt
 
-    output_contract = """
+    output_contract = contract_marker + "\n" + """
 输出要求：
 1. 必须只输出 JSON 对象，不允许输出 Markdown 代码块，不允许添加解释性前缀或后缀。
 2. risk_level 只能从以下四类中选择一个：可信新闻、存疑信息、疑似谣言、高风险谣言。
-3. evidence_quality 必须是 JSON 对象（不允许是字符串、数字、数组或 null），包含 coverage、consistency、assessment 三个字段。
+3. evidence_quality 必须是 JSON 对象（不允许是字符串、数字、数组或 null），包含 coverage、consistency、score、assessment 四个字段；三个分数字段必须为 0-100 的数字。
 4. evidence_arbitration 必须是以下结构；candidate_id 必须来自输入候选：
    {"ranked_evidence":[{"candidate_id":"web:1","relevance_score":90,"quality_score":85,"stance":"support","reason":"相关性依据"}],"rejected_evidence":[{"candidate_id":"kb:2","reason":"排除依据"}]}
    relevance_score 和 quality_score 必须为 0-100 的数字；stance 只能是 support、contradict 或 neutral；reason 必须为非空字符串。

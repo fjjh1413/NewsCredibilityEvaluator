@@ -94,6 +94,10 @@ def read_admin_detection_detail(
         "similar_news",
         "evidence_quality",
         "arbitration_status",
+        "quality_status",
+        "arbitration_error",
+        "arbitration_attempts",
+        "analysis_contract_version",
         "knowledge_has_relevant_match",
         "web_has_relevant_match",
     ):

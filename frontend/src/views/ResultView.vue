@@ -87,9 +87,32 @@
       </section>
 
       <section class="score-grid" aria-label="三项评分">
-        <ScoreCard title="证据质量" :score="eqScore" subtitle="LLM 对有效证据覆盖度与一致性的评价" :show-unit="eqScore !== null" tone="primary" />
+        <ScoreCard title="证据质量" :score="eqScore" :subtitle="qualityState.cardSubtitle" :show-unit="eqScore !== null" tone="primary" />
         <ScoreCard title="大模型判断" :score="llmScore" subtitle="基于 DeepSeek 分析结果" tone="neutral" />
         <ScoreCard title="来源/规则评分" :score="ruleScore" subtitle="基于风险规则和来源特征" :tone="ruleTone" />
+      </section>
+
+      <section
+        v-if="qualityState.status !== 'ok'"
+        class="quality-status surface-card"
+        :class="`quality-status--${qualityState.status}`"
+        role="status"
+      >
+        <div>
+          <strong>{{ qualityState.title }}</strong>
+          <p>{{ qualityState.description }}</p>
+        </div>
+        <button
+          v-if="qualityState.canRetry"
+          class="button button--primary"
+          type="button"
+          :disabled="qualityReevaluating"
+          :aria-busy="qualityReevaluating"
+          @click="handleQualityReevaluation"
+        >
+          <el-icon v-if="qualityReevaluating"><Loading class="report-action-icon--loading" /></el-icon>
+          {{ qualityReevaluating ? '重新评估中…' : '重新评估证据质量' }}
+        </button>
       </section>
 
       <ResultSection
@@ -247,7 +270,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
 import { DocumentAdd, Download, Loading, RefreshRight } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
-import { getDetectionDetail } from '@/api/detect'
+import { getDetectionDetail, reEvaluateDetection } from '@/api/detect'
 import { downloadReport, generateReport } from '@/api/report'
 import AgentSteps from '@/components/AgentSteps.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -263,6 +286,7 @@ import {
   writeDetectionResultCache
 } from '@/utils/detectionResultCache'
 import { formatDateTime, formatScore, isValidScore, scoreToPercent as normalizeScorePercent } from '@/utils/format'
+import { getEvidenceQualityState } from '@/utils/evidenceQualityState'
 import { unwrapApiResponse } from '@/utils/response'
 
 const props = defineProps({
@@ -278,6 +302,7 @@ const resultData = ref(null)
 const reportGenerating = ref(false)
 const reportDownloading = ref(false)
 const reportError = ref('')
+const qualityReevaluating = ref(false)
 const router = useRouter()
 const userStore = useUserStore()
 
@@ -482,6 +507,35 @@ async function handleDownloadReport() {
   }
 }
 
+async function handleQualityReevaluation() {
+  if (qualityReevaluating.value) return
+
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('登录后可重新评估证据质量')
+    router.push({
+      name: 'login',
+      query: { redirect: `/result/${props.id}` }
+    })
+    return
+  }
+
+  qualityReevaluating.value = true
+  try {
+    const response = await reEvaluateDetection(props.id)
+    const result = unwrapApiResponse(response, '重新评估失败')
+    const newId = result?.detection_id || result?.id
+    if (!newId) throw new Error('重新评估完成，但后端未返回新检测编号')
+
+    writeDetectionResultCache(newId, result)
+    ElMessage.success('证据质量已重新评估')
+    await router.replace({ name: 'result', params: { id: String(newId) } })
+  } catch (error) {
+    ElMessage.error(getErrorMessage(error).replace('获取检测结果失败', '重新评估失败'))
+  } finally {
+    qualityReevaluating.value = false
+  }
+}
+
 async function loadResult(id) {
   errorMessage.value = ''
   reportError.value = ''
@@ -547,20 +601,20 @@ const formattedFinalScore = computed(() => formatScore(finalScore.value))
 const hasFinalScore = computed(() => isValidScore(finalScore.value))
 const evidenceScore = computed(() => pick(resultData.value?.evidence_score, resultData.value?.retrieval_score))
 
-const arbitrationStatus = computed(() =>
-  resultData.value?.arbitration_status ?? ''
-)
+const qualityState = computed(() => getEvidenceQualityState(resultData.value || {}))
 const arbitrationUnavailable = computed(() =>
-  arbitrationStatus.value === 'unavailable'
+  ['unavailable', 'provider_error', 'retry_exhausted', 'invalid_response'].includes(
+    String(resultData.value?.arbitration_status || '')
+  )
 )
 
 const evidenceQuality = computed(() => {
-  if (arbitrationUnavailable.value) return null
+  if (qualityState.value.status !== 'ok') return null
   const eq = resultData.value?.evidence_quality || resultData.value?.evidenceQuality
   if (!eq || (eq.coverage === null && eq.consistency === null && eq.score === null)) return null
   return eq
 })
-const eqScore = computed(() => evidenceQuality.value?.score ?? null)
+const eqScore = computed(() => qualityState.value.score)
 const eqCoverage = computed(() => evidenceQuality.value?.coverage ?? null)
 const eqConsistency = computed(() => evidenceQuality.value?.consistency ?? null)
 const eqAssessment = computed(() => evidenceQuality.value?.assessment ?? '')
@@ -768,6 +822,43 @@ watch(
 .report-error-alert {
   border: 1px solid rgba(220, 38, 38, 0.22);
   box-shadow: var(--shadow-card);
+}
+
+.quality-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  border: 1px solid rgba(217, 119, 6, 0.24);
+  background: #fffaf0;
+}
+
+.quality-status--no_evidence {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.quality-status strong {
+  color: var(--color-text-primary);
+  font-size: 16px;
+}
+
+.quality-status p {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.quality-status .button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+  .quality-status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 @keyframes report-action-spin {

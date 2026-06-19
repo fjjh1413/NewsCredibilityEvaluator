@@ -1,14 +1,17 @@
+import json
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from app.services.llm_service import (
     DeepSeekServiceError,
     _default_evidence_quality,
     _normalize_score,
+    _post_chat_completion,
     _parse_evidence_quality,
     _strip_retrieval_metadata,
     _try_normalize_score,
+    analyze_evidence_arbitration,
     analyze_news_credibility,
     build_analysis_prompt,
     get_default_prompt_template,
@@ -17,6 +20,76 @@ from app.services.llm_service import (
 
 
 class LlmServiceTestCase(unittest.TestCase):
+    def test_chat_completion_requests_strict_json_output(self) -> None:
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"choices": []}'
+
+        with patch("app.services.llm_service.urllib.request.urlopen", return_value=response) as mocked_open:
+            _post_chat_completion(
+                config={
+                    "api_key": "test-key",
+                    "base_url": "https://api.deepseek.com",
+                    "model": "deepseek-chat",
+                    "timeout_seconds": 30,
+                },
+                prompt="Return JSON",
+            )
+        request_payload = json.loads(mocked_open.call_args.args[0].data.decode("utf-8"))
+        self.assertEqual(request_payload["response_format"], {"type": "json_object"})
+
+    def test_dedicated_arbitration_call_returns_compact_contract(self) -> None:
+        assistant_json = json.dumps(
+            {
+                "evidence_arbitration": {
+                    "ranked_evidence": [
+                        {
+                            "candidate_id": "kb:1",
+                            "relevance_score": 90,
+                            "quality_score": 88,
+                            "stance": "support",
+                            "reason": "直接支持核心事实。",
+                        }
+                    ],
+                    "rejected_evidence": [],
+                },
+                "evidence_quality": {
+                    "coverage": 85,
+                    "consistency": 80,
+                    "score": 83,
+                    "assessment": "证据覆盖充分。",
+                },
+                "similar_news": [
+                    {
+                        "candidate_id": "kb:1",
+                        "risk_level": "可信新闻",
+                        "relevance_reason": "同一事件。",
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        )
+        with (
+            patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False),
+            patch(
+                "app.services.llm_service._post_chat_completion",
+                return_value={
+                    "choices": [{"message": {"content": assistant_json}}]
+                },
+            ),
+        ):
+            result = analyze_evidence_arbitration(
+                title="Test title",
+                content="Test content",
+                evidence_list=[{"candidate_id": "kb:1", "title": "Evidence"}],
+            )
+
+        self.assertEqual(
+            result["evidence_arbitration"]["ranked_evidence"][0]["candidate_id"],
+            "kb:1",
+        )
+        self.assertEqual(result["evidence_quality"]["score"], 83)
+        self.assertEqual(result["similar_news"][0]["candidate_id"], "kb:1")
+
     def test_normalize_score_returns_float_for_supported_inputs(self) -> None:
         cases = (
             (85, 85.0),
@@ -332,6 +405,7 @@ class LlmServiceTestCase(unittest.TestCase):
         self.assertIn("stance", prompt)
         self.assertIn("similar_news", prompt)
         self.assertIn("relevance_reason", prompt)
+        self.assertIn("输出契约版本：2.0", prompt)
 
     def test_analyze_returns_readable_error_without_api_key(self) -> None:
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}, clear=False):

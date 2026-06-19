@@ -41,7 +41,7 @@ def _detail_record(record_id: int, user_id: int = 1):
         id=record_id,
         user_id=user_id,
         input_title=f"Detection {record_id}",
-        input_content="News content",
+        input_content="News content with enough detail for a new evaluation.",
         category="society",
         keywords="news,test",
         final_score=68.5,
@@ -95,6 +95,9 @@ def _detail_record(record_id: int, user_id: int = 1):
                     }
                 ],
                 "arbitration_status": "ok",
+                "quality_status": "ok",
+                "arbitration_attempts": 1,
+                "analysis_contract_version": "2.0",
                 "publish_time": "2026-06-18T09:30:00+08:00",
                 "source_name": "Example News",
                 "source_url": "https://example.com/news/1",
@@ -157,6 +160,9 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()["data"]
         self.assertEqual(data["arbitration_status"], "ok")
+        self.assertEqual(data["quality_status"], "ok")
+        self.assertEqual(data["arbitration_attempts"], 1)
+        self.assertEqual(data["analysis_contract_version"], "2.0")
         self.assertFalse(data["knowledge_has_relevant_match"])
         self.assertTrue(data["web_has_relevant_match"])
         self.assertEqual(data["evidence_quality"]["score"], 83)
@@ -173,6 +179,67 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         response = self.client.get("/api/detect/999")
 
         self.assertEqual(response.status_code, 404)
+
+    @patch("app.api.v1.detect.record_system_log")
+    @patch("app.api.v1.detect.detect_news_credibility")
+    @patch("app.api.v1.detect.get_detection_detail")
+    def test_user_can_re_evaluate_owned_detection_without_overwriting_source(
+        self,
+        mocked_detail,
+        mocked_detect,
+        mocked_log,
+    ) -> None:
+        mocked_detail.return_value = _detail_record(52)
+        mocked_detect.return_value = {
+            "detection_id": 53,
+            "final_score": 80,
+            "evidence_score": 75,
+            "llm_score": 82,
+            "rule_score": 78,
+            "risk_level": "可信新闻",
+            "judgement_result": "可信度较高",
+            "reason": "证据完成仲裁。",
+            "risk_points": [],
+            "keywords": ["新闻"],
+            "candidate_evidence_list": [],
+            "evidence_list": [],
+            "excluded_evidence": [],
+            "similar_news": [],
+            "suggestion": "继续关注。",
+            "agent_steps": [],
+            "disclaimer": "仅供参考。",
+            "evidence_quality": {
+                "coverage": 80,
+                "consistency": 80,
+                "score": 80,
+                "assessment": "证据有效。",
+            },
+            "arbitration_status": "ok",
+            "quality_status": "ok",
+            "arbitration_attempts": 1,
+            "analysis_contract_version": "2.0",
+        }
+
+        response = self.client.post("/api/detect/52/re-evaluate")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"]["detection_id"], 53)
+        payload = mocked_detect.call_args.kwargs["payload"]
+        self.assertEqual(payload.title, "Detection 52")
+        self.assertEqual(payload.source_name, "Example News")
+        mocked_detail.assert_called_once()
+        mocked_detect.assert_called_once()
+        mocked_log.assert_called_once()
+
+    @patch("app.api.v1.detect.get_detection_detail", return_value=None)
+    def test_re_evaluate_returns_404_for_unowned_or_missing_detection(
+        self,
+        mocked_detail,
+    ) -> None:
+        response = self.client.post("/api/detect/999/re-evaluate")
+
+        self.assertEqual(response.status_code, 404)
+        mocked_detail.assert_called_once()
 
     @patch("app.api.v1.admin_detections.get_detection_history")
     def test_admin_list_supports_filters(self, mocked_history) -> None:

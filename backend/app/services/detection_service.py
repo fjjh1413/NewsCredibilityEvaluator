@@ -19,7 +19,12 @@ from app.services.knowledge_service import (
     build_rag_search_text,
     search_similar_knowledge,
 )
-from app.services.llm_service import LLM_FAILURE_ERROR, analyze_news_credibility
+from app.services.llm_service import (
+    ANALYSIS_CONTRACT_VERSION,
+    LLM_FAILURE_ERROR,
+    analyze_evidence_arbitration,
+    analyze_news_credibility,
+)
 from app.services.prompt_service import get_default_prompt_content
 from app.services.rule_score_service import calculate_rule_score
 from app.services.web.bocha_client import BochaClient, BochaServiceError
@@ -92,18 +97,6 @@ class KnowledgeRetrievalFailedError(DetectionServiceError):
 # ---------------------------------------------------------------------------
 # evidence arbitration helpers
 # ---------------------------------------------------------------------------
-
-ARBITRATION_RETRY_PROMPT_ADDENDUM = """
-==============================================================
-重要：上一轮输出格式不正确。请严格按照以下要求重新输出完整 JSON：
-
-1. evidence_arbitration 必须是 JSON 对象，包含 ranked_evidence 和 rejected_evidence 两个数组。
-2. ranked_evidence 中的每条记录必须包含: candidate_id (字符串), relevance_score (0-100的数字), quality_score (0-100的数字), stance (只能是 support/contradict/neutral), reason (非空字符串)。
-3. rejected_evidence 中的每条记录必须包含: candidate_id (字符串), reason (非空字符串)。
-4. candidate_id 必须精确使用输入中提供的值（如 "kb:5", "web:1"），不得编造。
-5. 每个 candidate_id 在 ranked_evidence 和 rejected_evidence 之间不得重复出现。
-""".strip()
-
 
 def build_neutral_candidate_order(
     candidates: list[dict[str, Any]],
@@ -256,6 +249,13 @@ def validate_and_apply_llm_ranking(
             "reason": reason[:1000],
         })
 
+    missing_ids = set(candidate_map) - all_ids
+    if missing_ids:
+        errors.append(
+            "candidate_id missing from arbitration: "
+            + ", ".join(sorted(missing_ids))
+        )
+
     # ── 4. if any errors, bail out ────────────────────────────────────
     if errors:
         return {"ranked": [], "rejected": [], "errors": errors}
@@ -349,8 +349,19 @@ def detect_news_credibility(
     # ── evidence arbitration ─────────────────────────────────────────
     ranking_result: dict[str, Any] | None = None
     arbitration_status = "unavailable"
+    quality_status = "unavailable"
+    arbitration_attempts = 0
+    arbitration_error: str | None = None
 
-    if not _is_llm_failure(llm_result):
+    if not evidence_list:
+        ranking_result = {"ranked": [], "rejected": [], "errors": []}
+        arbitration_status = "no_evidence"
+        quality_status = "no_evidence"
+    elif _is_llm_failure(llm_result):
+        arbitration_status = "provider_error"
+        arbitration_error = "模型服务调用失败，未执行证据仲裁"
+    else:
+        arbitration_attempts = 1
         arbitration = llm_result.get("evidence_arbitration")
         if arbitration is None:
             ranking_result = {
@@ -361,38 +372,61 @@ def detect_news_credibility(
         else:
             ranking_result = validate_and_apply_llm_ranking(evidence_list, arbitration)
 
-        if ranking_result["errors"]:
-            # ── retry once with fix prompt ──
+        quality_errors = _validate_evidence_quality(llm_result.get("evidence_quality"))
+        first_errors = [*ranking_result["errors"], *quality_errors]
+        if first_errors:
             logger.warning(
-                "LLM arbitration validation failed: %s. Retrying once.",
-                "; ".join(ranking_result["errors"]),
+                "LLM evidence contract validation failed: %s. Retrying focused arbitration once.",
+                "; ".join(first_errors),
             )
-            retry_template = prompt_template + "\n\n" + ARBITRATION_RETRY_PROMPT_ADDENDUM
-            retry_result = analyze_news_credibility(
+            arbitration_attempts = 2
+            retry_result = analyze_evidence_arbitration(
                 title=title,
                 content=content,
                 evidence_list=prompt_evidence,
-                prompt_template=retry_template,
             )
             retry_arbitration = retry_result.get("evidence_arbitration")
-            if retry_arbitration is not None:
-                ranking_result = validate_and_apply_llm_ranking(
-                    evidence_list, retry_arbitration
-                )
-                if not ranking_result["errors"]:
-                    arbitration_status = "ok"
-                    # The retry's scores and evidence quality were produced
-                    # from the same arbitration decision, so keep them together.
-                    llm_result = retry_result
-                else:
-                    logger.error(
-                        "LLM arbitration retry also failed: %s",
-                        "; ".join(ranking_result["errors"]),
-                    )
+            retry_ranking = (
+                validate_and_apply_llm_ranking(evidence_list, retry_arbitration)
+                if isinstance(retry_arbitration, dict)
+                else {
+                    "ranked": [],
+                    "rejected": [],
+                    "errors": ["missing evidence_arbitration"],
+                }
+            )
+            retry_quality = retry_result.get("evidence_quality")
+            retry_quality_errors = _validate_evidence_quality(retry_quality)
+
+            if not retry_ranking["errors"] and not retry_quality_errors:
+                ranking_result = retry_ranking
+                llm_result = {
+                    **llm_result,
+                    "evidence_arbitration": retry_arbitration,
+                    "evidence_quality": retry_quality,
+                    "similar_news": retry_result.get("similar_news") or [],
+                }
+                arbitration_status = "ok"
+                quality_status = "ok"
             else:
-                logger.error("LLM arbitration retry: no evidence_arbitration in response")
+                retry_errors = [
+                    *retry_ranking["errors"],
+                    *retry_quality_errors,
+                ]
+                provider_error = clean_text(retry_result.get("error"), max_length=500)
+                if provider_error:
+                    logger.error("Focused arbitration provider error: %s", provider_error)
+                    retry_errors.append("focused arbitration provider request failed")
+                arbitration_status = "retry_exhausted"
+                arbitration_error = "; ".join(retry_errors)[:1000]
+                ranking_result = retry_ranking
+                logger.error(
+                    "Focused evidence arbitration retry failed: %s",
+                    arbitration_error,
+                )
         else:
             arbitration_status = "ok"
+            quality_status = "ok"
 
     is_llm_degraded = _is_llm_failure(llm_result)
     if is_llm_degraded:
@@ -429,10 +463,12 @@ def detect_news_credibility(
 
     # ── evidence quality (LLM-evaluated) ──
     raw_evidence_quality = llm_result.get("evidence_quality") or {}
-    evidence_quality = (
-        raw_evidence_quality if arbitration_status == "ok" else None
+    evidence_quality = raw_evidence_quality if quality_status == "ok" else None
+    eq_score = (
+        _normalize_score(raw_evidence_quality.get("score"))
+        if quality_status == "ok"
+        else 0.0
     )
-    eq_score = _normalize_score(raw_evidence_quality.get("score"))
 
     if is_llm_degraded:
         # Without an LLM arbitration decision, retrieval candidates are not
@@ -466,11 +502,16 @@ def detect_news_credibility(
         "publish_time": payload.publish_time,
         "source_name": payload.source_name,
         "source_url": payload.source_url,
+        "web_search_enabled": payload.enable_web_search,
         "candidate_evidence_list": evidence_list,
         "excluded_evidence": excluded_evidence,
         "similar_news": similar_news,
         "evidence_quality": evidence_quality,
         "arbitration_status": arbitration_status,
+        "quality_status": quality_status,
+        "arbitration_error": arbitration_error,
+        "arbitration_attempts": arbitration_attempts,
+        "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
         "knowledge_has_relevant_match": knowledge_has_relevant_match,
         "web_has_relevant_match": web_has_relevant_match,
     }
@@ -535,9 +576,31 @@ def detect_news_credibility(
         "web_search_sources": web_sources_count,
         "evidence_quality": evidence_quality,
         "arbitration_status": arbitration_status,
+        "quality_status": quality_status,
+        "arbitration_error": arbitration_error,
+        "arbitration_attempts": arbitration_attempts,
+        "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
         "knowledge_has_relevant_match": knowledge_has_relevant_match,
         "web_has_relevant_match": web_has_relevant_match,
     }
+
+
+def _validate_evidence_quality(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return ["missing or invalid evidence_quality"]
+
+    errors: list[str] = []
+    for field_name in ("coverage", "consistency", "score"):
+        field_value = value.get(field_name)
+        if (
+            not isinstance(field_value, (int, float))
+            or isinstance(field_value, bool)
+            or not 0 <= float(field_value) <= 100
+        ):
+            errors.append(f"evidence_quality.{field_name} must be a number from 0 to 100")
+    if not clean_text(value.get("assessment"), max_length=1000):
+        errors.append("evidence_quality.assessment is empty")
+    return errors
 
 
 def extract_keywords(title: str, content: str, max_count: int = 8) -> list[str]:

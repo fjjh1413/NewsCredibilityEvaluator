@@ -683,7 +683,13 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
                             "reason": "直接相关。",
                         }
                     ],
-                    "rejected_evidence": [],
+                    "rejected_evidence": [
+                        {
+                            "candidate_id": f"kb:{index}",
+                            "reason": "不参与本次评分。",
+                        }
+                        for index in range(2, 11)
+                    ],
                 },
                 "similar_news": [],
                 "risk_points": [],
@@ -706,6 +712,46 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
             len(mocked_llm.call_args.kwargs["evidence_list"]),
             10,
         )
+
+    def test_no_candidates_has_explicit_no_evidence_quality_state(self) -> None:
+        with (
+            patch("app.services.detection_service.search_similar_knowledge", return_value=[]),
+            patch(
+                "app.services.detection_service.analyze_news_credibility",
+                return_value={
+                    "llm_score": 70,
+                    "risk_level": "存疑信息",
+                    "reason": "没有检索到外部证据。",
+                    "risk_points": [],
+                    "keywords": [],
+                    "suggestion": "继续核查。",
+                },
+            ),
+            patch("app.services.detection_service.analyze_evidence_arbitration") as mocked_arbitration,
+            patch(
+                "app.services.detection_service.calculate_rule_score",
+                return_value={"rule_score": 80, "hit_rules": []},
+            ),
+            patch(
+                "app.services.detection_service.save_detection_record",
+                return_value=SimpleNamespace(id=206),
+            ),
+            patch("app.services.detection_service.should_trigger_web_search", return_value=False),
+        ):
+            result = detect_news_credibility(
+                db=Mock(),
+                payload=DetectNewsRequest(
+                    title="No candidate evidence test",
+                    content="This content is long enough to satisfy request validation.",
+                ),
+                current_user=None,
+            )
+
+        self.assertEqual(result["arbitration_status"], "no_evidence")
+        self.assertEqual(result["quality_status"], "no_evidence")
+        self.assertIsNone(result["evidence_quality"])
+        self.assertEqual(result["arbitration_attempts"], 0)
+        mocked_arbitration.assert_not_called()
 
     def test_empty_effective_evidence_removes_evidence_quality_weight(self) -> None:
         with (
@@ -803,10 +849,8 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
 
         with (
             patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
-            patch(
-                "app.services.detection_service.analyze_news_credibility",
-                side_effect=[missing_arbitration, valid_retry],
-            ) as mocked_llm,
+            patch("app.services.detection_service.analyze_news_credibility", return_value=missing_arbitration) as mocked_llm,
+            patch("app.services.detection_service.analyze_evidence_arbitration", return_value=valid_retry) as mocked_arbitration,
             patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
             patch("app.services.detection_service.should_trigger_web_search", return_value=False),
@@ -824,10 +868,14 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
                 current_user=None,
             )
 
-        self.assertEqual(mocked_llm.call_count, 2)
+        self.assertEqual(mocked_llm.call_count, 1)
+        self.assertEqual(mocked_arbitration.call_count, 1)
         self.assertEqual(result["arbitration_status"], "ok")
-        self.assertEqual(result["llm_score"], 82)
-        self.assertEqual(result["reason"], "重试后完成仲裁。")
+        self.assertEqual(result["quality_status"], "ok")
+        self.assertEqual(result["arbitration_attempts"], 2)
+        self.assertEqual(result["llm_score"], 40)
+        self.assertEqual(result["reason"], "首次返回缺少仲裁。")
+        self.assertEqual(result["evidence_quality"]["score"], 80)
 
     def test_similar_news_uses_llm_risk_judgement(self) -> None:
         with (
@@ -1064,6 +1112,15 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
         with (
             patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
             patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
+            patch(
+                "app.services.detection_service.analyze_evidence_arbitration",
+                return_value={
+                    "evidence_arbitration": None,
+                    "evidence_quality": None,
+                    "similar_news": [],
+                    "error": "模型返回缺少 evidence_arbitration",
+                },
+            ),
             patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
             patch("app.services.detection_service.should_trigger_web_search", return_value=False),
@@ -1109,7 +1166,10 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
                 current_user=None,
             )
 
-        self.assertEqual(result.get("arbitration_status"), "unavailable")
+        self.assertEqual(result.get("arbitration_status"), "retry_exhausted")
+        self.assertEqual(result.get("quality_status"), "unavailable")
+        self.assertEqual(result.get("arbitration_attempts"), 2)
+        self.assertIn("evidence_arbitration", result.get("arbitration_error", ""))
         self.assertIsNone(result["evidence_quality"])
         self.assertEqual(len(result["evidence_list"]), 0)
         self.assertEqual(len(result.get("excluded_evidence", [])), 0)
