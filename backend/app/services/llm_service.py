@@ -15,7 +15,8 @@ from app.core.constants import (
     RISK_LEVEL_SUSPICIOUS,
     RISK_LEVEL_TRUSTED,
 )
-from app.core.config import BASE_DIR
+from app.core.config import BASE_DIR, get_settings
+from app.core.result_cache import cache_key_from_payload, sync_json_cache
 from app.services.prompt_template_validator import (
     NEWS_CREDIBILITY_PROMPT_TYPE,
     PromptTemplateValidationError,
@@ -531,6 +532,29 @@ def _read_timeout_seconds() -> float:
 
 
 def _post_chat_completion(config: dict[str, Any], prompt: str) -> dict[str, Any]:
+    settings = get_settings()
+    if not getattr(settings, "ai_cache_enabled", True):
+        return _post_chat_completion_uncached(config=config, prompt=prompt)
+
+    cache_key = cache_key_from_payload(
+        namespace="llm_chat",
+        version=ANALYSIS_CONTRACT_VERSION,
+        payload={
+            "model": config["model"],
+            "prompt": prompt,
+            "contract": ANALYSIS_CONTRACT_VERSION,
+        },
+    )
+    return sync_json_cache.get_or_set(
+        namespace="llm_chat",
+        key=cache_key,
+        ttl_seconds=getattr(settings, "ai_cache_ttl_seconds", 3600),
+        producer=lambda: _post_chat_completion_uncached(config=config, prompt=prompt),
+        settings=settings,
+    )
+
+
+def _post_chat_completion_uncached(config: dict[str, Any], prompt: str) -> dict[str, Any]:
     url = _build_chat_completion_url(config["base_url"])
     payload = {
         "model": config["model"],

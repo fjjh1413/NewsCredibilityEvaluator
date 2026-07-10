@@ -1,0 +1,12 @@
+﻿fault_case,injection_method,expected_behavior,observed_behavior,evidence,conclusion
+URL抓取失败,自动化测试模拟WebContentFetchError,返回422且不进入检测,后端全量测试通过对应接口用例,backend_pytest.log + test_extract_preview_returns_422_on_fetch_error,通过
+Embedding失败,自动化测试模拟供应商错误/缺少密钥,明确抛出异常且不伪造向量,DeepSeek与DashScope异常用例均通过,backend_pytest.log + test_embedding_service.py,通过
+Chroma不可用,模拟查询重试后仍失败,抛出明确检索异常,缓存清理并重试一次，最终明确失败,backend_pytest.log + test_query_retry_failure_raises_clear_error,通过
+模型超时或供应商失败,自动化测试模拟DeepSeek失败,按规则分降级并保存状态,降级结果被保存，风险等级仍为标准枚举,backend_pytest.log + test_detect_news_degrades_and_saves_when_deepseek_fails,通过
+模型返回非JSON,向解析器输入普通文本,走真实降级解析逻辑,普通文本解析用例通过且保留标准输出结构,backend_pytest.log + test_fallback_parse_plain_text_response,通过
+聚焦重试仍失败,首次和重试均缺失仲裁,异常候选不参与证据评分,arbitration_status=retry_exhausted，evidence_list为空,backend_pytest.log + test_arbitration_unavailable_when_llm_returns_no_arbitration,通过
+向量同步失败,模拟Chroma写入/删除和MySQL提交失败,记录failed/delete_failed并提供恢复,同步状态、回滚和向量恢复用例通过,backend_pytest.log + test_knowledge_sync.py,通过
+模型返回未知candidate_id,直接调用生产契约校验器并注入unknown:9,契约失败并允许上层聚焦重试,unknown candidate_id in ranked_evidence: unknown:9,run_reliability_security.py,通过
+搜索服务失败,Bocha search_evidence抛出BochaServiceError,保留本地分析路径,web_search_triggered=False; evidence_count=1,run_reliability_security.py,通过
+数据库提交失败,Session.commit抛出RuntimeError,回滚并返回失败,异常向上传播；rollback_called=False,run_reliability_security.py + detection_crud.save_detection_record,未通过（未显式回滚）
+PDF生成失败,转换器抛出ReportGenerationError,保留检测记录且清理无效文件,remaining_files=0; report_saved=False,run_reliability_security.py,通过

@@ -1,0 +1,449 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-029",
+    "topic_id": "T08",
+    "gold_label": "可信新闻",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 91.7,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 91.7,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 24481.18,
+    "started_at_utc": "2026-07-01T15:26:47.278791+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 95.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻核心陈述“古希腊神话对欧洲文学、艺术和思想产生深远影响，常被视为西方文明的重要文化源头之一”与知识库条目（kb:231）高度一致，条目明确指出古希腊神话对西方文明、文学艺术有重要影响，且无任何矛盾信息。文章内容与可追溯证据吻合，人物、概念、事实均无偏差。",
+    "risk_points": [
+      "该样本为系统测试用例，新闻本身无实际风险点，但提示需核对原始出处以防断章取义。"
+    ],
+    "keywords": [
+      "古希腊神话",
+      "西方文明",
+      "文化源头",
+      "文学艺术"
+    ],
+    "suggestion": "该新闻信息与可靠知识条目吻合，属于测试样本，可信度较高。在公开传播时建议注明依据来源（如知识库条目），并提醒读者确认是否有更权威的原始出处。",
+    "evidence_quality": {
+      "coverage": 90.0,
+      "consistency": 100.0,
+      "score": 94.0,
+      "assessment": "存在一条直接相关且高度一致的知识库证据，覆盖了新闻的主要主张，未发现任何矛盾或歧义，证据质量良好。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:231",
+          "relevance_score": 100,
+          "quality_score": 80,
+          "stance": "support",
+          "reason": "该知识条目直接对应新闻主题，明确阐述古希腊神话对西方文明的影响，与新闻主张完全一致。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:87",
+          "reason": "内容涉及中欧关系与军事指控，与古希腊神话主题完全无关。"
+        },
+        {
+          "candidate_id": "kb:30",
+          "reason": "内容为虚假灾情视频诱导捐款案例，与当前文化主题无关。"
+        },
+        {
+          "candidate_id": "kb:37",
+          "reason": "内容为医疗人工智能研究报告，与古希腊神话无关。"
+        },
+        {
+          "candidate_id": "kb:145",
+          "reason": "内容为学术期刊文章，主题为错误信息与信念，无关。"
+        },
+        {
+          "candidate_id": "kb:221",
+          "reason": "内容为电竞俱乐部声明，与古希腊神话无关。"
+        },
+        {
+          "candidate_id": "kb:164",
+          "reason": "内容为健康类谣言核查，无关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "内容为科普辟谣频道信息，无关。"
+        },
+        {
+          "candidate_id": "kb:98",
+          "reason": "内容为体育记者简介，无关。"
+        },
+        {
+          "candidate_id": "kb:25",
+          "reason": "内容为虚假众筹案例，无关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 28,
+    "created_at": "2026-07-01 15:26:47.277815+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E5%B8%8C%E8%87%98%E7%A5%9E%E8%A9%B1",
+    "final_score": 91.7,
+    "evidence_score": 89.16,
+    "llm_score": 95.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻核心陈述“古希腊神话对欧洲文学、艺术和思想产生深远影响，常被视为西方文明的重要文化源头之一”与知识库条目（kb:231）高度一致，条目明确指出古希腊神话对西方文明、文学艺术有重要影响，且无任何矛盾信息。文章内容与可追溯证据吻合，人物、概念、事实均无偏差。",
+    "risk_points": [
+      "该样本为系统测试用例，新闻本身无实际风险点，但提示需核对原始出处以防断章取义。",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "来源",
+      "古希腊神话与",
+      "西方文明",
+      "可信样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "古希腊神话",
+      "文化源头",
+      "文学艺术"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 231,
+        "title": "古希腊神话与西方文明",
+        "summary": "古希腊神话对欧洲和西方文明、文学艺术产生重要影响，常被视为西方文化的重要源头之一。证据不支持其是中华文化的摇篮。",
+        "category": "文化",
+        "truth_label": "待核查",
+        "source_name": "希腊神话|西方文化",
+        "risk_level": "",
+        "similarity_score": 0.891614556312561,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:231"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.36793744564056396,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3301306962966919,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 30,
+        "title": "虚假灾情视频诱导捐款",
+        "summary": "旧视频冒充本地灾情并附个人收款码，风险很高。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "应急公益演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.3093622922897339,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:30"
+      },
+      {
+        "knowledge_id": 221,
+        "title": "XLG发布严正声明:对网络造谣诽谤行为零容忍,抵制网络暴力-无畏契约-虎扑社区",
+        "summary": "虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的粉丝与朋友。在此呼吁广大网友保持客观理智,不信谣、不传谣。对于披着“娱乐”外衣行网络暴力之实的极端行为,我们坚决抵制。感谢大家一直以来对XLG电竞俱乐部的信任与支持。让我们携手并肩,共同守护纯粹、健康、积极向上的电竞环境!特此声明。XLG电竞俱乐部2026年6月20日来源:VCT\n虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30760467052459717,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:221"
+      },
+      {
+        "knowledge_id": 98,
+        "title": "动态_界面新闻",
+        "summary": "界面体育记者,关注商业体育、运动品牌和综合体育。邮箱:luoyingying@jiemian.com",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "界面新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.305561900138855,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:98"
+      },
+      {
+        "knowledge_id": 164,
+        "title": "第五章演示：网传喝柠檬水三天清除血管垃圾",
+        "summary": "单一食物不能替代慢病管理或医学治疗。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "健康谣言核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3042113780975342,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:164"
+      },
+      {
+        "knowledge_id": 37,
+        "title": "欧洲研究理事会:《医疗人工智能前沿研究:从疾病预防到诊断和治疗》医药新闻-ByDrug-一站式医药资源共享中心-医药魔方",
+        "summary": "欧洲研究理事会\n2026\n年发布的这份题为《医疗人工智能前沿研究:从疾病预防到诊断和治疗\n》\n报告,系统梳理欧盟在医疗人工智能领域的科研布局、应用成果、现存挑战、潜在风险及配套支持体系,客观呈现欧洲医疗\nAI\n的发展全貌。\n该报告是欧洲研究理事会政策反馈系列报告的延伸成果,依托\n欧盟第七框架计划\n、\n地平线\n2020\n及欧洲地平线计划资助的\n238\n个医疗\nAI\n项目\n展开分析,总资助金额达\n4.5\n亿欧元,覆盖\n20\n个国家,是了解欧洲医疗\nAI\n前沿科研的权威文献。\n报告首先界定了研究的政策背景。",
+        "category": "AI",
+        "truth_label": "待核查",
+        "source_name": "ByDrug掰药",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30269885063171387,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:37"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.30188125371932983,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3002951145172119,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 231,
+        "title": "古希腊神话与西方文明",
+        "summary": "古希腊神话对欧洲和西方文明、文学艺术产生重要影响，常被视为西方文化的重要源头之一。证据不支持其是中华文化的摇篮。",
+        "category": "文化",
+        "truth_label": "待核查",
+        "source_name": "希腊神话|西方文化",
+        "risk_level": "",
+        "similarity_score": 0.891614556312561,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:231",
+        "relevance_score": 100.0,
+        "quality_score": 80.0,
+        "stance": "support",
+        "arbitration_reason": "该知识条目直接对应新闻主题，明确阐述古希腊神话对西方文明的影响，与新闻主张完全一致。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.36793744564056396,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87",
+        "rejection_reason": "内容涉及中欧关系与军事指控，与古希腊神话主题完全无关。"
+      },
+      {
+        "knowledge_id": 30,
+        "title": "虚假灾情视频诱导捐款",
+        "summary": "旧视频冒充本地灾情并附个人收款码，风险很高。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "应急公益演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.3093622922897339,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:30",
+        "rejection_reason": "内容为虚假灾情视频诱导捐款案例，与当前文化主题无关。"
+      },
+      {
+        "knowledge_id": 37,
+        "title": "欧洲研究理事会:《医疗人工智能前沿研究:从疾病预防到诊断和治疗》医药新闻-ByDrug-一站式医药资源共享中心-医药魔方",
+        "summary": "欧洲研究理事会\n2026\n年发布的这份题为《医疗人工智能前沿研究:从疾病预防到诊断和治疗\n》\n报告,系统梳理欧盟在医疗人工智能领域的科研布局、应用成果、现存挑战、潜在风险及配套支持体系,客观呈现欧洲医疗\nAI\n的发展全貌。\n该报告是欧洲研究理事会政策反馈系列报告的延伸成果,依托\n欧盟第七框架计划\n、\n地平线\n2020\n及欧洲地平线计划资助的\n238\n个医疗\nAI\n项目\n展开分析,总资助金额达\n4.5\n亿欧元,覆盖\n20\n个国家,是了解欧洲医疗\nAI\n前沿科研的权威文献。\n报告首先界定了研究的政策背景。",
+        "category": "AI",
+        "truth_label": "待核查",
+        "source_name": "ByDrug掰药",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30269885063171387,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:37",
+        "rejection_reason": "内容为医疗人工智能研究报告，与古希腊神话无关。"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3002951145172119,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "内容为学术期刊文章，主题为错误信息与信念，无关。"
+      },
+      {
+        "knowledge_id": 221,
+        "title": "XLG发布严正声明:对网络造谣诽谤行为零容忍,抵制网络暴力-无畏契约-虎扑社区",
+        "summary": "虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的粉丝与朋友。在此呼吁广大网友保持客观理智,不信谣、不传谣。对于披着“娱乐”外衣行网络暴力之实的极端行为,我们坚决抵制。感谢大家一直以来对XLG电竞俱乐部的信任与支持。让我们携手并肩,共同守护纯粹、健康、积极向上的电竞环境!特此声明。XLG电竞俱乐部2026年6月20日来源:VCT\n虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30760467052459717,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:221",
+        "rejection_reason": "内容为电竞俱乐部声明，与古希腊神话无关。"
+      },
+      {
+        "knowledge_id": 164,
+        "title": "第五章演示：网传喝柠檬水三天清除血管垃圾",
+        "summary": "单一食物不能替代慢病管理或医学治疗。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "健康谣言核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3042113780975342,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:164",
+        "rejection_reason": "内容为健康类谣言核查，无关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3301306962966919,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "内容为科普辟谣频道信息，无关。"
+      },
+      {
+        "knowledge_id": 98,
+        "title": "动态_界面新闻",
+        "summary": "界面体育记者,关注商业体育、运动品牌和综合体育。邮箱:luoyingying@jiemian.com",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "界面新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.305561900138855,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:98",
+        "rejection_reason": "内容为体育记者简介，无关。"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.30188125371932983,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25",
+        "rejection_reason": "内容为虚假众筹案例，无关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻信息与可靠知识条目吻合，属于测试样本，可信度较高。在公开传播时建议注明依据来源（如知识库条目），并提醒读者确认是否有更权威的原始出处。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 90.0,
+      "consistency": 100.0,
+      "score": 94.0,
+      "assessment": "存在一条直接相关且高度一致的知识库证据，覆盖了新闻的主要主张，未发现任何矛盾或歧义，证据质量良好。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

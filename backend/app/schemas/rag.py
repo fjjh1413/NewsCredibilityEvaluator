@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -34,6 +36,9 @@ class RagSearchItem(BaseModel):
     source_name: str
     vector_sync_status: str
     similarity_score: float | None = None
+    index_version: str | None = None
+    chunks: list[dict[str, Any]] = Field(default_factory=list)
+    score_components: dict[str, Any] = Field(default_factory=dict)
 
 
 class RagSearchData(BaseModel):

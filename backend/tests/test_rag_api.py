@@ -78,6 +78,55 @@ class RagApiTestCase(unittest.TestCase):
         self.assertEqual(data["results"], [])
 
     @patch("app.api.v1.rag.search_similar_knowledge")
+    def test_search_exposes_v2_debug_fields_without_breaking_legacy_fields(
+        self,
+        mocked_search,
+    ) -> None:
+        mocked_search.return_value = [
+            {
+                "metadata": {
+                    "knowledge_id": 2,
+                    "title": "Chunked news",
+                    "summary": "summary",
+                    "category": "society",
+                    "truth_label": "false",
+                    "source_name": "official",
+                    "risk_level": "high",
+                    "vector_sync_status": "synced",
+                    "index_version": "v2",
+                },
+                "similarity_score": 0.91,
+                "index_version": "v2",
+                "chunks": [
+                    {
+                        "chunk_id": "knowledge:2:chunk:0",
+                        "chunk_type": "title_summary",
+                        "document": "title chunk",
+                        "similarity_score": 0.91,
+                    }
+                ],
+                "score_components": {
+                    "dense_score": 0.91,
+                    "lexical_score": 0.2,
+                    "exact_score": 0.0,
+                    "final_score": 0.687,
+                },
+            }
+        ]
+
+        response = self.client.post(
+            "/api/rag/search",
+            json={"query": "chunked", "top_k": 5},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        result = response.json()["data"]["results"][0]
+        self.assertEqual(result["id"], 2)
+        self.assertEqual(result["index_version"], "v2")
+        self.assertEqual(result["chunks"][0]["chunk_id"], "knowledge:2:chunk:0")
+        self.assertEqual(result["score_components"]["dense_score"], 0.91)
+
+    @patch("app.api.v1.rag.search_similar_knowledge")
     def test_title_content_takes_priority_over_query(self, mocked_search) -> None:
         mocked_search.return_value = []
 

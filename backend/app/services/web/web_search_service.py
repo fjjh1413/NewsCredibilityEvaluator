@@ -8,6 +8,8 @@ import logging
 from typing import Any
 from urllib.parse import urlparse, urlunparse
 
+from app.core.config import get_settings
+from app.core.result_cache import cache_key_from_payload, sync_json_cache
 from app.services.web.bocha_client import BochaClient, BochaServiceError
 from app.schemas.web_search import WebEvidenceItem, WebSearchMeta
 from app.utils.text_cleaner import clean_text
@@ -115,6 +117,57 @@ def search_evidence(
     if not query:
         return []
 
+    settings = get_settings()
+    cache_key = cache_key_from_payload(
+        namespace="web_search",
+        version="1",
+        payload={
+            "query": query,
+            "count": count,
+            "freshness": freshness,
+        },
+    )
+
+    if getattr(settings, "web_search_cache_enabled", True):
+        cached_items = sync_json_cache.get_json(
+            namespace="web_search",
+            key=cache_key,
+            settings=settings,
+        )
+        if cached_items is not None:
+            return [WebEvidenceItem.model_validate(item) for item in cached_items]
+
+        fresh_items = _search_evidence_uncached(
+            client=client,
+            query=query,
+            count=count,
+            freshness=freshness,
+        )
+        if fresh_items:
+            sync_json_cache.set_json(
+                namespace="web_search",
+                key=cache_key,
+                value=[item.model_dump(mode="json") for item in fresh_items],
+                ttl_seconds=getattr(settings, "web_search_cache_ttl_seconds", 900),
+                settings=settings,
+            )
+        return fresh_items
+
+    return _search_evidence_uncached(
+        client=client,
+        query=query,
+        count=count,
+        freshness=freshness,
+    )
+
+
+def _search_evidence_uncached(
+    *,
+    client: BochaClient,
+    query: str,
+    count: int,
+    freshness: str,
+) -> list[WebEvidenceItem]:
     try:
         response = client.search(query=query, freshness=freshness, count=count, summary=True)
     except BochaServiceError as exc:

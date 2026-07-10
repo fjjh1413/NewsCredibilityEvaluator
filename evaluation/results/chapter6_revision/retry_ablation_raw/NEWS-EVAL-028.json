@@ -1,0 +1,458 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-028",
+    "topic_id": "T07",
+    "gold_label": "高风险谣言",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 33.3,
+    "full_predicted_label": "高风险谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 33.3,
+    "no_retry_predicted_label": "高风险谣言",
+    "total_ms": 23546.93,
+    "started_at_utc": "2026-07-01T15:26:22.794352+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 5.0,
+    "risk_level": "高风险谣言",
+    "reason": "新闻核心断言“磁暴发生时极光只会出现在更高纬度，绝不可能向较低纬度扩展”与知识库证据（kb:230）明确矛盾。证据表明强烈磁暴可使极光活动扩展到较低纬度。文章使用绝对化断言，无任何可核验来源，并煽动立即转发，符合高风险谣言特征。",
+    "risk_points": [
+      "核心事实与科学共识相悖：强烈磁暴可使极光扩展至低纬，新闻断言完全相反。",
+      "使用“权威确认”“官方已经证实”等虚假权威暗示，无任何可追溯文件。",
+      "绝对化断言“只会”“绝不可能”，缺乏科学论证的严谨性。",
+      "煽动立即转发，符合谣言传播特征。",
+      "与唯一相关证据直接冲突，且无其他证据佐证。"
+    ],
+    "keywords": [
+      "磁暴",
+      "低纬极光",
+      "纬度",
+      "科学错误",
+      "谣言"
+    ],
+    "suggestion": "该新闻为高风险谣言，建议立即标记为不实信息，限制其传播，并发布基于科学证据的澄清内容，说明强烈磁暴可导致极光出现在较低纬度。",
+    "evidence_quality": {
+      "coverage": 60.0,
+      "consistency": 0.0,
+      "score": 36.0,
+      "assessment": "检索证据中包含一条直接相关的科学说明（kb:230），与新闻核心主张完全相反。其余证据均不相关，整体覆盖度有限，一致性极低，证据质量为差。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:230",
+          "relevance_score": 100,
+          "quality_score": 90,
+          "stance": "contradict",
+          "reason": "直接讨论磁暴与极光纬度关系，明确指出强烈磁暴可使极光扩展至低纬，与新闻断言完全相反。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:221",
+          "reason": "主题为电竞俱乐部声明，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:67",
+          "reason": "内容为放射检查辟谣，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:160",
+          "reason": "内容为体育中心辟谣，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:25",
+          "reason": "虚假众筹案例，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:16",
+          "reason": "矿泉水致癌谣言案例，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:30",
+          "reason": "虚假灾情视频案例，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "科学辟谣文章，但未涉及极光，不相关。"
+        },
+        {
+          "candidate_id": "kb:65",
+          "reason": "放射检查辟谣，与磁暴极光无关。"
+        },
+        {
+          "candidate_id": "kb:163",
+          "reason": "台风预警案例，与磁暴极光无关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 27,
+    "created_at": "2026-07-01 15:26:22.793745+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E6%A5%B5%E5%85%89",
+    "final_score": 33.3,
+    "evidence_score": 86.07,
+    "llm_score": 5.0,
+    "rule_score": 100.0,
+    "risk_level": "高风险谣言",
+    "judgement_result": "该新闻存在较高谣言风险",
+    "reason": "新闻核心断言“磁暴发生时极光只会出现在更高纬度，绝不可能向较低纬度扩展”与知识库证据（kb:230）明确矛盾。证据表明强烈磁暴可使极光活动扩展到较低纬度。文章使用绝对化断言，无任何可核验来源，并煽动立即转发，符合高风险谣言特征。",
+    "risk_points": [
+      "核心事实与科学共识相悖：强烈磁暴可使极光扩展至低纬，新闻断言完全相反。",
+      "使用“权威确认”“官方已经证实”等虚假权威暗示，无任何可追溯文件。",
+      "绝对化断言“只会”“绝不可能”，缺乏科学论证的严谨性。",
+      "煽动立即转发，符合谣言传播特征。",
+      "与唯一相关证据直接冲突，且无其他证据佐证。"
+    ],
+    "keywords": [
+      "官方",
+      "权威",
+      "磁暴与低纬极",
+      "高风险样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "磁暴",
+      "低纬极光",
+      "纬度",
+      "科学错误"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 230,
+        "title": "磁暴与低纬极光",
+        "summary": "强烈磁暴可使极光活动扩展到较低纬度。证据讨论的是纬度变化，不是经度或音阶。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "极光|磁暴",
+        "risk_level": "",
+        "similarity_score": 0.8606520891189575,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:230"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4540974497795105,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 221,
+        "title": "XLG发布严正声明:对网络造谣诽谤行为零容忍,抵制网络暴力-无畏契约-虎扑社区",
+        "summary": "虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的粉丝与朋友。在此呼吁广大网友保持客观理智,不信谣、不传谣。对于披着“娱乐”外衣行网络暴力之实的极端行为,我们坚决抵制。感谢大家一直以来对XLG电竞俱乐部的信任与支持。让我们携手并肩,共同守护纯粹、健康、积极向上的电竞环境!特此声明。XLG电竞俱乐部2026年6月20日来源:VCT\n虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41434770822525024,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:221"
+      },
+      {
+        "knowledge_id": 30,
+        "title": "虚假灾情视频诱导捐款",
+        "summary": "旧视频冒充本地灾情并附个人收款码，风险很高。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "应急公益演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.4138863682746887,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:30"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40963971614837646,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4070063829421997,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65"
+      },
+      {
+        "knowledge_id": 16,
+        "title": "某品牌矿泉水含致癌物剪辑视频",
+        "summary": "食品安全指控需有检测报告、批次和监管结论。",
+        "category": "消费",
+        "truth_label": "疑似谣言",
+        "source_name": "食品安全核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.39978331327438354,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:16"
+      },
+      {
+        "knowledge_id": 163,
+        "title": "第五章演示：气象部门发布台风蓝色预警",
+        "summary": "官方台风预警应包含影响范围、时间窗口和防御建议。",
+        "category": "社会民生",
+        "truth_label": "可信新闻",
+        "source_name": "气象部门公开通报",
+        "risk_level": "可信新闻",
+        "similarity_score": 0.3973968029022217,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:163"
+      },
+      {
+        "knowledge_id": 160,
+        "title": "谨防上当受骗!顺义城南体育中心发布辟谣声明",
+        "summary": "近日,有个别自媒体以城南体育中心名义在微信视频号、抖音等平台,向公众发布游泳健身虚假开业信息及优惠活动,诱导消费者进行线上线下交易。为维护公众合法权益、避免误导,顺义区体育场馆管理服务中心发布辟谣声明:\n顺义城南体育中心从未发布任何形式的游泳馆开业信息及优惠活动,也未授权任何第三方机构、个人以城南体育中心名义宣传场馆有关信息。有关城南体育中心的最新动态,请以“顺义体育”微信公众号和场馆张贴的公告为准。也呼吁广大市民提高警惕,加强自我防范意识,以免上当受骗。",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "陕西省委网信办违法和不良信息举报中心首页",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3907907009124756,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:160"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.39037710428237915,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 230,
+        "title": "磁暴与低纬极光",
+        "summary": "强烈磁暴可使极光活动扩展到较低纬度。证据讨论的是纬度变化，不是经度或音阶。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "极光|磁暴",
+        "risk_level": "",
+        "similarity_score": 0.8606520891189575,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:230",
+        "relevance_score": 100.0,
+        "quality_score": 90.0,
+        "stance": "contradict",
+        "arbitration_reason": "直接讨论磁暴与极光纬度关系，明确指出强烈磁暴可使极光扩展至低纬，与新闻断言完全相反。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 221,
+        "title": "XLG发布严正声明:对网络造谣诽谤行为零容忍,抵制网络暴力-无畏契约-虎扑社区",
+        "summary": "虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的粉丝与朋友。在此呼吁广大网友保持客观理智,不信谣、不传谣。对于披着“娱乐”外衣行网络暴力之实的极端行为,我们坚决抵制。感谢大家一直以来对XLG电竞俱乐部的信任与支持。让我们携手并肩,共同守护纯粹、健康、积极向上的电竞环境!特此声明。XLG电竞俱乐部2026年6月20日来源:VCT\n虎扑06月20日讯\nXLG针对网络造谣诽谤行为发布严正声明:【严正声明】\nXLG对网络造谣诽谤行为“零容忍”!致广大粉丝及社会各界朋友:近期,俱乐部观察到部分用户凭空捏造,散布极端不实信息,贬损俱乐部选手名誉、破坏俱乐部形象。此类行为严重侵犯俱乐部合法权益,污染网络健康环境。网络绝非法外之地,言论自由但必须以尊重事实、遵守法律为底线。对于任何针对XLG电竞俱乐部及选手的造谣、诽谤、侮辱及恶意攻击行为,我们在此郑重表态:零容忍!为切实维护合法权益,俱乐部已全面启动维权程序,现郑重声明如下:一,针对恶意造谣诽谤行为,俱乐部将第一时间对不实内容(含文章、视频、评论、私信等)进行全面证据固定。我们将依法追究其法律责任。二,感谢每一位理性支持XLG电竞俱乐部的",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41434770822525024,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:221",
+        "rejection_reason": "主题为电竞俱乐部声明，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40963971614837646,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67",
+        "rejection_reason": "内容为放射检查辟谣，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 160,
+        "title": "谨防上当受骗!顺义城南体育中心发布辟谣声明",
+        "summary": "近日,有个别自媒体以城南体育中心名义在微信视频号、抖音等平台,向公众发布游泳健身虚假开业信息及优惠活动,诱导消费者进行线上线下交易。为维护公众合法权益、避免误导,顺义区体育场馆管理服务中心发布辟谣声明:\n顺义城南体育中心从未发布任何形式的游泳馆开业信息及优惠活动,也未授权任何第三方机构、个人以城南体育中心名义宣传场馆有关信息。有关城南体育中心的最新动态,请以“顺义体育”微信公众号和场馆张贴的公告为准。也呼吁广大市民提高警惕,加强自我防范意识,以免上当受骗。",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "陕西省委网信办违法和不良信息举报中心首页",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3907907009124756,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:160",
+        "rejection_reason": "内容为体育中心辟谣，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.39037710428237915,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25",
+        "rejection_reason": "虚假众筹案例，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 16,
+        "title": "某品牌矿泉水含致癌物剪辑视频",
+        "summary": "食品安全指控需有检测报告、批次和监管结论。",
+        "category": "消费",
+        "truth_label": "疑似谣言",
+        "source_name": "食品安全核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.39978331327438354,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:16",
+        "rejection_reason": "矿泉水致癌谣言案例，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 30,
+        "title": "虚假灾情视频诱导捐款",
+        "summary": "旧视频冒充本地灾情并附个人收款码，风险很高。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "应急公益演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.4138863682746887,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:30",
+        "rejection_reason": "虚假灾情视频案例，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4540974497795105,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "科学辟谣文章，但未涉及极光，不相关。"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4070063829421997,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65",
+        "rejection_reason": "放射检查辟谣，与磁暴极光无关。"
+      },
+      {
+        "knowledge_id": 163,
+        "title": "第五章演示：气象部门发布台风蓝色预警",
+        "summary": "官方台风预警应包含影响范围、时间窗口和防御建议。",
+        "category": "社会民生",
+        "truth_label": "可信新闻",
+        "source_name": "气象部门公开通报",
+        "risk_level": "可信新闻",
+        "similarity_score": 0.3973968029022217,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:163",
+        "rejection_reason": "台风预警案例，与磁暴极光无关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻为高风险谣言，建议立即标记为不实信息，限制其传播，并发布基于科学证据的澄清内容，说明强烈磁暴可导致极光出现在较低纬度。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 60.0,
+      "consistency": 0.0,
+      "score": 36.0,
+      "assessment": "检索证据中包含一条直接相关的科学说明（kb:230），与新闻核心主张完全相反。其余证据均不相关，整体覆盖度有限，一致性极低，证据质量为差。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

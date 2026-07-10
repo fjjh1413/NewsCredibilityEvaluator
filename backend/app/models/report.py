@@ -51,4 +51,6 @@ class Report(Base):
     __table_args__ = (
         UniqueConstraint("detection_id", name="uq_reports_detection_id"),
         Index("idx_report_user_id", "user_id"),
+        Index("idx_report_created", "created_at", "id"),
+        Index("idx_report_user_created", "user_id", "created_at", "id"),
     )

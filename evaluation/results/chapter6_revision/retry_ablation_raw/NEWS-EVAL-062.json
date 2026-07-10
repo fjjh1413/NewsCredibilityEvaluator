@@ -1,0 +1,482 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-062",
+    "topic_id": "T16",
+    "gold_label": "存疑信息",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 58.5,
+    "full_predicted_label": "疑似谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 58.5,
+    "no_retry_predicted_label": "疑似谣言",
+    "total_ms": 27477.29,
+    "started_at_utc": "2026-07-02T04:57:44.024867+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 55.0,
+    "risk_level": "存疑信息",
+    "reason": "新闻标题和正文本质上是一个用于测试证据不足场景的样本，并非真实新闻事件。正文指出社交平台流传的关于美国共和党政治倾向的说法缺乏原始出处、统计口径和完整上下文，现有证据（知识库条目kb:239）仅表明共和党通常偏保守，不支持整体偏开放或使用“数学证明”作为政策立场。新闻本身没有断言任何事实，而是强调信息存疑，因此整体可信度中等偏下。",
+    "risk_points": [
+      "新闻声明为测试样本，非真实信息",
+      "缺乏原始统计、权威文件或明确时间范围",
+      "社交平台流传的说法无出处和完整上下文",
+      "现有知识库证据有限，仅有一条相关条目",
+      "部分说法（如所有政策领域完全一致）未经证实且存在过度概括"
+    ],
+    "keywords": [
+      "美国共和党",
+      "政治倾向",
+      "保守",
+      "存疑样本",
+      "证据不足"
+    ],
+    "suggestion": "由于新闻本身为测试用样本，建议在真实场景中通过权威渠道（如共和党官方平台、学术研究或可信媒体）核实其政策立场，并考虑党内派别、议题差异和时代变化，避免单一概括。",
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 80.0,
+      "score": 50.0,
+      "assessment": "仅有1条直接相关的知识库证据（kb:239），覆盖度较低；但该证据与新闻中提及的核验依据一致，均指出共和党偏保守，不支持极端说法，因此一致性较高。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:239",
+          "relevance_score": 95,
+          "quality_score": 70,
+          "stance": "support",
+          "reason": "直接匹配美国共和党政治倾向主题，提供核验依据：共和党通常偏保守，不支持整体开放或数学证明作为立场。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:12",
+          "reason": "与新闻主题无关（银行存款利率群消息）"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "与新闻主题无关（科普辟谣文章）"
+        },
+        {
+          "candidate_id": "kb:166",
+          "reason": "与新闻主题无关（银行存款利率群消息）"
+        },
+        {
+          "candidate_id": "kb:146",
+          "reason": "与新闻主题无关（虎扑NBA假新闻讨论）"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "与新闻主题无关（电子报刊摘要）"
+        },
+        {
+          "candidate_id": "kb:145",
+          "reason": "与新闻主题无关（学术期刊文献）"
+        },
+        {
+          "candidate_id": "kb:42",
+          "reason": "与新闻主题无关（版权保护研讨会）"
+        },
+        {
+          "candidate_id": "kb:236",
+          "reason": "与新闻主题无关（蔡元培与自由主义）"
+        },
+        {
+          "candidate_id": "kb:87",
+          "reason": "与新闻主题无关（中方驳斥欧盟指控）"
+        }
+      ]
+    },
+    "similar_news": [
+      {
+        "candidate_id": "kb:239",
+        "risk_level": "存疑信息",
+        "relevance_reason": "该知识条目直接对应美国共和党政治倾向，与当前新闻主题一致，提供了相同的核验依据。"
+      }
+    ]
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 71,
+    "created_at": "2026-07-02 04:57:44.024236+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E5%85%B1%E5%92%8C%E9%BB%A8_(%E7%BE%8E%E5%9C%8B)",
+    "final_score": 58.5,
+    "evidence_score": 87.1,
+    "llm_score": 55.0,
+    "rule_score": 80.0,
+    "risk_level": "疑似谣言",
+    "judgement_result": "该新闻疑似存在谣言风险",
+    "reason": "新闻标题和正文本质上是一个用于测试证据不足场景的样本，并非真实新闻事件。正文指出社交平台流传的关于美国共和党政治倾向的说法缺乏原始出处、统计口径和完整上下文，现有证据（知识库条目kb:239）仅表明共和党通常偏保守，不支持整体偏开放或使用“数学证明”作为政策立场。新闻本身没有断言任何事实，而是强调信息存疑，因此整体可信度中等偏下。",
+    "risk_points": [
+      "新闻声明为测试样本，非真实信息",
+      "缺乏原始统计、权威文件或明确时间范围",
+      "社交平台流传的说法无出处和完整上下文",
+      "现有知识库证据有限，仅有一条相关条目",
+      "部分说法（如所有政策领域完全一致）未经证实且存在过度概括",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "虚假",
+      "权威",
+      "美国共和党政",
+      "治倾向",
+      "存疑样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "美国共和党",
+      "政治倾向",
+      "保守",
+      "证据不足"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.8710498213768005,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33612680435180664,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33247148990631104,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32625114917755127,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3241207003593445,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3202773332595825,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.3194553852081299,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31648993492126465,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87"
+      },
+      {
+        "knowledge_id": 12,
+        "title": "某银行存款利率今晚统一上调群消息",
+        "summary": "金融产品信息不能只依据聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3102949857711792,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:12"
+      },
+      {
+        "knowledge_id": 42,
+        "title": "“加强新兴领域版权保护”研讨会在京举办",
+        "summary": "2026年6月12日,由中国版权协会和北京大学国际知识产权研究中心联合主办的“加强新兴领域版权保护”研讨会在北大博雅国际酒店中华厅举办。会议围绕人工智能时代版权制度面临的挑战与回应、网络服务提供者的版权责任等问题展开深入研讨。\n“加强新兴领域版权保护”研讨会在京举办\n与会专家指出,作为知识和信息的载体,在数据承载的丰富内容当中,版权作品数量不菲,且不可或缺。而在对数据进行加工、确权、价值评估、授权使用的过程中,仍然存在不少法律上的争议问题。当前该领域呈现的矛盾是数据已经使用在先,但相应数据所承载的版权如何维护的问题并未得到妥善解决。应当坚持在保证权利人在数据中的合法权益的同时,为数据的合理使用和流通提供相应规范性的原则,并就权利人的数据成本补偿和收益分成等具体问题展开深入的实践探索。\n与会专家认为,如果采用“绝对控制说”来判断用户针对AIGC提出的版权主张,将面临独创性认定门槛过分高企、与创作工具便捷性的进步趋势逆向而行,以及无法充分正视人类干预者贡献的三重困境。问题解决的关键,在于回归对人的贡献的关注,而且这种关注应当聚焦于人类贡献的实质、而非其技术细节。\n与会专家认为,人工智能时代网络服务提供者的侵权责任面临新变化、新挑战。被诉侵权行为从过去的单一性特征发展为具有功能杂糅性特征,这为区分内容提供者与服务提供者、直接与间接侵权、过错认定带来挑战。维权主体从创作者扩展到内容平台,版权诉讼成为平台型企业相互竞争的工具。应当将裁判对产业创新与竞争格局的影响纳入考量范围。坚守技术中立原则、准确适用过错责任原则,让个案裁判能产生推动各方未来达成版权治理合作的效果。\n本次研讨会还举行了《文化法律评论》首卷发布仪式。\n《文化法律评论》,易继明主编,华中科技大学出版社出版",
+        "category": "AI",
+        "truth_label": "待核查",
+        "source_name": "京报网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3010873794555664,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:42"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.8710498213768005,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239",
+        "relevance_score": 95.0,
+        "quality_score": 70.0,
+        "stance": "support",
+        "arbitration_reason": "直接匹配美国共和党政治倾向主题，提供核验依据：共和党通常偏保守，不支持整体开放或数学证明作为立场。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 12,
+        "title": "某银行存款利率今晚统一上调群消息",
+        "summary": "金融产品信息不能只依据聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3102949857711792,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:12",
+        "rejection_reason": "与新闻主题无关（银行存款利率群消息）"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3202773332595825,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "与新闻主题无关（科普辟谣文章）"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3241207003593445,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166",
+        "rejection_reason": "与新闻主题无关（银行存款利率群消息）"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33247148990631104,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146",
+        "rejection_reason": "与新闻主题无关（虎扑NBA假新闻讨论）"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32625114917755127,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "与新闻主题无关（电子报刊摘要）"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33612680435180664,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "与新闻主题无关（学术期刊文献）"
+      },
+      {
+        "knowledge_id": 42,
+        "title": "“加强新兴领域版权保护”研讨会在京举办",
+        "summary": "2026年6月12日,由中国版权协会和北京大学国际知识产权研究中心联合主办的“加强新兴领域版权保护”研讨会在北大博雅国际酒店中华厅举办。会议围绕人工智能时代版权制度面临的挑战与回应、网络服务提供者的版权责任等问题展开深入研讨。\n“加强新兴领域版权保护”研讨会在京举办\n与会专家指出,作为知识和信息的载体,在数据承载的丰富内容当中,版权作品数量不菲,且不可或缺。而在对数据进行加工、确权、价值评估、授权使用的过程中,仍然存在不少法律上的争议问题。当前该领域呈现的矛盾是数据已经使用在先,但相应数据所承载的版权如何维护的问题并未得到妥善解决。应当坚持在保证权利人在数据中的合法权益的同时,为数据的合理使用和流通提供相应规范性的原则,并就权利人的数据成本补偿和收益分成等具体问题展开深入的实践探索。\n与会专家认为,如果采用“绝对控制说”来判断用户针对AIGC提出的版权主张,将面临独创性认定门槛过分高企、与创作工具便捷性的进步趋势逆向而行,以及无法充分正视人类干预者贡献的三重困境。问题解决的关键,在于回归对人的贡献的关注,而且这种关注应当聚焦于人类贡献的实质、而非其技术细节。\n与会专家认为,人工智能时代网络服务提供者的侵权责任面临新变化、新挑战。被诉侵权行为从过去的单一性特征发展为具有功能杂糅性特征,这为区分内容提供者与服务提供者、直接与间接侵权、过错认定带来挑战。维权主体从创作者扩展到内容平台,版权诉讼成为平台型企业相互竞争的工具。应当将裁判对产业创新与竞争格局的影响纳入考量范围。坚守技术中立原则、准确适用过错责任原则,让个案裁判能产生推动各方未来达成版权治理合作的效果。\n本次研讨会还举行了《文化法律评论》首卷发布仪式。\n《文化法律评论》,易继明主编,华中科技大学出版社出版",
+        "category": "AI",
+        "truth_label": "待核查",
+        "source_name": "京报网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3010873794555664,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:42",
+        "rejection_reason": "与新闻主题无关（版权保护研讨会）"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.3194553852081299,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236",
+        "rejection_reason": "与新闻主题无关（蔡元培与自由主义）"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31648993492126465,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87",
+        "rejection_reason": "与新闻主题无关（中方驳斥欧盟指控）"
+      }
+    ],
+    "similar_news": [
+      {
+        "title": "美国共和党政治倾向",
+        "source_name": "共和党_(美国)",
+        "source_url": null,
+        "publish_time": null,
+        "source_type": "knowledge_base",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.8710498213768005,
+        "candidate_id": "kb:239",
+        "rank_order": 1,
+        "relevance_score": 95.0,
+        "quality_score": 70.0,
+        "stance": "support",
+        "relevance_reason": "该知识条目直接对应美国共和党政治倾向，与当前新闻主题一致，提供了相同的核验依据。",
+        "arbitration_reason": "直接匹配美国共和党政治倾向主题，提供核验依据：共和党通常偏保守，不支持整体开放或数学证明作为立场。"
+      }
+    ],
+    "suggestion": "由于新闻本身为测试用样本，建议在真实场景中通过权威渠道（如共和党官方平台、学术研究或可信媒体）核实其政策立场，并考虑党内派别、议题差异和时代变化，避免单一概括。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 80.0,
+      "score": 50.0,
+      "assessment": "仅有1条直接相关的知识库证据（kb:239），覆盖度较低；但该证据与新闻中提及的核验依据一致，均指出共和党偏保守，不支持极端说法，因此一致性较高。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

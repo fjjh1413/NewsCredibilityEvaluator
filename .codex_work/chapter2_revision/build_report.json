@@ -1,0 +1,70 @@
+{
+  "source": "E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\智闻辨真：基于RAG与大语言模型的新闻可信度评估系统3_第4章系统总体设计完成版.docx",
+  "output_docx": "E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\润色\\智闻辨真_第二章需求分析优化版.docx",
+  "output_md": "E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\润色\\第二章修改说明.md",
+  "source_chapter_stats": {
+    "paragraphs": 44,
+    "nonempty_paragraphs": 42,
+    "tables": 1,
+    "drawings": 2
+  },
+  "logical_tables": 2,
+  "figures_added": 3,
+  "toc_updated": true,
+  "toc_status": "Microsoft Word已刷新1个目录域",
+  "validation": {
+    "zip_valid": true,
+    "chapter_headings_match": true,
+    "forbidden_phrases_absent": true,
+    "required_terms_present": true,
+    "chapter1_unchanged": true,
+    "chapter3_unchanged": true,
+    "chapter4_unchanged": true,
+    "breaks_unchanged": true,
+    "source_breaks": {
+      "page_breaks": 2,
+      "column_breaks": 0,
+      "section_properties": 3,
+      "sections": 3
+    },
+    "output_breaks": {
+      "page_breaks": 2,
+      "column_breaks": 0,
+      "section_properties": 3,
+      "sections": 3
+    },
+    "output_chapter_stats": {
+      "paragraphs": 71,
+      "nonempty_paragraphs": 68,
+      "tables": 7,
+      "drawings": 3
+    },
+    "image_info": {
+      "fig2-1-use-case": {
+        "width_px": 2457,
+        "height_px": 2547,
+        "dpi": [
+          300,
+          300
+        ]
+      },
+      "fig2-2-evaluation-flow": {
+        "width_px": 2300,
+        "height_px": 1760,
+        "dpi": [
+          300,
+          300
+        ]
+      },
+      "fig2-3-knowledge-sync": {
+        "width_px": 2350,
+        "height_px": 1180,
+        "dpi": [
+          300,
+          300
+        ]
+      }
+    },
+    "all_pass": true
+  }
+}

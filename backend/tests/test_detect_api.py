@@ -475,7 +475,7 @@ class DetectRateLimitApiTestCase(unittest.TestCase):
 
     @patch.object(detect_api, "get_settings", create=True)
     @patch("app.api.v1.detect.detect_news_credibility")
-    def test_detect_news_rate_limit_counts_each_ip_separately(
+    def test_detect_news_rate_limit_ignores_untrusted_forwarded_headers(
         self,
         mocked_detect,
         mocked_get_settings,
@@ -491,20 +491,21 @@ class DetectRateLimitApiTestCase(unittest.TestCase):
             json=self._valid_request(),
             headers={"X-Forwarded-For": "203.0.113.10"},
         )
-        second_ip_response = self.client.post(
+        spoofed_second_ip_response = self.client.post(
             "/api/detect/news",
             json=self._valid_request(),
             headers={"X-Forwarded-For": "203.0.113.11"},
         )
-        repeated_first_ip_response = self.client.post(
+        repeated_spoofed_first_ip_response = self.client.post(
             "/api/detect/news",
             json=self._valid_request(),
             headers={"X-Forwarded-For": "203.0.113.10"},
         )
 
         self.assertEqual(first_ip_response.status_code, 200)
-        self.assertEqual(second_ip_response.status_code, 200)
-        self.assertEqual(repeated_first_ip_response.status_code, 429)
+        self.assertEqual(spoofed_second_ip_response.status_code, 429)
+        self.assertEqual(repeated_spoofed_first_ip_response.status_code, 429)
+        self.assertEqual(mocked_detect.call_count, 1)
 
 
 class DetectOptionalAuthTestCase(unittest.TestCase):
@@ -1195,6 +1196,7 @@ class ExtractPreviewApiTestCase(unittest.TestCase):
             "source_name": "example.com",
             "source_url": "https://example.com/news/1",
             "publish_time": "2026-06-18T09:30:00+08:00",
+            "publish_time_precision": "datetime",
         }
 
         response = self.client.post(
@@ -1210,10 +1212,53 @@ class ExtractPreviewApiTestCase(unittest.TestCase):
         self.assertEqual(body["data"]["source_name"], "example.com")
         self.assertEqual(body["data"]["source_url"], "https://example.com/news/1")
         self.assertEqual(body["data"]["publish_time"], "2026-06-18T09:30:00+08:00")
+        self.assertEqual(body["data"]["publish_time_precision"], "datetime")
         # the URL is passed through to the fetcher
         mocked_fetcher_cls.return_value.fetch_article.assert_called_once_with(
             "https://example.com/news/1"
         )
+
+    @patch("app.api.v1.detect.WebContentFetcher")
+    def test_extract_preview_returns_date_precision(self, mocked_fetcher_cls) -> None:
+        mocked_fetcher_cls.return_value.fetch_article.return_value = {
+            "title": "只有日期的新闻",
+            "content": "这是用于验证仅发布日期响应的新闻正文内容。",
+            "source_name": "example.com",
+            "source_url": "https://example.com/news/date-only",
+            "publish_time": "2026-06-19",
+            "publish_time_precision": "date",
+        }
+
+        response = self.client.post(
+            "/api/detect/extract-preview",
+            json={"url": "https://example.com/news/date-only"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"]["publish_time"], "2026-06-19")
+        self.assertEqual(response.json()["data"]["publish_time_precision"], "date")
+
+    @patch("app.api.v1.detect.WebContentFetcher")
+    def test_extract_preview_returns_null_precision_when_time_missing(
+        self, mocked_fetcher_cls
+    ) -> None:
+        mocked_fetcher_cls.return_value.fetch_article.return_value = {
+            "title": "没有发布时间的新闻",
+            "content": "这是用于验证发布时间缺失响应的新闻正文内容。",
+            "source_name": "example.com",
+            "source_url": "https://example.com/news/no-time",
+            "publish_time": None,
+            "publish_time_precision": None,
+        }
+
+        response = self.client.post(
+            "/api/detect/extract-preview",
+            json={"url": "https://example.com/news/no-time"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["data"]["publish_time"])
+        self.assertIsNone(response.json()["data"]["publish_time_precision"])
 
     @patch("app.api.v1.detect.WebContentFetcher")
     def test_extract_preview_returns_422_on_ssrf(self, mocked_fetcher_cls) -> None:

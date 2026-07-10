@@ -113,6 +113,44 @@ def get_all_knowledge_items(db: Session) -> list[KnowledgeItem]:
     return db.query(KnowledgeItem).order_by(KnowledgeItem.id.asc()).all()
 
 
+def search_knowledge_items_for_retrieval(
+    db: Session,
+    tokens: list[str],
+    limit: int,
+    category: str | None = None,
+    truth_label: str | None = None,
+    risk_level: str | None = None,
+) -> list[KnowledgeItem]:
+    query = db.query(KnowledgeItem)
+
+    if category:
+        query = query.filter(KnowledgeItem.category == category)
+    if truth_label:
+        query = query.filter(KnowledgeItem.truth_label == truth_label)
+    if risk_level:
+        query = query.filter(KnowledgeItem.risk_level == risk_level)
+
+    filters = []
+    for token in tokens[:8]:
+        pattern = f"%{token}%"
+        filters.extend(
+            [
+                KnowledgeItem.title.like(pattern),
+                KnowledgeItem.summary.like(pattern),
+                KnowledgeItem.keywords.like(pattern),
+                KnowledgeItem.content.like(pattern),
+            ]
+        )
+    if filters:
+        query = query.filter(or_(*filters))
+
+    return (
+        query.order_by(KnowledgeItem.created_at.desc(), KnowledgeItem.id.desc())
+        .limit(limit)
+        .all()
+    )
+
+
 def delete_knowledge_item(db: Session, db_item: KnowledgeItem) -> None:
     db.delete(db_item)
     db.commit()

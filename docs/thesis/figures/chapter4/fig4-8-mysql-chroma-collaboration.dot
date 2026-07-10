@@ -1,0 +1,26 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=ortho;
+  mysql [label="MySQL：knowledge_items\n业务事实源\nid、全文、标签、vector_id\nvector_sync_status／error", shape=cylinder, fillcolor="#EAF2F8", color="#5B7C99"];
+  text [label="构造向量化文本\ntitle、content、category、summary、keywords、\ntruth_label、debunking_explanation"];
+  embed [label="DashScope Embedding\ntext-embedding-v4／1024维"];
+  chroma [label="Chroma：knowledge_items\nID＝knowledge:<id>；cosine\n元数据：knowledge_id、title、category、\ntruth_label、source_name、risk_level", shape=cylinder, fillcolor="#F7F8FA"];
+  query [label="检索时以knowledge_id回查MySQL\n过滤失效条目并补充summary、同步状态等字段"];
+
+  strategy [label="应用层一致性与恢复策略\n新增：先写MySQL；同步失败标记failed\n更新：暂不提交MySQL；向量失败则回滚\n删除：先删向量；MySQL失败则恢复并标记delete_failed\n恢复：单条重试／全量重建；Chroma句柄异常重试1次"];
+  boundary [label="边界：上述机制是应用层补偿，\n不是MySQL与Chroma的分布式事务", style="rounded,dashed,filled", fillcolor="#FAFAFA"];
+
+  mysql -> text -> embed -> chroma;
+  chroma -> query -> mysql [label="一致性校验与字段回填"];
+  strategy -> mysql [style=dashed];
+  strategy -> chroma [style=dashed];
+  boundary -> strategy [style=dashed, arrowhead=none];
+}

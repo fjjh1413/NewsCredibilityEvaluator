@@ -1,0 +1,35 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=ortho;
+  arbitration [label="证据仲裁结果\nranked有效证据｜rejected排除证据", fillcolor="#EAF2F8", color="#5B7C99"];
+  components [label="评分分量\nSₗ：LLM可信度分（0～100）\nSᵣ：规则分（0～100）\n覆盖度C、一致性K（0～100）"];
+  eq [label="证据质量分Sₑ＝0.6C＋0.4K\n由服务端重算，不直接信任模型给分"];
+  llmfail [label="LLM服务失败？", shape=diamond, style="filled", margin="0.06"];
+  has [label="存在有效证据？", shape=diamond, style="filled", margin="0.06"];
+  f1 [label="降级：S＝Sᵣ"];
+  f2 [label="无有效证据：S＝0.6Sₗ＋0.4Sᵣ"];
+  f3 [label="有有效证据：S＝0.5Sₗ＋0.3Sₑ＋0.2Sᵣ", fillcolor="#EAF2F8", color="#5B7C99"];
+  level [label="风险等级映射\nS≥80：可信新闻\n60≤S＜80：存疑信息\n40≤S＜60：疑似谣言\nS＜40：高风险谣言"];
+  output [label="输出与持久化\n最终分、等级、判断理由、风险点、建议\n原始相似度均值仅展示／记录，不进入当前综合公式", shape=oval, fillcolor="#F2F5F7"];
+
+  arbitration -> components;
+  components -> eq;
+  components -> llmfail;
+  eq -> has;
+  llmfail -> f1 [label="是"];
+  llmfail -> has [label="否"];
+  has -> f3 [label="是"];
+  has -> f2 [label="否"];
+  f1 -> level;
+  f2 -> level;
+  f3 -> level;
+  level -> output;
+}

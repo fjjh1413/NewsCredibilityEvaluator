@@ -1,0 +1,47 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=ortho;
+  browser [label="浏览器用户\n游客｜注册用户｜管理员", fillcolor="#EAF2F8", color="#5B7C99"];
+
+  subgraph cluster_system {
+    label="智闻辨真系统边界"; labelloc="t"; color="#8795A1"; style="rounded";
+    subgraph cluster_frontend {
+      label="表现与交互层"; color="#C3CBD2"; style="rounded";
+      vue [label="Vue 3前端应用\n页面与组件｜Vue Router｜Pinia｜Axios", fillcolor="#F2F5F7"];
+    }
+    subgraph cluster_backend {
+      label="接口与业务层"; color="#C3CBD2"; style="rounded";
+      fastapi [label="FastAPI REST接口\n认证鉴权｜参数校验｜统一响应", fillcolor="#EAF2F8", color="#5B7C99"];
+      services [label="业务服务\n检测编排｜RAG检索｜证据仲裁｜报告生成｜统计与审计"];
+      scheduler [label="APScheduler定时调度\n周期性新闻采集", style="rounded,dashed,filled", fillcolor="#FAFAFA"];
+    }
+    subgraph cluster_storage {
+      label="数据与文件层"; color="#C3CBD2"; style="rounded";
+      mysql [label="MySQL\n结构化业务数据", shape=cylinder, fillcolor="#F7F8FA"];
+      chroma [label="Chroma\nknowledge_items语义索引", shape=cylinder, fillcolor="#F7F8FA"];
+      reports [label="报告文件目录\nHTML／PDF", shape=folder, fillcolor="#F7F8FA"];
+    }
+  }
+
+  subgraph cluster_external {
+    label="外部智能与内容服务"; color="#9AA7B2"; style="rounded,dashed";
+    external [label="DeepSeek：证据约束下的语义分析\nDashScope：text-embedding-v4／1024维向量\n博查搜索：本地证据不足时补充\n新闻网页：标题、正文与发布时间提取"];
+  }
+
+  browser -> vue [label="页面操作"];
+  vue -> fastapi [label="HTTP／JSON；JWT Bearer"];
+  fastapi -> services [label="调用"];
+  scheduler -> services [label="触发采集"];
+  services -> mysql [label="事务读写"];
+  services -> chroma [label="向量写入／相似检索"];
+  services -> reports [label="模板渲染／文件生成"];
+  services -> external [label="受控调用；超时与降级"];
+}

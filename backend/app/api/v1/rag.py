@@ -61,6 +61,13 @@ def search_knowledge(
                 source_name=metadata["source_name"],
                 vector_sync_status=metadata["vector_sync_status"],
                 similarity_score=result.get("similarity_score"),
+                index_version=(
+                    result.get("index_version")
+                    or metadata.get("index_version")
+                    or "v1"
+                ),
+                chunks=result.get("chunks") or [],
+                score_components=result.get("score_components") or {},
             )
         )
 

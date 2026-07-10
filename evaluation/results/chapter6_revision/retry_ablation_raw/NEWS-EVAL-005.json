@@ -1,0 +1,455 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-005",
+    "topic_id": "T02",
+    "gold_label": "可信新闻",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 93.5,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 93.5,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 13775.53,
+    "started_at_utc": "2026-07-02T04:46:08.247552+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 95.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻核心表述为‘日本海盆是日本海主要的海盆之一，日本海还分布有大和海盆和对马海盆’，与检索证据中知识条目‘日本海海盆’的摘要完全一致，且无额外冲突信息。证据明确支持新闻主张，未发现人物、地点、时间、数量或因果关系上的矛盾。",
+    "risk_points": [
+      "新闻明确标注为可信样本测试，无实际风险点",
+      "核心陈述与知识库条目完全匹配，无夸大或曲解",
+      "未发现人物、地点、时间、数量或因果关系的虚构或矛盾"
+    ],
+    "keywords": [
+      "日本海海盆",
+      "日本海盆",
+      "大和海盆",
+      "对马海盆",
+      "海底地形"
+    ],
+    "suggestion": "该新闻为可信样本，内容与已知地理事实一致，建议在传播时注明知识来源（如日本海海盆知识条目）以提升可信度，并提醒读者区分海盆与城市、火山等概念。",
+    "evidence_quality": {
+      "coverage": 100.0,
+      "consistency": 100.0,
+      "score": 100.0,
+      "assessment": "检索证据中知识条目‘日本海海盆’直接覆盖新闻核心陈述，与新闻内容完全一致，无缺失或矛盾，证据质量高。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:225",
+          "relevance_score": 100,
+          "quality_score": 90,
+          "stance": "support",
+          "reason": "知识条目明确陈述‘日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆’，与新闻核心表述完全一致，直接支撑新闻可信度。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:145",
+          "reason": "关于 misinformation 和信念的学术文献，与日本海海盆地理主题无关"
+        },
+        {
+          "candidate_id": "kb:81",
+          "reason": "界面新闻简介，未提供与日本海海盆相关的具体信息"
+        },
+        {
+          "candidate_id": "kb:13",
+          "reason": "公共安全短视频核查样例，与地理主题无关"
+        },
+        {
+          "candidate_id": "kb:242",
+          "reason": "太平岛实际控制，与日本海海盆无关"
+        },
+        {
+          "candidate_id": "kb:60",
+          "reason": "日本央行利率决议，与地理主题无关"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "科普中国辟谣文章，无日本海海盆信息"
+        },
+        {
+          "candidate_id": "kb:82",
+          "reason": "九游会国际无关链接，无实质内容"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "电子报刊摘要，无日本海海盆相关信息"
+        },
+        {
+          "candidate_id": "kb:101",
+          "reason": "墨西哥记者体育传闻，完全不相关"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 43,
+    "created_at": "2026-07-02 04:46:08.246856+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E6%B5%B7",
+    "final_score": 93.5,
+    "evidence_score": 79.91,
+    "llm_score": 95.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻核心表述为‘日本海盆是日本海主要的海盆之一，日本海还分布有大和海盆和对马海盆’，与检索证据中知识条目‘日本海海盆’的摘要完全一致，且无额外冲突信息。证据明确支持新闻主张，未发现人物、地点、时间、数量或因果关系上的矛盾。",
+    "risk_points": [
+      "新闻明确标注为可信样本测试，无实际风险点",
+      "核心陈述与知识库条目完全匹配，无夸大或曲解",
+      "未发现人物、地点、时间、数量或因果关系的虚构或矛盾",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "来源",
+      "日本海海盆",
+      "可信样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "相关内容涉及",
+      "日本海盆",
+      "大和海盆",
+      "对马海盆",
+      "海底地形"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 225,
+        "title": "日本海海盆",
+        "summary": "日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆。海盆是海底地形单元，不是城市或海底火山。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "日本海",
+        "risk_level": "",
+        "similarity_score": 0.7990515828132629,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:225"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3659690022468567,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3536369800567627,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3503674268722534,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242"
+      },
+      {
+        "knowledge_id": 60,
+        "title": "日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。_外汇动态报道",
+        "summary": "汇通财经APP讯——日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。",
+        "category": "财经",
+        "truth_label": "待核查",
+        "source_name": "汇通财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3372630476951599,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:60"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32144856452941895,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3145260214805603,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3086928129196167,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30398625135421753,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 81,
+        "title": "界面新闻",
+        "summary": "《国际资讯在线》,全球视野,一手掌握。作为领先的国际新闻聚合平台,我们全天候追踪世界各地最新动态,涵盖政治、经济、科技、文化等多元领域。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "界面新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2899513840675354,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:81"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 225,
+        "title": "日本海海盆",
+        "summary": "日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆。海盆是海底地形单元，不是城市或海底火山。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "日本海",
+        "risk_level": "",
+        "similarity_score": 0.7990515828132629,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:225",
+        "relevance_score": 100.0,
+        "quality_score": 90.0,
+        "stance": "support",
+        "arbitration_reason": "知识条目明确陈述‘日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆’，与新闻核心表述完全一致，直接支撑新闻可信度。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3145260214805603,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "关于 misinformation 和信念的学术文献，与日本海海盆地理主题无关"
+      },
+      {
+        "knowledge_id": 81,
+        "title": "界面新闻",
+        "summary": "《国际资讯在线》,全球视野,一手掌握。作为领先的国际新闻聚合平台,我们全天候追踪世界各地最新动态,涵盖政治、经济、科技、文化等多元领域。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "界面新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2899513840675354,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:81",
+        "rejection_reason": "界面新闻简介，未提供与日本海海盆相关的具体信息"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3086928129196167,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13",
+        "rejection_reason": "公共安全短视频核查样例，与地理主题无关"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3503674268722534,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242",
+        "rejection_reason": "太平岛实际控制，与日本海海盆无关"
+      },
+      {
+        "knowledge_id": 60,
+        "title": "日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。_外汇动态报道",
+        "summary": "汇通财经APP讯——日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。",
+        "category": "财经",
+        "truth_label": "待核查",
+        "source_name": "汇通财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3372630476951599,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:60",
+        "rejection_reason": "日本央行利率决议，与地理主题无关"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30398625135421753,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "科普中国辟谣文章，无日本海海盆信息"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3536369800567627,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82",
+        "rejection_reason": "九游会国际无关链接，无实质内容"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32144856452941895,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "电子报刊摘要，无日本海海盆相关信息"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3659690022468567,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101",
+        "rejection_reason": "墨西哥记者体育传闻，完全不相关"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻为可信样本，内容与已知地理事实一致，建议在传播时注明知识来源（如日本海海盆知识条目）以提升可信度，并提醒读者区分海盆与城市、火山等概念。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 100.0,
+      "consistency": 100.0,
+      "score": 100.0,
+      "assessment": "检索证据中知识条目‘日本海海盆’直接覆盖新闻核心陈述，与新闻内容完全一致，无缺失或矛盾，证据质量高。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

@@ -3,6 +3,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.crud import knowledge_crud
 from app.models.knowledge_item import KnowledgeItem
 from app.schemas.knowledge import KnowledgeCreate, KnowledgeUpdate, VectorSyncStatus
@@ -14,6 +15,13 @@ from app.services.chroma_service import (
     search_knowledge_vectors,
     upsert_knowledge_item_vector,
 )
+from app.services.rag.vector_index import (
+    build_knowledge_parent_vector_id,
+    delete_knowledge_item_chunk_vectors,
+    reset_knowledge_chunk_vectors,
+    upsert_knowledge_item_chunk_vectors,
+)
+from app.services.rag.retrieval import search_similar_knowledge_v2
 from app.utils.text_cleaner import clean_text
 
 
@@ -30,6 +38,10 @@ class KnowledgeNotFoundError(KnowledgeServiceError):
 
 class KnowledgeVectorSyncError(KnowledgeServiceError):
     pass
+
+
+def _uses_rag_v2_index() -> bool:
+    return get_settings().rag_index_version in {"v2", "hybrid"}
 
 
 def _format_sync_error(exc: Exception) -> str:
@@ -167,6 +179,34 @@ def _mark_vector_synced(
     )
 
 
+def _upsert_vector_for_item(item: KnowledgeItem) -> str:
+    settings = get_settings()
+    if settings.rag_index_version in {"v2", "hybrid"}:
+        upsert_knowledge_item_chunk_vectors(
+            item,
+            chunk_size=settings.rag_chunk_size,
+            chunk_overlap=settings.rag_chunk_overlap,
+        )
+        return build_knowledge_parent_vector_id(item)
+
+    embedding_text = build_knowledge_embedding_text(item)
+    return upsert_knowledge_item_vector(item, embedding_text)
+
+
+def _delete_vector_for_item(item: KnowledgeItem) -> None:
+    if _uses_rag_v2_index():
+        delete_knowledge_item_chunk_vectors(item)
+        return
+    delete_knowledge_item_vector(item)
+
+
+def _reset_active_knowledge_index() -> None:
+    if _uses_rag_v2_index():
+        reset_knowledge_chunk_vectors()
+        return
+    reset_knowledge_collection()
+
+
 def build_rag_search_text(
     title: str | None = None,
     content: str | None = None,
@@ -192,9 +232,8 @@ def _sync_knowledge_vector(
     auto_commit: bool = True,
     raise_on_failure: bool = False,
 ) -> KnowledgeItem:
-    embedding_text = build_knowledge_embedding_text(item)
     try:
-        vector_id = upsert_knowledge_item_vector(item, embedding_text)
+        vector_id = _upsert_vector_for_item(item)
     except ChromaServiceError as exc:
         failed_item = _mark_vector_failed(db, item, exc, auto_commit=auto_commit)
         if raise_on_failure:
@@ -290,7 +329,7 @@ def delete_knowledge_item(db: Session, item_id: int) -> None:
     """
     item = get_knowledge_item(db, item_id)
     try:
-        delete_knowledge_item_vector(item)
+        _delete_vector_for_item(item)
     except ChromaServiceError as exc:
         logger.exception(
             "Chroma knowledge vector delete failed for item id=%s; MySQL record kept",
@@ -322,6 +361,21 @@ def search_similar_knowledge(
         return []
 
     safe_top_k = normalize_top_k(top_k)
+    if _uses_rag_v2_index():
+        try:
+            v2_results = search_similar_knowledge_v2(
+                db,
+                query_text=cleaned_query,
+                top_k=safe_top_k,
+                category=category,
+                truth_label=truth_label,
+                risk_level=risk_level,
+            )
+        except ChromaServiceError as exc:
+            raise KnowledgeVectorSyncError("Knowledge vector search failed") from exc
+        if v2_results or get_settings().rag_index_version == "v2":
+            return v2_results
+
     try:
         vector_results = search_knowledge_vectors(
             cleaned_query,
@@ -368,10 +422,7 @@ def _restore_vector_after_mysql_delete_failure(
     delete_exc: Exception,
 ) -> None:
     try:
-        vector_id = upsert_knowledge_item_vector(
-            item,
-            build_knowledge_embedding_text(item),
-        )
+        vector_id = _upsert_vector_for_item(item)
     except Exception as restore_exc:
         db.rollback()
         logger.exception("Knowledge vector restore failed for item id=%s", item.id)
@@ -432,7 +483,7 @@ def rebuild_knowledge_index(db: Session) -> dict[str, Any]:
     failed_ids: list[int] = []
 
     try:
-        reset_knowledge_collection()
+        _reset_active_knowledge_index()
     except ChromaServiceError as exc:
         for item in items:
             _mark_vector_failed(db, item, exc)

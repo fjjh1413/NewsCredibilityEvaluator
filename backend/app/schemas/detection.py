@@ -1,9 +1,9 @@
 import json
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class EvidenceMatchBase(BaseModel):
@@ -313,6 +313,28 @@ class DetectNewsApiResponse(BaseModel):
     data: DetectNewsResult
 
 
+DetectionTaskStatus = Literal["queued", "running", "succeeded", "failed"]
+
+
+class DetectionTaskOut(BaseModel):
+    task_id: str
+    celery_task_id: str | None = None
+    status: DetectionTaskStatus
+    detection_id: int | None = None
+    result: DetectNewsResult | None = None
+    error_message: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class DetectionTaskApiResponse(BaseModel):
+    code: int
+    message: str
+    data: DetectionTaskOut
+
+
 class ExtractPreviewRequest(BaseModel):
     """Request body for the detect-by-link preview/extract endpoint."""
 
@@ -339,6 +361,26 @@ class ExtractPreviewData(BaseModel):
     source_name: str | None = None
     source_url: str | None = None
     publish_time: str | None = None
+    publish_time_precision: Literal["date", "datetime"] | None = None
+
+    @model_validator(mode="after")
+    def publish_time_must_match_precision(self) -> "ExtractPreviewData":
+        if self.publish_time is None:
+            if self.publish_time_precision is not None:
+                raise ValueError("publish_time_precision requires publish_time")
+            return self
+        if self.publish_time_precision is None:
+            raise ValueError("publish_time requires publish_time_precision")
+        try:
+            if self.publish_time_precision == "date":
+                datetime.strptime(self.publish_time, "%Y-%m-%d")
+            else:
+                if "T" not in self.publish_time:
+                    raise ValueError("datetime publication time must contain T")
+                datetime.fromisoformat(self.publish_time.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("publish_time does not match publish_time_precision") from exc
+        return self
 
 
 class ExtractPreviewApiResponse(BaseModel):

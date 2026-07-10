@@ -11,7 +11,10 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.crud.detection_crud import get_detection_record_by_id
 from app.crud.report_crud import (
-    get_admin_report_candidates,
+    count_admin_reports,
+    get_admin_report_page,
+    iter_admin_report_candidates,
+    get_report_by_detection_id,
     get_report_by_id,
     save_generated_report,
 )
@@ -67,7 +70,21 @@ def list_admin_reports(
     safe_page = max(page, 1)
     safe_page_size = max(1, min(page_size, 100))
     normalized_status = status.strip().lower() if status else None
-    candidates = get_admin_report_candidates(
+    if normalized_status:
+        return _list_admin_reports_by_status(
+            db,
+            page=safe_page,
+            page_size=safe_page_size,
+            status=normalized_status,
+            keyword=keyword,
+            start_date=start_date,
+            end_date=end_date,
+            user_id=user_id,
+            detection_id=detection_id,
+        )
+
+    start = (safe_page - 1) * safe_page_size
+    total = count_admin_reports(
         db,
         keyword=keyword,
         start_date=start_date,
@@ -75,18 +92,61 @@ def list_admin_reports(
         user_id=user_id,
         detection_id=detection_id,
     )
-    items = [_build_admin_report_item(db, report) for report in candidates]
-    if normalized_status:
-        items = [item for item in items if item["status"] == normalized_status]
-
-    total = len(items)
-    start = (safe_page - 1) * safe_page_size
-    end = start + safe_page_size
+    reports = get_admin_report_page(
+        db,
+        offset=start,
+        limit=safe_page_size,
+        keyword=keyword,
+        start_date=start_date,
+        end_date=end_date,
+        user_id=user_id,
+        detection_id=detection_id,
+    )
     return {
         "total": total,
         "page": safe_page,
         "page_size": safe_page_size,
-        "items": items[start:end],
+        "items": [_build_admin_report_item(db, report) for report in reports],
+    }
+
+
+def _list_admin_reports_by_status(
+    db: Session,
+    *,
+    page: int,
+    page_size: int,
+    status: str,
+    keyword: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: int | None = None,
+    detection_id: int | None = None,
+) -> dict[str, Any]:
+    start = (page - 1) * page_size
+    total = 0
+    items: list[dict[str, Any]] = []
+
+    for report in iter_admin_report_candidates(
+        db,
+        keyword=keyword,
+        start_date=start_date,
+        end_date=end_date,
+        user_id=user_id,
+        detection_id=detection_id,
+    ):
+        file_info = _report_file_info(report)
+        if file_info[2] != status:
+            continue
+
+        if total >= start and len(items) < page_size:
+            items.append(_build_admin_report_item(db, report, file_info=file_info))
+        total += 1
+
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "items": items,
     }
 
 
@@ -117,6 +177,16 @@ def generate_detection_report(
         raise ReportNotFoundError("检测记录不存在")
     _ensure_owner_or_admin(detection.user_id, current_user)
 
+    settings = get_settings()
+    report_root = Path(settings.report_path)
+    if getattr(settings, "report_generation_cache_enabled", True):
+        existing_report = get_report_by_detection_id(db, detection.id)
+        if existing_report is not None and _report_files_are_reusable(
+            report_root,
+            existing_report,
+        ):
+            return existing_report
+
     owner = (
         get_user_by_id(db, detection.user_id)
         if detection.user_id is not None
@@ -124,8 +194,6 @@ def generate_detection_report(
     )
     context = _build_report_context(detection, owner)
     report_title = f"新闻可信度检测报告 - {detection.input_title}"[:255]
-    settings = get_settings()
-    report_root = Path(settings.report_path)
     report_dir = report_root / f"detection_{detection.id}"
     file_stem = f"report_{uuid4().hex}"
     html_file = report_dir / f"{file_stem}.html"
@@ -278,6 +346,17 @@ def _ensure_owner_or_admin(owner_id: int | None, current_user: Any) -> None:
         raise ReportAccessDeniedError("无权生成或下载该检测记录的报告")
 
 
+def _report_files_are_reusable(report_root: Path, report: Report) -> bool:
+    if not report.html_path or not report.pdf_path:
+        return False
+    try:
+        html_file = _resolve_stored_path(report_root, report.html_path)
+        pdf_file = _resolve_stored_path(report_root, report.pdf_path)
+    except ReportFileMissingError:
+        return False
+    return html_file.is_file() and pdf_file.is_file()
+
+
 def _resolve_stored_path(report_root: Path, stored_path: str) -> Path:
     root = report_root.resolve()
     candidate = Path(stored_path)
@@ -293,10 +372,15 @@ def _resolve_stored_path(report_root: Path, stored_path: str) -> Path:
     return resolved
 
 
-def _build_admin_report_item(db: Session, report: Report) -> dict[str, Any]:
+def _build_admin_report_item(
+    db: Session,
+    report: Report,
+    *,
+    file_info: tuple[str | None, int | None, str] | None = None,
+) -> dict[str, Any]:
     detection = _get_report_detection(db, report)
     owner = get_user_by_id(db, report.user_id) if report.user_id is not None else None
-    file_name, file_size, report_status = _report_file_info(report)
+    file_name, file_size, report_status = file_info or _report_file_info(report)
     return {
         "report_id": int(report.id),
         "detection_id": int(report.detection_id),

@@ -1,3 +1,4 @@
+import ipaddress
 import os
 import tempfile
 from functools import lru_cache
@@ -15,12 +16,14 @@ DEFAULT_EMBEDDING_PROVIDER = "dashscope"
 DEFAULT_EMBEDDING_DIMENSION = 1024
 DEFAULT_DETECT_RATE_LIMIT_COUNT = 3
 DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS = 60
+SUPPORTED_RAG_INDEX_VERSIONS = {"v1", "v2", "hybrid"}
 PRODUCTION_ENV_NAMES = {"prod", "production"}
 PLACEHOLDER_SECRET_KEYS = {
     "change_me",
     "changeme",
     "replace_with_secret_key",
     "replace_with_a_long_random_secret",
+    "replace_with_at_least_32_random_characters",
     "your-secret-key",
     "your_secret_key",
 }
@@ -37,6 +40,45 @@ def _read_positive_int_env(name: str, default: int) -> int:
     except ValueError:
         return default
     return value if value > 0 else default
+
+
+def _read_positive_float_env(name: str, default: float) -> float:
+    raw_value = os.getenv(name, "").strip()
+    if not raw_value:
+        return default
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+def _read_float_range_env(
+    name: str,
+    default: float,
+    minimum: float,
+    maximum: float,
+) -> float:
+    raw_value = os.getenv(name, "").strip()
+    if not raw_value:
+        return default
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return default
+    return min(max(value, minimum), maximum)
+
+
+def _read_bool_env(name: str, default: bool = False) -> bool:
+    raw_value = os.getenv(name, "").strip().lower()
+    if not raw_value:
+        return default
+    return raw_value in {"1", "true", "yes", "on"}
+
+
+def _read_rag_index_version() -> str:
+    value = os.getenv("RAG_INDEX_VERSION", "v1").strip().lower()
+    return value if value in SUPPORTED_RAG_INDEX_VERSIONS else "v1"
 
 
 def _read_environment() -> str:
@@ -102,7 +144,126 @@ class Settings:
             "DETECT_RATE_LIMIT_WINDOW_SECONDS",
             DEFAULT_DETECT_RATE_LIMIT_WINDOW_SECONDS,
         )
+        self.trusted_proxy_ips = os.getenv("TRUSTED_PROXY_IPS", "").strip()
+        self.redis_enabled = _read_bool_env("REDIS_ENABLED", False)
+        self.redis_required = _read_bool_env("REDIS_REQUIRED", False)
+        self.redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0").strip()
+        self.redis_socket_timeout_seconds = _read_positive_float_env(
+            "REDIS_SOCKET_TIMEOUT_SECONDS",
+            1.0,
+        )
+        self.redis_socket_connect_timeout_seconds = _read_positive_float_env(
+            "REDIS_SOCKET_CONNECT_TIMEOUT_SECONDS",
+            1.0,
+        )
+        self.otel_tracing_enabled = _read_bool_env("OTEL_TRACING_ENABLED", False)
+        self.otel_service_name = os.getenv(
+            "OTEL_SERVICE_NAME",
+            self.project_name,
+        ).strip()
+        self.otel_exporter_otlp_traces_endpoint = (
+            os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
+            or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+            or "http://127.0.0.1:4318/v1/traces"
+        ).strip()
+        self.otel_trace_sample_ratio = _read_float_range_env(
+            "OTEL_TRACE_SAMPLE_RATIO",
+            0.10,
+            0.0,
+            1.0,
+        )
+        self.pyroscope_enabled = _read_bool_env("PYROSCOPE_ENABLED", False)
+        self.pyroscope_required = _read_bool_env("PYROSCOPE_REQUIRED", False)
+        self.pyroscope_server_address = os.getenv(
+            "PYROSCOPE_SERVER_ADDRESS",
+            "http://127.0.0.1:4040",
+        ).strip()
+        self.pyroscope_application_name = os.getenv(
+            "PYROSCOPE_APPLICATION_NAME",
+            self.project_name,
+        ).strip() or self.project_name
+        self.pyroscope_sample_rate = _read_positive_int_env(
+            "PYROSCOPE_SAMPLE_RATE",
+            100,
+        )
+        self.pyroscope_basic_auth_username = os.getenv(
+            "PYROSCOPE_BASIC_AUTH_USERNAME",
+            "",
+        ).strip()
+        self.pyroscope_basic_auth_password = os.getenv(
+            "PYROSCOPE_BASIC_AUTH_PASSWORD",
+            "",
+        ).strip()
+        self.pyroscope_tenant_id = os.getenv("PYROSCOPE_TENANT_ID", "").strip()
+        self.cache_key_prefix = os.getenv("CACHE_KEY_PREFIX", "newscred").strip()
+        self.cache_default_ttl_seconds = _read_positive_int_env(
+            "CACHE_DEFAULT_TTL_SECONDS",
+            300,
+        )
+        self.cache_ttl_jitter_seconds = _read_positive_int_env(
+            "CACHE_TTL_JITTER_SECONDS",
+            30,
+        )
+        self.admin_statistics_cache_ttl_seconds = _read_positive_int_env(
+            "ADMIN_STATISTICS_CACHE_TTL_SECONDS",
+            60,
+        )
         # ── Bocha AI ──
+        self.async_detection_enabled = _read_bool_env(
+            "ASYNC_DETECTION_ENABLED",
+            False,
+        )
+        self.async_task_always_eager = _read_bool_env(
+            "ASYNC_TASK_ALWAYS_EAGER",
+            False,
+        )
+        self.celery_broker_url = (
+            os.getenv("CELERY_BROKER_URL") or self.redis_url
+        ).strip()
+        self.celery_result_backend = (
+            os.getenv("CELERY_RESULT_BACKEND") or self.redis_url
+        ).strip()
+        self.celery_worker_concurrency = _read_positive_int_env(
+            "CELERY_WORKER_CONCURRENCY",
+            2,
+        )
+        self.ai_cache_enabled = _read_bool_env("AI_CACHE_ENABLED", True)
+        self.ai_cache_ttl_seconds = _read_positive_int_env(
+            "AI_CACHE_TTL_SECONDS",
+            3600,
+        )
+        self.web_search_cache_enabled = _read_bool_env(
+            "WEB_SEARCH_CACHE_ENABLED",
+            True,
+        )
+        self.web_search_cache_ttl_seconds = _read_positive_int_env(
+            "WEB_SEARCH_CACHE_TTL_SECONDS",
+            900,
+        )
+        self.embedding_cache_enabled = _read_bool_env(
+            "EMBEDDING_CACHE_ENABLED",
+            True,
+        )
+        self.embedding_cache_ttl_seconds = _read_positive_int_env(
+            "EMBEDDING_CACHE_TTL_SECONDS",
+            86400,
+        )
+        self.rag_index_version = _read_rag_index_version()
+        self.rag_retrieval_debug = _read_bool_env("RAG_RETRIEVAL_DEBUG", False)
+        self.rag_chunk_size = _read_positive_int_env("RAG_CHUNK_SIZE", 700)
+        self.rag_chunk_overlap = _read_positive_int_env("RAG_CHUNK_OVERLAP", 100)
+        self.rag_dense_top_n = _read_positive_int_env("RAG_DENSE_TOP_N", 50)
+        self.rag_parent_top_k = _read_positive_int_env("RAG_PARENT_TOP_K", 15)
+        self.rag_chunks_per_parent = _read_positive_int_env(
+            "RAG_CHUNKS_PER_PARENT",
+            2,
+        )
+        self.rag_lexical_enabled = _read_bool_env("RAG_LEXICAL_ENABLED", True)
+        self.rag_mmr_enabled = _read_bool_env("RAG_MMR_ENABLED", True)
+        self.report_generation_cache_enabled = _read_bool_env(
+            "REPORT_GENERATION_CACHE_ENABLED",
+            True,
+        )
         self.bocha_api_key = os.getenv("BOCHA_API_KEY", "").strip()
         self.bocha_api_base_url = (
             os.getenv("BOCHA_API_BASE_URL", "https://api.bochaai.com").strip()
@@ -135,6 +296,28 @@ class Settings:
             for origin in self.backend_cors_origins.split(",")
             if origin.strip()
         ]
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment in PRODUCTION_ENV_NAMES
+
+    @property
+    def trusted_proxy_networks(
+        self,
+    ) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+        networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
+        if not self.trusted_proxy_ips:
+            return networks
+
+        for raw_item in self.trusted_proxy_ips.split(","):
+            item = raw_item.strip()
+            if not item:
+                continue
+            try:
+                networks.append(ipaddress.ip_network(item, strict=False))
+            except ValueError as exc:
+                raise RuntimeError(f"Invalid TRUSTED_PROXY_IPS entry: {item}") from exc
+        return networks
 
     @property
     def database_url(self) -> str:
@@ -182,11 +365,21 @@ class Settings:
                 "Please configure a strong secret in backend/.env."
             )
 
-        if self.environment in PRODUCTION_ENV_NAMES and _is_weak_secret_key(secret_key):
+        if self.is_production and _is_weak_secret_key(secret_key):
             raise RuntimeError(
                 "SECRET_KEY is too weak for production. "
                 "Please configure a long random secret in backend/.env."
             )
+
+        if self.is_production and "*" in self.cors_origins:
+            raise RuntimeError(
+                "BACKEND_CORS_ORIGINS must list explicit origins in production."
+            )
+
+        if self.redis_enabled and not self.redis_url:
+            raise RuntimeError("REDIS_URL is required when REDIS_ENABLED=true.")
+
+        _ = self.trusted_proxy_networks
 
 
 def _is_weak_secret_key(secret_key: str) -> bool:

@@ -1,0 +1,29 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=LR; splines=ortho;
+  layout [label="UserLayout用户端框架\n公共导航与内容出口", fillcolor="#EAF2F8", color="#5B7C99"];
+  public [label="公开访问", shape=tab, fillcolor="#F2F5F7"];
+  guest [label="仅未登录访问", shape=tab, fillcolor="#F2F5F7"];
+  auth [label="需登录访问", shape=tab, fillcolor="#F2F5F7"];
+  home [label="首页  /"];
+  detect [label="新闻检测  /detect\n文本输入｜URL提取预览｜联网开关"];
+  result [label="检测结果  /result/:id\n评分｜风险等级｜证据｜报告操作"];
+  high [label="高风险新闻  /high-risk\n公开列表、排行、关键词与分类"];
+  login [label="登录  /login"];
+  register [label="注册  /register"];
+  history [label="历史记录  /history\n筛选、分页、详情与重新评估"];
+  profile [label="个人中心  /profile"];
+
+  layout -> public; layout -> guest; layout -> auth;
+  public -> home; public -> detect; public -> result; public -> high;
+  guest -> login; guest -> register;
+  auth -> history; auth -> profile;
+}

@@ -5,8 +5,10 @@ import re
 import socket
 import urllib.error
 import urllib.request
+from dataclasses import dataclass
+from datetime import datetime
 from html import unescape as html_unescape
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urljoin, urlparse
 
 from app.core.config import get_settings
@@ -43,6 +45,49 @@ TITLE_TAGS = {
     "title": "text",
     "h1": "text",
 }
+PUBLISH_META_SOURCE_RANKS = {
+    "article:published_time": 550,
+    "og:published_time": 540,
+    "datepublished": 500,
+    "date_published": 490,
+    "pubdate": 350,
+    "publishdate": 340,
+    "publish_date": 330,
+    "date": 100,
+}
+PUBLISH_DATETIME_PATTERN = re.compile(
+    r"(?<!\d)"
+    r"(?P<year>\d{4})(?:\s*-\s*|\s+)(?P<month>\d{1,2})"
+    r"(?:\s*-\s*|\s+)(?P<day>\d{1,2})"
+    r"[T\s]+(?P<hour>\d{1,2}):(?P<minute>\d{1,2})"
+    r"(?::(?P<second>\d{1,2}))?"
+    r"\s*(?P<timezone>Z|[+-](?:[01]\d|2[0-3]):?[0-5]\d)?"
+    r"(?!\d)",
+    re.IGNORECASE,
+)
+PUBLISH_DATE_PATTERN = re.compile(
+    r"(?<!\d)(?P<year>\d{4})(?:\s*-\s*|\s+)(?P<month>\d{1,2})"
+    r"(?:\s*-\s*|\s+)(?P<day>\d{1,2})(?!\d)"
+)
+HTML_ATTRIBUTE_PATTERN = re.compile(
+    r"([:\w-]+)\s*=\s*(?:([\"'])(.*?)\2|([^\s>]+))",
+    re.DOTALL,
+)
+
+
+@dataclass(frozen=True)
+class PublishTimeCandidate:
+    value: str
+    precision: Literal["date", "datetime"]
+    detail_rank: int
+    source_rank: int
+    document_order: int
+
+
+@dataclass(frozen=True)
+class ExtractedPublishTime:
+    value: str
+    precision: Literal["date", "datetime"]
 
 
 class WebContentFetchError(Exception):
@@ -53,20 +98,74 @@ class SSRFBlockedError(WebContentFetchError):
     """Raised when the target IP is blocked by SSRF guard."""
 
 
-def _is_private_host(host: str) -> bool:
-    """Check whether a hostname resolves to a reserved/private IP address."""
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Turn urllib redirects into HTTPError so every hop is validated first."""
+
+    def http_error_302(self, req, fp, code, msg, headers):
+        raise urllib.error.HTTPError(req.full_url, code, msg, headers, fp)
+
+    http_error_301 = http_error_303 = http_error_307 = http_error_308 = http_error_302
+
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirectHandler)
+
+
+def _open_without_redirects(request: urllib.request.Request, timeout: float):
+    return _NO_REDIRECT_OPENER.open(request, timeout=timeout)
+
+
+def _resolve_host_ips(host: str) -> list[ipaddress.IPv4Address | ipaddress.IPv6Address]:
     try:
-        ip_addr = ipaddress.ip_address(host)
+        return [ipaddress.ip_address(host)]
     except ValueError:
+        pass
+
+    try:
+        address_info = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+    except (OSError, socket.gaierror) as exc:
+        raise WebContentFetchError(f"DNS 解析失败：{host}") from exc
+
+    resolved_ips: list[ipaddress.IPv4Address | ipaddress.IPv6Address] = []
+    seen: set[str] = set()
+    for item in address_info:
+        address = item[4][0]
         try:
-            ip_addr = ipaddress.ip_address(socket.gethostbyname(host))
-        except (OSError, socket.gaierror) as exc:
-            raise WebContentFetchError(f"DNS 解析失败：{host}") from exc
+            ip_addr = ipaddress.ip_address(address)
+        except ValueError:
+            continue
+        ip_key = str(ip_addr)
+        if ip_key not in seen:
+            resolved_ips.append(ip_addr)
+            seen.add(ip_key)
+
+    if not resolved_ips:
+        raise WebContentFetchError(f"DNS 解析失败：{host}")
+    return resolved_ips
+
+
+def _is_blocked_ip(ip_addr: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    if isinstance(ip_addr, ipaddress.IPv6Address) and ip_addr.ipv4_mapped:
+        ip_addr = ip_addr.ipv4_mapped
+
+    if (
+        ip_addr.is_private
+        or ip_addr.is_loopback
+        or ip_addr.is_link_local
+        or ip_addr.is_multicast
+        or ip_addr.is_reserved
+        or ip_addr.is_unspecified
+    ):
+        return True
 
     for network in RESERVED_NETWORKS:
         if ip_addr in network:
             return True
     return False
+
+
+def _is_private_host(host: str) -> bool:
+    """Check whether any resolved address is private, reserved, or non-routable."""
+    return any(_is_blocked_ip(ip_addr) for ip_addr in _resolve_host_ips(host))
 
 
 def _normalise_url(url: str) -> str:
@@ -120,11 +219,11 @@ class WebContentFetcher:
     def fetch_article(self, url: str) -> dict[str, str | None]:
         """Fetch *url* and return structured article fields.
 
-        Returns ``{"title", "content", "source_name", "source_url", "publish_time"}``. Unlike
-        :meth:`fetch`, this RAISES ``WebContentFetchError`` / ``SSRFBlockedError``
-        on failure — the caller asked for this specific URL (e.g. the
-        detect-by-link preview endpoint) and must surface the error instead of
-        silently degrading to an empty result.
+        Returns title, content, source metadata, normalized ``publish_time``,
+        and ``publish_time_precision``. Unlike :meth:`fetch`, this RAISES
+        ``WebContentFetchError`` / ``SSRFBlockedError`` on failure because the
+        caller asked for this specific URL and must surface the error instead
+        of silently degrading to an empty result.
         """
         safe_url = _normalise_url(url)
         hostname = urlparse(safe_url).hostname or ""
@@ -143,7 +242,8 @@ class WebContentFetcher:
             "content": clean_text(body, max_length=8000),
             "source_name": source_host,
             "source_url": final_url,
-            "publish_time": publish_time,
+            "publish_time": publish_time.value if publish_time else None,
+            "publish_time_precision": publish_time.precision if publish_time else None,
         }
 
     # ------------------------------------------------------------------
@@ -190,7 +290,7 @@ class WebContentFetcher:
             )
 
             try:
-                with urllib.request.urlopen(request, timeout=self._timeout) as response:
+                with _open_without_redirects(request, timeout=self._timeout) as response:
                     content_type = response.headers.get("Content-Type", "")
                     if "text/html" not in content_type and "text/plain" not in content_type:
                         raise WebContentFetchError(
@@ -265,8 +365,8 @@ class WebContentFetcher:
 
         return title.strip(), "\n\n".join(body_parts)
 
-    def _extract_publish_time(self, html: str) -> str | None:
-        """Extract the article publication time from common metadata."""
+    def _extract_publish_time(self, html: str) -> ExtractedPublishTime | None:
+        """Extract and normalize the most precise credible publication time."""
         try:
             from bs4 import BeautifulSoup as bs4_BeautifulSoup
         except ImportError:
@@ -277,23 +377,48 @@ class WebContentFetcher:
         except Exception:
             return self._extract_publish_time_regex(html)
 
-        selectors = (
-            ("meta[property='article:published_time']", "content"),
-            ("meta[property='og:published_time']", "content"),
-            ("meta[name='pubdate']", "content"),
-            ("meta[name='publishdate']", "content"),
-            ("meta[name='date']", "content"),
-            ("meta[itemprop='datePublished']", "content"),
-            ("time[datetime]", "datetime"),
+        return self._select_publish_time_candidate(
+            self._collect_publish_time_candidates(soup)
         )
-        for selector, attribute in selectors:
-            node = soup.select_one(selector)
-            if node:
-                value = clean_text(node.get(attribute, ""), max_length=100)
-                if value:
-                    return value
 
-        for node in soup.select("script[type='application/ld+json']"):
+    def _collect_publish_time_candidates(self, soup: Any) -> list[PublishTimeCandidate]:
+        candidates: list[PublishTimeCandidate] = []
+        nodes = list(soup.find_all(True))
+        document_order = {id(node): index for index, node in enumerate(nodes)}
+
+        def append_candidate(raw_value: object, source_rank: int, node: Any) -> None:
+            normalized = self._normalize_publish_time_candidate(raw_value)
+            if normalized is None:
+                return
+            value, precision, detail_rank = normalized
+            candidates.append(
+                PublishTimeCandidate(
+                    value=value,
+                    precision=precision,
+                    detail_rank=detail_rank,
+                    source_rank=source_rank,
+                    document_order=document_order.get(id(node), len(nodes)),
+                )
+            )
+
+        for node in soup.find_all("meta"):
+            keys = {
+                clean_text(node.get(attribute, ""), max_length=100).lower()
+                for attribute in ("property", "name", "itemprop")
+                if node.get(attribute)
+            }
+            ranks = [
+                PUBLISH_META_SOURCE_RANKS[key]
+                for key in keys
+                if key in PUBLISH_META_SOURCE_RANKS
+            ]
+            if ranks:
+                append_candidate(node.get("content", ""), max(ranks), node)
+
+        for node in soup.find_all("script"):
+            script_type = clean_text(node.get("type", ""), max_length=100).lower()
+            if script_type != "application/ld+json":
+                continue
             raw = node.string or node.get_text(strip=True)
             if not raw:
                 continue
@@ -301,14 +426,135 @@ class WebContentFetcher:
                 payload = json.loads(raw)
             except (json.JSONDecodeError, RecursionError, TypeError):
                 continue
-            value = self._find_json_ld_publish_time(payload)
-            if value:
-                return value
+            for raw_value in self._find_json_ld_publish_times(payload):
+                append_candidate(raw_value, 600, node)
+
+        headline_scopes: list[Any] = []
+        headline = soup.find("h1")
+        if headline is not None:
+            ancestor = headline.parent
+            for _ in range(4):
+                if ancestor is None or getattr(ancestor, "name", None) in {"body", "html"}:
+                    break
+                text = ancestor.get_text(separator=" ", strip=True)
+                headline_text = headline.get_text(separator=" ", strip=True)
+                context_text = text.replace(headline_text, "", 1).strip()
+                contains_article_body = (
+                    getattr(ancestor, "name", None) in {"article", "main"}
+                    or ancestor.find(["p", "article", "main"]) is not None
+                )
+                is_headline_context = not contains_article_body and len(context_text) <= 500
+                if is_headline_context:
+                    headline_scopes.append(ancestor)
+                if context_text and is_headline_context:
+                    append_candidate(context_text, 400, ancestor)
+                ancestor = ancestor.parent
+
+        for node in soup.find_all("time"):
+            itemprop = clean_text(node.get("itemprop", ""), max_length=100).lower()
+            if itemprop == "datepublished":
+                append_candidate(node.get("datetime", ""), 480, node)
+                continue
+            inside_semantic_header = any(
+                getattr(parent, "name", None) == "header" for parent in node.parents
+            )
+            inside_headline_scope = any(
+                any(parent is scope for parent in node.parents)
+                for scope in headline_scopes
+            )
+            if inside_semantic_header or inside_headline_scope:
+                append_candidate(
+                    node.get("datetime", ""),
+                    450 if inside_semantic_header else 400,
+                    node,
+                )
+
+        return candidates
+
+    @staticmethod
+    def _normalize_publish_time_candidate(
+        raw_value: object,
+    ) -> tuple[str, Literal["date", "datetime"], int] | None:
+        raw = clean_text(str(raw_value), max_length=500) if raw_value is not None else ""
+        if not raw:
+            return None
+
+        normalized_raw = (
+            html_unescape(raw)
+            .replace("年", "-")
+            .replace("月", "-")
+            .replace("日", " ")
+            .replace("时", ":")
+            .replace("分", ":")
+            .replace("秒", "")
+            .replace("/", "-")
+            .replace(".", "-")
+            .replace("：", ":")
+        )
+
+        for match in PUBLISH_DATETIME_PATTERN.finditer(normalized_raw):
+            parts = {
+                name: match.group(name)
+                for name in ("year", "month", "day", "hour", "minute", "second")
+            }
+            second = int(parts["second"]) if parts["second"] is not None else 0
+            try:
+                value = datetime(
+                    int(parts["year"]),
+                    int(parts["month"]),
+                    int(parts["day"]),
+                    int(parts["hour"]),
+                    int(parts["minute"]),
+                    second,
+                )
+            except ValueError:
+                continue
+            rendered = value.strftime("%Y-%m-%dT%H:%M")
+            detail_rank = 1
+            if parts["second"] is not None:
+                rendered += value.strftime(":%S")
+                detail_rank = 2
+            timezone = match.group("timezone")
+            if timezone:
+                timezone = timezone.upper()
+                if timezone != "Z" and ":" not in timezone:
+                    timezone = f"{timezone[:3]}:{timezone[3:]}"
+                rendered += timezone
+            return rendered, "datetime", detail_rank
+
+        for match in PUBLISH_DATE_PATTERN.finditer(normalized_raw):
+            try:
+                value = datetime(
+                    int(match.group("year")),
+                    int(match.group("month")),
+                    int(match.group("day")),
+                )
+            except ValueError:
+                continue
+            return value.strftime("%Y-%m-%d"), "date", 0
 
         return None
 
     @staticmethod
-    def _find_json_ld_publish_time(value: Any) -> str | None:
+    def _select_publish_time_candidate(
+        candidates: list[PublishTimeCandidate],
+    ) -> ExtractedPublishTime | None:
+        if not candidates:
+            return None
+        selected = max(
+            candidates,
+            key=lambda candidate: (
+                1 if candidate.precision == "datetime" else 0,
+                candidate.source_rank,
+                candidate.detail_rank,
+                -candidate.document_order,
+            ),
+        )
+        return ExtractedPublishTime(value=selected.value, precision=selected.precision)
+
+    @staticmethod
+    def _find_json_ld_publish_times(value: Any) -> list[str]:
+        results: list[str] = []
         stack: list[tuple[Any, int]] = [(value, 0)]
         visited = 0
         while stack and visited < 256:
@@ -319,27 +565,107 @@ class WebContentFetcher:
                 if isinstance(raw_published, (str, int, float)):
                     published = clean_text(str(raw_published), max_length=100)
                     if published:
-                        return published
+                        results.append(published)
                 if depth < 12:
                     stack.extend((child, depth + 1) for child in current.values())
             elif isinstance(current, list) and depth < 12:
                 stack.extend((child, depth + 1) for child in current)
-        return None
+        return results
 
-    @staticmethod
-    def _extract_publish_time_regex(html: str) -> str | None:
-        patterns = (
-            r'<meta[^>]+(?:property|name|itemprop)=["\'](?:article:published_time|og:published_time|pubdate|publishdate|date|datePublished)["\'][^>]+content=["\']([^"\']+)',
-            r'<time[^>]+datetime=["\']([^"\']+)',
-            r'["\']datePublished["\']\s*:\s*["\']([^"\']+)',
+    def _extract_publish_time_regex(self, html: str) -> ExtractedPublishTime | None:
+        return self._select_publish_time_candidate(
+            self._collect_regex_publish_time_candidates(html)
         )
-        for pattern in patterns:
-            match = re.search(pattern, html, re.IGNORECASE)
-            if match:
-                value = clean_text(html_unescape(match.group(1)), max_length=100)
-                if value:
-                    return value
-        return None
+
+    def _collect_regex_publish_time_candidates(
+        self, html: str
+    ) -> list[PublishTimeCandidate]:
+        candidates: list[PublishTimeCandidate] = []
+
+        def attributes(tag: str) -> dict[str, str]:
+            return {
+                match.group(1).lower(): html_unescape(match.group(3) or match.group(4) or "")
+                for match in HTML_ATTRIBUTE_PATTERN.finditer(tag)
+            }
+
+        def append_candidate(raw_value: object, source_rank: int, order: int) -> None:
+            normalized = self._normalize_publish_time_candidate(raw_value)
+            if normalized is None:
+                return
+            value, precision, detail_rank = normalized
+            candidates.append(
+                PublishTimeCandidate(value, precision, detail_rank, source_rank, order)
+            )
+
+        for match in re.finditer(r"<meta\b[^>]*>", html, re.IGNORECASE | re.DOTALL):
+            attrs = attributes(match.group(0))
+            keys = {
+                attrs.get(attribute, "").lower()
+                for attribute in ("property", "name", "itemprop")
+                if attrs.get(attribute)
+            }
+            ranks = [
+                PUBLISH_META_SOURCE_RANKS[key]
+                for key in keys
+                if key in PUBLISH_META_SOURCE_RANKS
+            ]
+            if ranks:
+                append_candidate(attrs.get("content", ""), max(ranks), match.start())
+
+        script_pattern = re.compile(
+            r"<script\b(?P<attrs>[^>]*)>(?P<body>.*?)</script>",
+            re.IGNORECASE | re.DOTALL,
+        )
+        for match in script_pattern.finditer(html):
+            attrs = attributes(match.group("attrs"))
+            if attrs.get("type", "").lower() != "application/ld+json":
+                continue
+            try:
+                payload = json.loads(match.group("body"))
+            except (json.JSONDecodeError, RecursionError, TypeError):
+                continue
+            for raw_value in self._find_json_ld_publish_times(payload):
+                append_candidate(raw_value, 600, match.start())
+
+        for match in re.finditer(r"<time\b[^>]*>", html, re.IGNORECASE | re.DOTALL):
+            attrs = attributes(match.group(0))
+            if attrs.get("itemprop", "").lower() == "datepublished":
+                append_candidate(attrs.get("datetime", ""), 480, match.start())
+
+        header_pattern = re.compile(
+            r"<header\b[^>]*>(?P<body>.*?)</header>",
+            re.IGNORECASE | re.DOTALL,
+        )
+        for header_match in header_pattern.finditer(html):
+            for time_match in re.finditer(
+                r"<time\b[^>]*>",
+                header_match.group("body"),
+                re.IGNORECASE | re.DOTALL,
+            ):
+                attrs = attributes(time_match.group(0))
+                append_candidate(
+                    attrs.get("datetime", ""),
+                    450,
+                    header_match.start() + time_match.start(),
+                )
+
+        headline = re.search(r"</h1\s*>", html, re.IGNORECASE)
+        if headline:
+            end = min(len(html), headline.end() + 2000)
+            boundary = re.search(
+                r"<(?:article|main|section|p)\b",
+                html[headline.end():end],
+                re.IGNORECASE,
+            )
+            if boundary:
+                end = headline.end() + boundary.start()
+            context_html = html[headline.end():end]
+            context_text = re.sub(r"<[^>]+>", " ", context_html)
+            context_text = clean_text(html_unescape(context_text), max_length=500)
+            if context_text:
+                append_candidate(context_text, 400, headline.end())
+
+        return candidates
 
     def _extract_text(self, html: str) -> str:
         """Extract readable text from HTML using BeautifulSoup if available."""

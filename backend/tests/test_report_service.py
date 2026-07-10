@@ -86,14 +86,14 @@ class ReportServiceTestCase(unittest.TestCase):
             f"/api/report/download/{report.id}",
         )
 
-    def test_regenerate_reuses_database_record_and_removes_old_files(self) -> None:
+    def test_regenerate_reuses_cached_report_files(self) -> None:
         def fake_converter(html_content: str, pdf_file: Path) -> None:
             pdf_file.write_bytes(b"%PDF-1.4\nfake report")
 
         with patch(
             "app.services.report_service._convert_html_to_pdf",
             side_effect=fake_converter,
-        ):
+        ) as mocked_converter:
             first_report = generate_detection_report(
                 self.db,
                 self.detection.id,
@@ -110,8 +110,44 @@ class ReportServiceTestCase(unittest.TestCase):
 
         self.assertEqual(second_report.id, first_id)
         self.assertEqual(self.db.query(Report).count(), 1)
-        self.assertFalse(old_html.exists())
-        self.assertFalse(old_pdf.exists())
+        self.assertEqual(second_report.html_path, first_report.html_path)
+        self.assertEqual(second_report.pdf_path, first_report.pdf_path)
+        self.assertTrue(old_html.exists())
+        self.assertTrue(old_pdf.exists())
+        self.assertEqual(mocked_converter.call_count, 1)
+
+    def test_regenerate_when_cached_files_are_missing(self) -> None:
+        def fake_converter(html_content: str, pdf_file: Path) -> None:
+            pdf_file.write_bytes(b"%PDF-1.4\nfake report")
+
+        with patch(
+            "app.services.report_service._convert_html_to_pdf",
+            side_effect=fake_converter,
+        ) as mocked_converter:
+            first_report = generate_detection_report(
+                self.db,
+                self.detection.id,
+                self.user,
+            )
+            first_html_path = first_report.html_path
+            first_pdf_path = first_report.pdf_path
+            report_root = Path(get_settings().report_path)
+            (report_root / first_html_path).unlink()
+            (report_root / first_pdf_path).unlink()
+
+            second_report = generate_detection_report(
+                self.db,
+                self.detection.id,
+                self.user,
+            )
+
+        self.assertEqual(second_report.id, first_report.id)
+        self.assertNotEqual(second_report.html_path, first_html_path)
+        self.assertNotEqual(second_report.pdf_path, first_pdf_path)
+        self.assertTrue(
+            (Path(get_settings().report_path) / second_report.pdf_path).is_file()
+        )
+        self.assertEqual(mocked_converter.call_count, 2)
 
     def test_regular_user_cannot_generate_or_download_another_users_report(self) -> None:
         with self.assertRaises(ReportAccessDeniedError):
@@ -263,6 +299,24 @@ class ReportServiceTestCase(unittest.TestCase):
 
         self.assertEqual(result["items"][0]["created_at"], created_at)
         self.assertEqual(result["items"][0]["updated_at"], updated_at)
+
+    def test_admin_report_list_uses_database_page_before_building_items(self) -> None:
+        self._add_report(self.detection)
+        self._add_report(self._add_detection(self.user.id))
+        self._add_report(self._add_detection(self.user.id))
+
+        with patch("app.services.report_service._build_admin_report_item") as mocked_build:
+            mocked_build.side_effect = lambda db, report, **kwargs: {
+                "report_id": int(report.id)
+            }
+
+            result = list_admin_reports(self.db, page=2, page_size=1)
+
+        self.assertEqual(result["total"], 3)
+        self.assertEqual(result["page"], 2)
+        self.assertEqual(result["page_size"], 1)
+        self.assertEqual(len(result["items"]), 1)
+        self.assertEqual(mocked_build.call_count, 1)
 
     def test_report_summary_is_generated_without_llm(self) -> None:
         def fake_converter(html_content: str, pdf_file: Path) -> None:

@@ -1,0 +1,30 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=polyline; nodesep=0.28; ranksep=0.52;
+  input [label="新闻输入与预处理\n文本直输；或URL安全提取后由用户确认", fillcolor="#EAF2F8", color="#5B7C99"];
+  retrieve [label="本地检索与联网补充\nEmbedding→Chroma Top-10→条件式博查搜索"];
+  pool [label="候选证据池\n格式统一、去重、候选ID与来源中立排序"];
+  analyze [label="模型分析与证据仲裁\n质量、相关性、立场及拒绝原因"];
+  effective [label="有效证据集\n契约失败时聚焦重试1次；无效候选不计分"];
+  score [label="规则评分与分支式综合评分\n风险等级、理由、风险点与建议"];
+  save [label="结果持久化\n检测记录、有效证据与分析载荷"];
+  result [label="结果展示与报告入口", shape=oval, fillcolor="#EAF2F8", color="#5B7C99"];
+  webfail [label="搜索失败：保留本地证据", style="rounded,dashed,filled", fillcolor="#FAFAFA"];
+  llmfail [label="模型失败：仅采用规则分", style="rounded,dashed,filled", fillcolor="#FAFAFA"];
+  dbfail [label="数据库异常：回滚并统一报错", style="rounded,dashed,filled", fillcolor="#FAFAFA"];
+
+  input -> retrieve -> pool;
+  pool -> analyze -> effective -> score;
+  score -> save -> result;
+  retrieve -> webfail [style=dashed]; webfail -> pool [style=dashed];
+  analyze -> llmfail [style=dashed]; llmfail -> score [style=dashed];
+  save -> dbfail [style=dashed];
+}

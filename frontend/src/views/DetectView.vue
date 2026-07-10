@@ -89,13 +89,28 @@
             </el-form-item>
           </div>
 
-          <el-form-item label="新闻发布时间" prop="publish_time">
-            <el-input
-              v-model="form.publish_time"
-              type="datetime-local"
-              size="large"
-              placeholder="可选；通过链接识别时将自动提取"
-            />
+          <el-form-item label="新闻发布时间" prop="publish_date">
+            <div class="publish-time-fields">
+              <el-input
+                :model-value="form.publish_date"
+                type="date"
+                size="large"
+                aria-label="新闻发布日期"
+                @update:model-value="handlePublishDateChange"
+              />
+              <el-input
+                :model-value="form.publish_clock"
+                type="time"
+                step="60"
+                size="large"
+                aria-label="新闻发布具体时间"
+                :disabled="!form.publish_date"
+                @update:model-value="handlePublishClockChange"
+              />
+            </div>
+            <p v-if="form.publish_date && !form.publish_clock" class="publish-time-hint" role="status">
+              仅识别到发布日期，未识别到具体时间
+            </p>
           </el-form-item>
 
           <el-form-item label="新闻正文" prop="content">
@@ -166,6 +181,7 @@ import { ElMessage } from 'element-plus/es/components/message/index.mjs'
 import { submitNewsDetection, extractNewsPreview } from '@/api/detect'
 import PageHeader from '@/components/PageHeader.vue'
 import { writeDetectionResultCache } from '@/utils/detectionResultCache'
+import { composePublishTime, parsePublishTime } from '@/utils/publishTime'
 import { unwrapApiResponse } from '@/utils/response'
 
 const router = useRouter()
@@ -174,6 +190,8 @@ const submitting = ref(false)
 const extracting = ref(false)
 const articleUrl = ref('')
 const errorMessage = ref('')
+const extractedPublishTimeRaw = ref('')
+const publishTimeEdited = ref(false)
 
 const disclaimer =
   '本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、官方通报或权威媒体结论。'
@@ -194,7 +212,8 @@ const form = reactive({
   category: '',
   source_name: '',
   source_url: '',
-  publish_time: '',
+  publish_date: '',
+  publish_clock: '',
   enable_web_search: true
 })
 
@@ -214,7 +233,8 @@ const exampleNews = {
   category: '社会',
   source_name: '网络来源',
   source_url: '',
-  publish_time: '',
+  publish_date: '',
+  publish_clock: '',
   content:
     '近日，社交平台流传一则消息称某地将出现罕见异常天气，并建议居民立即囤积生活物资。相关内容在多个群组中快速传播，但消息中未注明明确发布机构，也未附权威气象部门通报。当地有关部门表示，已关注到网传信息，正在核查相关情况，并提醒公众以官方渠道发布的信息为准，不要盲目转发未经证实的内容。'
 }
@@ -234,6 +254,8 @@ function getErrorMessage(error) {
 
 function fillExample() {
   Object.assign(form, exampleNews)
+  extractedPublishTimeRaw.value = ''
+  publishTimeEdited.value = false
   errorMessage.value = ''
 }
 
@@ -245,11 +267,41 @@ function resetForm() {
     category: '',
     source_name: '',
     source_url: '',
-    publish_time: '',
+    publish_date: '',
+    publish_clock: '',
     enable_web_search: true
   })
+  extractedPublishTimeRaw.value = ''
+  publishTimeEdited.value = false
   articleUrl.value = ''
   errorMessage.value = ''
+}
+
+function handlePublishDateChange(value) {
+  form.publish_date = value || ''
+  if (!form.publish_date) {
+    form.publish_clock = ''
+  }
+  extractedPublishTimeRaw.value = ''
+  publishTimeEdited.value = true
+}
+
+function handlePublishClockChange(value) {
+  form.publish_clock = form.publish_date ? value || '' : ''
+  extractedPublishTimeRaw.value = ''
+  publishTimeEdited.value = true
+}
+
+function applyExtractedPublishTime(value, precision) {
+  const parsed = parsePublishTime(value, precision)
+  form.publish_date = parsed.date
+  form.publish_clock = parsed.clock
+  extractedPublishTimeRaw.value = parsed.originalValue
+  publishTimeEdited.value = false
+  if (!parsed.valid && value) {
+    ElMessage.warning('新闻内容已提取，但发布时间格式无法识别，请手动填写')
+  }
+  return parsed.valid
 }
 
 async function handleExtract() {
@@ -275,10 +327,15 @@ async function handleExtract() {
       form.source_name = data.source_name
     }
     form.source_url = data.source_url || ''
-    form.publish_time = toDateTimeLocalValue(data.publish_time)
+    const publishTimeValid = applyExtractedPublishTime(
+      data.publish_time,
+      data.publish_time_precision
+    )
     formRef.value?.clearValidate()
     articleUrl.value = ''
-    ElMessage.success('提取成功，请核对内容后提交检测')
+    if (publishTimeValid) {
+      ElMessage.success('提取成功，请核对内容后提交检测')
+    }
   } catch (error) {
     ElMessage.error(getErrorMessage(error))
   } finally {
@@ -301,13 +358,19 @@ async function handleSubmit() {
   submitting.value = true
 
   try {
+    const publishTime = composePublishTime({
+      date: form.publish_date,
+      clock: form.publish_clock,
+      originalValue: extractedPublishTimeRaw.value,
+      edited: publishTimeEdited.value
+    })
     const payload = {
       title: form.title,
       content: form.content,
       category: form.category || undefined,
       source_name: form.source_name || undefined,
       source_url: form.source_url || undefined,
-      publish_time: form.publish_time || undefined,
+      publish_time: publishTime || undefined,
       enable_web_search: form.enable_web_search
     }
 
@@ -327,7 +390,7 @@ async function handleSubmit() {
       category: data.category || form.category,
       source_name: data.source_name || form.source_name,
       source_url: data.source_url || form.source_url,
-      publish_time: data.publish_time || form.publish_time,
+      publish_time: data.publish_time || publishTime,
       created_at: data.created_at || new Date().toISOString()
     }
 
@@ -339,12 +402,6 @@ async function handleSubmit() {
   } finally {
     submitting.value = false
   }
-}
-
-function toDateTimeLocalValue(value) {
-  if (!value) return ''
-  const match = String(value).match(/^(\d{4}-\d{2}-\d{2})[T\s](\d{2}:\d{2})/)
-  return match ? `${match[1]}T${match[2]}` : ''
 }
 </script>
 
@@ -459,6 +516,21 @@ function toDateTimeLocalValue(value) {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
+}
+
+.publish-time-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.publish-time-hint {
+  width: 100%;
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .detect-form :deep(.el-form-item__label) {
@@ -640,6 +712,10 @@ function toDateTimeLocalValue(value) {
   }
 
   .detect-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .publish-time-fields {
     grid-template-columns: 1fr;
   }
 

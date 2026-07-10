@@ -1,0 +1,4 @@
+sample_id,title,content,url,gold_label,gold_label_source,local_kb_expected,relevant_knowledge_ids,allow_web_search,reviewer_1_label,reviewer_2_label,reviewer_notes
+DEMO-001,今日天气晴朗适合户外活动,根据气象部门发布的最新预报，今天全市天气以晴为主，气温在18到26摄氏度之间，适合户外运动和出行。市民外出时建议做好防晒措施。,https://example.com/weather,可信新闻,DEMO标注仅供测试,unknown,,false,,,DEMO样本，仅用于验证评测链路可用性
+DEMO-002,网传某地发生严重交通事故致多人伤亡,近日有网友在社交平台发帖称，某市高速路段发生一起严重交通事故，造成多人伤亡。帖子配有多张现场图片，引发大量转发和讨论。目前官方尚未发布正式通报，事故原因和伤亡人数有待进一步核实。,https://example.com/traffic-rumor,存疑信息,DEMO标注仅供测试,unknown,,false,,,DEMO样本，仅用于验证评测链路可用性
+DEMO-003,科学家发现喝咖啡可以延长寿命十年,一项最新研究声称，每天饮用三杯以上咖啡可以将人类平均寿命延长十年以上。该研究通过追踪数百名志愿者五年得出这一结论，但研究样本量较小且未考虑其他生活方式因素的影响。相关论文尚未经过同行评审。,https://example.com/coffee-study,高风险谣言,DEMO标注仅供测试,unknown,,true,,,DEMO样本，仅用于验证评测链路可用性

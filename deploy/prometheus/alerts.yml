@@ -1,0 +1,44 @@
+groups:
+  - name: backend-availability
+    rules:
+      - alert: BackendUnavailable
+        expr: up{job="backend"} == 0
+        for: 2m
+        labels:
+          severity: page
+          service: backend
+        annotations:
+          summary: Backend metrics target is unavailable
+          description: Prometheus has been unable to scrape the backend for more than 2 minutes.
+          runbook: docs/deployment/runbook.md#backendunavailable
+
+      - alert: BackendHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{job="backend",status_class="5xx"}[5m]))
+            /
+            sum(rate(http_requests_total{job="backend"}[5m]))
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: page
+          service: backend
+        annotations:
+          summary: Backend 5xx error rate is above 1%
+          description: More than 1% of backend responses have been 5xx for at least 5 minutes.
+          runbook: docs/deployment/runbook.md#backendhigherrorrate
+
+      - alert: BackendHighLatencyP95
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket{job="backend"}[5m])) by (le)
+          ) > 2
+        for: 10m
+        labels:
+          severity: ticket
+          service: backend
+        annotations:
+          summary: Backend p95 latency is above 2 seconds
+          description: The backend p95 request duration has exceeded 2 seconds for at least 10 minutes.
+          runbook: docs/deployment/runbook.md#backendhighlatencyp95

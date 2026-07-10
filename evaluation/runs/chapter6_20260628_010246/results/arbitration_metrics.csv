@@ -1,0 +1,2 @@
+﻿variant,samples,contract_ok,contract_pass_rate,retry_triggered,retry_trigger_rate,retry_fixed,retry_fix_rate,retry_exhausted,provider_error,candidate_total,excluded_total,note
+Full（既有实现）,80,67,0.8375,5,0.0625,4,0.8,1,12,800,600,数据库2026-06-24 20:50-21:30原始运行记录；无E1-E3对照

@@ -1,14 +1,22 @@
-fastapi==0.111.0
+fastapi==0.139.0
 uvicorn[standard]==0.30.1
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 SQLAlchemy==2.0.31
 alembic==1.13.2
 pymysql==1.1.1
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
+email-validator==2.3.0
 chromadb>=1.0.0,<2.0.0
 Jinja2==3.1.6
 xhtml2pdf==0.2.17
 beautifulsoup4>=4.12.0
 APScheduler>=3.10.0
+redis[hiredis]==6.4.0
+celery[redis]==5.6.3
+pyroscope-io==1.0.12; platform_system != "Windows"
+prometheus-client==0.21.1
+opentelemetry-api==1.43.0
+opentelemetry-sdk==1.43.0
+opentelemetry-exporter-otlp-proto-http==1.43.0

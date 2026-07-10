@@ -1,0 +1,456 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-040",
+    "topic_id": "T10",
+    "gold_label": "高风险谣言",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 41.2,
+    "full_predicted_label": "疑似谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 41.2,
+    "no_retry_predicted_label": "疑似谣言",
+    "total_ms": 21148.86,
+    "started_at_utc": "2026-07-02T04:52:46.206062+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 10.0,
+    "risk_level": "高风险谣言",
+    "reason": "新闻断言'蔡元培没有进入翰林院，也从未担任教育总长'与可靠历史事实直接冲突。知识库证据明确显示蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。新闻中未提供任何可验证文件，且使用'权威确认'等确定性措辞却无出处，存在明显造谣特征。",
+    "risk_points": [
+      "核心事实与历史记录严重不符",
+      "使用'权威确认'等确定性措辞但无出处",
+      "断言蔡元培为互联网工程师，明显时空错乱",
+      "要求读者立即转发，具有煽动传播特征"
+    ],
+    "keywords": [
+      "蔡元培",
+      "翰林院",
+      "教育总长",
+      "谣言",
+      "互联网工程师"
+    ],
+    "suggestion": "该新闻为明显谣言，建议标记为虚假信息并予以屏蔽，防止误导公众。同时提示用户查阅权威历史资料。",
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 90.0,
+      "score": 54.0,
+      "assessment": "检索证据中有一条高度相关条目（kb:233），明确记载蔡元培的教育与职务经历，与新闻主张直接矛盾。该条目来自人物知识库，虽非权威信源但属可靠历史信息。其他证据与本题无关，覆盖度较低，但核心证据一致性强，总体质量可接受。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:233",
+          "relevance_score": 100,
+          "quality_score": 80,
+          "stance": "contradict",
+          "reason": "该证据直接描述蔡元培的教育经历与职务，明确指出其曾为翰林院庶吉士并担任教育总长，与新闻断言完全相反。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:72",
+          "reason": "与蔡元培无关，讨论医疗领域虚假宣传"
+        },
+        {
+          "candidate_id": "kb:69",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:153",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:50",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:198",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:14",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "与蔡元培无关"
+        },
+        {
+          "candidate_id": "kb:236",
+          "reason": "讨论蔡元培与自由主义，未直接反驳新闻核心断言，且不涉及教育经历与职务"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 60,
+    "created_at": "2026-07-02 04:52:46.205475+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E8%94%A1%E5%85%83%E5%9F%B9",
+    "final_score": 41.2,
+    "evidence_score": 90.38,
+    "llm_score": 10.0,
+    "rule_score": 100.0,
+    "risk_level": "疑似谣言",
+    "judgement_result": "该新闻疑似存在谣言风险",
+    "reason": "新闻断言'蔡元培没有进入翰林院，也从未担任教育总长'与可靠历史事实直接冲突。知识库证据明确显示蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。新闻中未提供任何可验证文件，且使用'权威确认'等确定性措辞却无出处，存在明显造谣特征。",
+    "risk_points": [
+      "核心事实与历史记录严重不符",
+      "使用'权威确认'等确定性措辞但无出处",
+      "断言蔡元培为互联网工程师，明显时空错乱",
+      "要求读者立即转发，具有煽动传播特征"
+    ],
+    "keywords": [
+      "官方",
+      "权威",
+      "蔡元培教育经",
+      "历与职务",
+      "高风险样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "蔡元培",
+      "翰林院",
+      "教育总长",
+      "谣言"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.9037911295890808,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.501561164855957,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236"
+      },
+      {
+        "knowledge_id": 153,
+        "title": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣|spacex|华裔女|误导性|郭璨_手机网易网",
+        "summary": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣\n网易号社区管理员\n2026-06-18\n18:20\n·北京\n·网易号社区管理官方账号\n为了营造网易新闻良好的内容生态环境,提升用户体验,网易号平台即日起展开辟谣专项行动:用户发布上传的内容必须真实、可靠、准确。一切未经证实的虚假信息、或具有误导性的信息,将被平台及时辟谣及公示。本次行动的全部公告,将通过网易号官方平台、网易号官方微博进行全网推送。\n打开网易新闻\n查看精彩图片",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "网易",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.37940526008605957,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:153"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35901814699172974,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 50,
+        "title": "相关人员检索 - 全国标准信息公共服务平台",
+        "summary": "负责专业范围为网络安全。\n擅长专业为网络安全领域资深专家,曾参与国际、国家标准制修订工作。主要领域:1\n.主导设计基于移动网络的高可信统一认证系统并大规模应用;2.设计实现基于移动安全机制的应用系统安全加固技术和智能安全网络产品;3.面向党政军企规模化应用自主安全产品,助力保障国家网络空间安全;4、研发面向家庭用户的家宽质量提升产品,按照“一点建设、服务全网”思路,建设智能加速云平台,实现网络精准调度、高效自动运维,家庭安全防护,游戏定向加速后丢包率降低96%\n,日均拦截威胁超90万次。已在江苏等6省试点,累计发展用户数344万,87%以上调研用户反馈良好。。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "国家市场监督管理总局",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3556419610977173,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:50"
+      },
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3525986671447754,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72"
+      },
+      {
+        "knowledge_id": 69,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”",
+        "summary": "01:38言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35156959295272827,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:69"
+      },
+      {
+        "knowledge_id": 198,
+        "title": "网红医生自称是三甲医院的主任,医院官方辟谣,根本没有这个人_腾讯新闻",
+        "summary": "网红医生自称是三甲医院的主任,医院官方辟谣,根本没有这个人,一纸来自三甲医院的官方声明,再次将“网红医生”现象推到了公众视野中央,近日,四川某知名三甲医院发布公告称,退休职工王某长期在多个网络平台以“肿瘤科主任医师”“放疗科主任”“放疗中心主任”“教授”等身份开展医学科普活动,累计吸引粉丝超过50万,然而经医院核实,王某从未担任过上述职务,也未取得相关职称,其网络宣传内容存在夸大和虚构情况,涉嫌误导公众,目前,其相关账号内容已被下架处理。消息曝光后,迅速引发网友热议,原因很简单,在普通人眼中,医生身份本身就具有极强的专业背书作用,尤其是肿瘤、癌症等重大疾病领域,患者和家属往往更加依赖专业意见。当一名自称“三甲医院主任”“知名专家”的医生出现在镜头前时,许多人很难去核实其真实身份,而是会本能地选择信任。\n这也正是问题最值得警惕的地方,近年来,短视频平台上的医学科普内容呈现爆发式增长,一方面,专业医生利用网络传播健康知识,确实帮助了许多人提高医学认知,但另一方面,一些人也发现了其中隐藏的流量价值,开始利用公众对医生职业的信任进行包装营销。\n从虚构职务、夸大头衔,到利用科普内容引导患者线下就诊,再到推销药品、保健品甚至医疗项目,一条围绕“医生IP”的商业链条正在不断扩张。部分账号表面上是在传播医学知识,实际上却是在为商业利益铺路,更令人担忧的是,一些机构已经将这种模式产业化运作。有媒体此前调查发现,个别MCN公司能够批量打造“专家账号”,从购买白大褂、制作医院背景,到包装履历、设计话术,甚至利用AI换脸技术伪造专家形象,一套流程下来,一个看似专业的“名医账号”便能迅速上线运营。\n对于普通观众而言,想要分辨真假并不容易,很多人看到医生穿着白大褂、背景挂着医学证书,再加上大量粉丝和点赞数据,便会默认其具有权威性。然而这些包装出来的专业形象,背后未必拥有与之匹配的医学能力和职业资质,医",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "腾讯网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3425931930541992,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:198"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.340803861618042,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 14,
+        "title": "高校扩招名单内部流出表格",
+        "summary": "招生信息必须通过教育考试机构和高校官网核验。",
+        "category": "教育",
+        "truth_label": "存疑信息",
+        "source_name": "招生信息核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33047574758529663,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:14"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.9037911295890808,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233",
+        "relevance_score": 100.0,
+        "quality_score": 80.0,
+        "stance": "contradict",
+        "arbitration_reason": "该证据直接描述蔡元培的教育经历与职务，明确指出其曾为翰林院庶吉士并担任教育总长，与新闻断言完全相反。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3525986671447754,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72",
+        "rejection_reason": "与蔡元培无关，讨论医疗领域虚假宣传"
+      },
+      {
+        "knowledge_id": 69,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”",
+        "summary": "01:38言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35156959295272827,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:69",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 153,
+        "title": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣|spacex|华裔女|误导性|郭璨_手机网易网",
+        "summary": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣\n网易号社区管理员\n2026-06-18\n18:20\n·北京\n·网易号社区管理官方账号\n为了营造网易新闻良好的内容生态环境,提升用户体验,网易号平台即日起展开辟谣专项行动:用户发布上传的内容必须真实、可靠、准确。一切未经证实的虚假信息、或具有误导性的信息,将被平台及时辟谣及公示。本次行动的全部公告,将通过网易号官方平台、网易号官方微博进行全网推送。\n打开网易新闻\n查看精彩图片",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "网易",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.37940526008605957,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:153",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35901814699172974,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 50,
+        "title": "相关人员检索 - 全国标准信息公共服务平台",
+        "summary": "负责专业范围为网络安全。\n擅长专业为网络安全领域资深专家,曾参与国际、国家标准制修订工作。主要领域:1\n.主导设计基于移动网络的高可信统一认证系统并大规模应用;2.设计实现基于移动安全机制的应用系统安全加固技术和智能安全网络产品;3.面向党政军企规模化应用自主安全产品,助力保障国家网络空间安全;4、研发面向家庭用户的家宽质量提升产品,按照“一点建设、服务全网”思路,建设智能加速云平台,实现网络精准调度、高效自动运维,家庭安全防护,游戏定向加速后丢包率降低96%\n,日均拦截威胁超90万次。已在江苏等6省试点,累计发展用户数344万,87%以上调研用户反馈良好。。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "国家市场监督管理总局",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3556419610977173,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:50",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 198,
+        "title": "网红医生自称是三甲医院的主任,医院官方辟谣,根本没有这个人_腾讯新闻",
+        "summary": "网红医生自称是三甲医院的主任,医院官方辟谣,根本没有这个人,一纸来自三甲医院的官方声明,再次将“网红医生”现象推到了公众视野中央,近日,四川某知名三甲医院发布公告称,退休职工王某长期在多个网络平台以“肿瘤科主任医师”“放疗科主任”“放疗中心主任”“教授”等身份开展医学科普活动,累计吸引粉丝超过50万,然而经医院核实,王某从未担任过上述职务,也未取得相关职称,其网络宣传内容存在夸大和虚构情况,涉嫌误导公众,目前,其相关账号内容已被下架处理。消息曝光后,迅速引发网友热议,原因很简单,在普通人眼中,医生身份本身就具有极强的专业背书作用,尤其是肿瘤、癌症等重大疾病领域,患者和家属往往更加依赖专业意见。当一名自称“三甲医院主任”“知名专家”的医生出现在镜头前时,许多人很难去核实其真实身份,而是会本能地选择信任。\n这也正是问题最值得警惕的地方,近年来,短视频平台上的医学科普内容呈现爆发式增长,一方面,专业医生利用网络传播健康知识,确实帮助了许多人提高医学认知,但另一方面,一些人也发现了其中隐藏的流量价值,开始利用公众对医生职业的信任进行包装营销。\n从虚构职务、夸大头衔,到利用科普内容引导患者线下就诊,再到推销药品、保健品甚至医疗项目,一条围绕“医生IP”的商业链条正在不断扩张。部分账号表面上是在传播医学知识,实际上却是在为商业利益铺路,更令人担忧的是,一些机构已经将这种模式产业化运作。有媒体此前调查发现,个别MCN公司能够批量打造“专家账号”,从购买白大褂、制作医院背景,到包装履历、设计话术,甚至利用AI换脸技术伪造专家形象,一套流程下来,一个看似专业的“名医账号”便能迅速上线运营。\n对于普通观众而言,想要分辨真假并不容易,很多人看到医生穿着白大褂、背景挂着医学证书,再加上大量粉丝和点赞数据,便会默认其具有权威性。然而这些包装出来的专业形象,背后未必拥有与之匹配的医学能力和职业资质,医",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "腾讯网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3425931930541992,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:198",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 14,
+        "title": "高校扩招名单内部流出表格",
+        "summary": "招生信息必须通过教育考试机构和高校官网核验。",
+        "category": "教育",
+        "truth_label": "存疑信息",
+        "source_name": "招生信息核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33047574758529663,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:14",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.340803861618042,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "与蔡元培无关"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.501561164855957,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236",
+        "rejection_reason": "讨论蔡元培与自由主义，未直接反驳新闻核心断言，且不涉及教育经历与职务"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻为明显谣言，建议标记为虚假信息并予以屏蔽，防止误导公众。同时提示用户查阅权威历史资料。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 90.0,
+      "score": 54.0,
+      "assessment": "检索证据中有一条高度相关条目（kb:233），明确记载蔡元培的教育与职务经历，与新闻主张直接矛盾。该条目来自人物知识库，虽非权威信源但属可靠历史信息。其他证据与本题无关，覆盖度较低，但核心证据一致性强，总体质量可接受。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

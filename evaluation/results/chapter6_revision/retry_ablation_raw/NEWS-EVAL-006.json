@@ -1,0 +1,456 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-006",
+    "topic_id": "T02",
+    "gold_label": "存疑信息",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 37.4,
+    "full_predicted_label": "高风险谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 37.4,
+    "no_retry_predicted_label": "高风险谣言",
+    "total_ms": 20936.7,
+    "started_at_utc": "2026-07-01T15:14:54.738948+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 20.0,
+    "risk_level": "存疑信息",
+    "reason": "新闻核心主张“日本海盆可能同时是日本海最活跃的海底火山区域”缺乏地质调查或火山目录等可验证证据，现有知识条目仅澄清日本海海盆为海底地形单元并非火山，无法直接证实或反驳该断言，整体可信度较低。",
+    "risk_points": [
+      "主张未提供原始出处、统计口径或完整上下文",
+      "关键附加说法“日本海最活跃海底火山区域”无地质调查或火山目录支撑",
+      "现有证据仅澄清海盆基本定义，无法严格反驳或证实",
+      "社交平台传播版本省略关键信息，易误导为确定事实"
+    ],
+    "keywords": [
+      "日本海海盆",
+      "海底火山",
+      "存疑样本",
+      "世界地理",
+      "证据不足"
+    ],
+    "suggestion": "建议优先通过地质调查机构或火山活动数据库进行联网核验，获取权威数据以验证日本海最活跃火山区域的具体位置，并追溯原始出处，避免未经核实的断言继续扩散。",
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 50.0,
+      "score": 38.0,
+      "assessment": "证据仅覆盖日本海海盆的基本定义，未涉及活跃火山活动相关数据，与新闻主张部分一致但未提供直接支撑，覆盖度与一致性均有限。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:225",
+          "relevance_score": 95,
+          "quality_score": 80,
+          "stance": "support",
+          "reason": "直接说明日本海海盆是海底地形单元，澄清其非火山，对新闻基本主张形成支撑。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:84",
+          "reason": "内容为多领域新闻摘要，与日本海海盆或火山活动无关。"
+        },
+        {
+          "candidate_id": "kb:60",
+          "reason": "涉及日本央行利率决议，不相关。"
+        },
+        {
+          "candidate_id": "kb:13",
+          "reason": "地铁安检短视频核查样例，不相关。"
+        },
+        {
+          "candidate_id": "kb:230",
+          "reason": "讨论磁暴与低纬极光，不相关。"
+        },
+        {
+          "candidate_id": "kb:242",
+          "reason": "关于太平岛实际控制，不相关。"
+        },
+        {
+          "candidate_id": "kb:82",
+          "reason": "广告或无关国际新闻，不相关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "科普辟谣文章，内容不涉及此新闻。"
+        },
+        {
+          "candidate_id": "kb:145",
+          "reason": "期刊文献讨论错误信息，不相关。"
+        },
+        {
+          "candidate_id": "kb:101",
+          "reason": "体育类不实信息，不相关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 2,
+    "created_at": "2026-07-01 15:14:54.737942+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E6%B5%B7",
+    "final_score": 37.4,
+    "evidence_score": 76.35,
+    "llm_score": 20.0,
+    "rule_score": 80.0,
+    "risk_level": "高风险谣言",
+    "judgement_result": "该新闻存在较高谣言风险",
+    "reason": "新闻核心主张“日本海盆可能同时是日本海最活跃的海底火山区域”缺乏地质调查或火山目录等可验证证据，现有知识条目仅澄清日本海海盆为海底地形单元并非火山，无法直接证实或反驳该断言，整体可信度较低。",
+    "risk_points": [
+      "主张未提供原始出处、统计口径或完整上下文",
+      "关键附加说法“日本海最活跃海底火山区域”无地质调查或火山目录支撑",
+      "现有证据仅澄清海盆基本定义，无法严格反驳或证实",
+      "社交平台传播版本省略关键信息，易误导为确定事实",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "虚假",
+      "权威",
+      "日本海海盆",
+      "存疑样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "海底火山",
+      "世界地理",
+      "证据不足"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 225,
+        "title": "日本海海盆",
+        "summary": "日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆。海盆是海底地形单元，不是城市或海底火山。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "日本海",
+        "risk_level": "",
+        "similarity_score": 0.76346755027771,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:225"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3821660280227661,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101"
+      },
+      {
+        "knowledge_id": 60,
+        "title": "日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。_外汇动态报道",
+        "summary": "汇通财经APP讯——日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。",
+        "category": "财经",
+        "truth_label": "待核查",
+        "source_name": "汇通财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34858810901641846,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:60"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.33466780185699463,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32781147956848145,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32304179668426514,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3222741484642029,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32196754217147827,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.29930615425109863,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 230,
+        "title": "磁暴与低纬极光",
+        "summary": "强烈磁暴可使极光活动扩展到较低纬度。证据讨论的是纬度变化，不是经度或音阶。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "极光|磁暴",
+        "risk_level": "",
+        "similarity_score": 0.29641997814178467,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:230"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 225,
+        "title": "日本海海盆",
+        "summary": "日本海的主要海盆包括日本海盆，另有大和海盆和对马海盆。海盆是海底地形单元，不是城市或海底火山。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "日本海",
+        "risk_level": "",
+        "similarity_score": 0.76346755027771,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:225",
+        "relevance_score": 95.0,
+        "quality_score": 80.0,
+        "stance": "support",
+        "arbitration_reason": "直接说明日本海海盆是海底地形单元，澄清其非火山，对新闻基本主张形成支撑。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32781147956848145,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "内容为多领域新闻摘要，与日本海海盆或火山活动无关。"
+      },
+      {
+        "knowledge_id": 60,
+        "title": "日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。_外汇动态报道",
+        "summary": "汇通财经APP讯——日本央行利率决议:政策利率调整后,宽松的金融环境预计将继续维持,继续有力支撑经济活动。",
+        "category": "财经",
+        "truth_label": "待核查",
+        "source_name": "汇通财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34858810901641846,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:60",
+        "rejection_reason": "涉及日本央行利率决议，不相关。"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32304179668426514,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13",
+        "rejection_reason": "地铁安检短视频核查样例，不相关。"
+      },
+      {
+        "knowledge_id": 230,
+        "title": "磁暴与低纬极光",
+        "summary": "强烈磁暴可使极光活动扩展到较低纬度。证据讨论的是纬度变化，不是经度或音阶。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "极光|磁暴",
+        "risk_level": "",
+        "similarity_score": 0.29641997814178467,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:230",
+        "rejection_reason": "讨论磁暴与低纬极光，不相关。"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.33466780185699463,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242",
+        "rejection_reason": "关于太平岛实际控制，不相关。"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32196754217147827,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82",
+        "rejection_reason": "广告或无关国际新闻，不相关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3222741484642029,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "科普辟谣文章，内容不涉及此新闻。"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.29930615425109863,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "期刊文献讨论错误信息，不相关。"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3821660280227661,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101",
+        "rejection_reason": "体育类不实信息，不相关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "建议优先通过地质调查机构或火山活动数据库进行联网核验，获取权威数据以验证日本海最活跃火山区域的具体位置，并追溯原始出处，避免未经核实的断言继续扩散。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 50.0,
+      "score": 38.0,
+      "assessment": "证据仅覆盖日本海海盆的基本定义，未涉及活跃火山活动相关数据，与新闻主张部分一致但未提供直接支撑，覆盖度与一致性均有限。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

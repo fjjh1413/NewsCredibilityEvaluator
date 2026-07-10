@@ -1,0 +1,65 @@
+{
+  "docx": "E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\智闻辨真：基于RAG与大语言模型的新闻可信度评估系统3_第4章系统总体设计完成版.docx",
+  "figures": [
+    {
+      "placeholder": "[[CH4_FIGURE_1]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-1-system-architecture.emf",
+      "ratio": 1.3318335208098988,
+      "number": 1
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_2]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-2-backend-layered-architecture.emf",
+      "ratio": 1.1078947368421053,
+      "number": 2
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_3]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-3-functional-modules.emf",
+      "ratio": 2.797153024911032,
+      "number": 3
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_4]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-4-detection-overall-flow.emf",
+      "ratio": 0.5427682737169518,
+      "number": 4
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_5]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-5-local-retrieval-web-supplement.emf",
+      "ratio": 0.6,
+      "number": 5
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_6]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-6-scoring-risk-classification.emf",
+      "ratio": 0.746407438715131,
+      "number": 6
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_7]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-7-database-er.emf",
+      "ratio": 1.8519003931847968,
+      "number": 7
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_8]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-8-mysql-chroma-collaboration.emf",
+      "ratio": 0.7623089983022071,
+      "number": 8
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_9]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-9-user-page-structure.emf",
+      "ratio": 0.9039665970772442,
+      "number": 9
+    },
+    {
+      "placeholder": "[[CH4_FIGURE_10]]",
+      "path": "E:\\nan\\NewsCredibilityEvaluator\\docs\\thesis\\figures\\chapter4\\fig4-10-admin-page-structure.emf",
+      "ratio": 0.9452690166975881,
+      "number": 10
+    }
+  ]
+}

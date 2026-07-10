@@ -1,0 +1,364 @@
+﻿issue_type,sample_id,related_ids,field,details,severity,check_scope
+duplicate_url,NEWS-EVAL-001,"NEWS-EVAL-002,NEWS-EVAL-003,NEWS-EVAL-004",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-002,"NEWS-EVAL-001,NEWS-EVAL-003,NEWS-EVAL-004",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-003,"NEWS-EVAL-001,NEWS-EVAL-002,NEWS-EVAL-004",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-004,"NEWS-EVAL-001,NEWS-EVAL-002,NEWS-EVAL-003",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-005,"NEWS-EVAL-006,NEWS-EVAL-007,NEWS-EVAL-008",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-006,"NEWS-EVAL-005,NEWS-EVAL-007,NEWS-EVAL-008",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-007,"NEWS-EVAL-005,NEWS-EVAL-006,NEWS-EVAL-008",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-008,"NEWS-EVAL-005,NEWS-EVAL-006,NEWS-EVAL-007",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-009,"NEWS-EVAL-010,NEWS-EVAL-011,NEWS-EVAL-012",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-010,"NEWS-EVAL-009,NEWS-EVAL-011,NEWS-EVAL-012",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-011,"NEWS-EVAL-009,NEWS-EVAL-010,NEWS-EVAL-012",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-012,"NEWS-EVAL-009,NEWS-EVAL-010,NEWS-EVAL-011",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-013,"NEWS-EVAL-014,NEWS-EVAL-015,NEWS-EVAL-016",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-014,"NEWS-EVAL-013,NEWS-EVAL-015,NEWS-EVAL-016",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-015,"NEWS-EVAL-013,NEWS-EVAL-014,NEWS-EVAL-016",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-016,"NEWS-EVAL-013,NEWS-EVAL-014,NEWS-EVAL-015",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-017,"NEWS-EVAL-018,NEWS-EVAL-019,NEWS-EVAL-020",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-018,"NEWS-EVAL-017,NEWS-EVAL-019,NEWS-EVAL-020",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-019,"NEWS-EVAL-017,NEWS-EVAL-018,NEWS-EVAL-020",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-020,"NEWS-EVAL-017,NEWS-EVAL-018,NEWS-EVAL-019",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-021,"NEWS-EVAL-022,NEWS-EVAL-023,NEWS-EVAL-024",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-022,"NEWS-EVAL-021,NEWS-EVAL-023,NEWS-EVAL-024",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-023,"NEWS-EVAL-021,NEWS-EVAL-022,NEWS-EVAL-024",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-024,"NEWS-EVAL-021,NEWS-EVAL-022,NEWS-EVAL-023",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-025,"NEWS-EVAL-026,NEWS-EVAL-027,NEWS-EVAL-028",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-026,"NEWS-EVAL-025,NEWS-EVAL-027,NEWS-EVAL-028",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-027,"NEWS-EVAL-025,NEWS-EVAL-026,NEWS-EVAL-028",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-028,"NEWS-EVAL-025,NEWS-EVAL-026,NEWS-EVAL-027",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-029,"NEWS-EVAL-030,NEWS-EVAL-031,NEWS-EVAL-032",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-030,"NEWS-EVAL-029,NEWS-EVAL-031,NEWS-EVAL-032",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-031,"NEWS-EVAL-029,NEWS-EVAL-030,NEWS-EVAL-032",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-032,"NEWS-EVAL-029,NEWS-EVAL-030,NEWS-EVAL-031",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-033,"NEWS-EVAL-034,NEWS-EVAL-035,NEWS-EVAL-036",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-034,"NEWS-EVAL-033,NEWS-EVAL-035,NEWS-EVAL-036",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-035,"NEWS-EVAL-033,NEWS-EVAL-034,NEWS-EVAL-036",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-036,"NEWS-EVAL-033,NEWS-EVAL-034,NEWS-EVAL-035",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-037,"NEWS-EVAL-038,NEWS-EVAL-039,NEWS-EVAL-040",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-038,"NEWS-EVAL-037,NEWS-EVAL-039,NEWS-EVAL-040",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-039,"NEWS-EVAL-037,NEWS-EVAL-038,NEWS-EVAL-040",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-040,"NEWS-EVAL-037,NEWS-EVAL-038,NEWS-EVAL-039",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-041,"NEWS-EVAL-042,NEWS-EVAL-043,NEWS-EVAL-044",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-042,"NEWS-EVAL-041,NEWS-EVAL-043,NEWS-EVAL-044",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-043,"NEWS-EVAL-041,NEWS-EVAL-042,NEWS-EVAL-044",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-044,"NEWS-EVAL-041,NEWS-EVAL-042,NEWS-EVAL-043",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-045,"NEWS-EVAL-046,NEWS-EVAL-047,NEWS-EVAL-048",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-046,"NEWS-EVAL-045,NEWS-EVAL-047,NEWS-EVAL-048",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-047,"NEWS-EVAL-045,NEWS-EVAL-046,NEWS-EVAL-048",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-048,"NEWS-EVAL-045,NEWS-EVAL-046,NEWS-EVAL-047",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-049,"NEWS-EVAL-050,NEWS-EVAL-051,NEWS-EVAL-052",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-050,"NEWS-EVAL-049,NEWS-EVAL-051,NEWS-EVAL-052",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-051,"NEWS-EVAL-049,NEWS-EVAL-050,NEWS-EVAL-052",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-052,"NEWS-EVAL-049,NEWS-EVAL-050,NEWS-EVAL-051",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-053,"NEWS-EVAL-054,NEWS-EVAL-055,NEWS-EVAL-056",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-054,"NEWS-EVAL-053,NEWS-EVAL-055,NEWS-EVAL-056",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-055,"NEWS-EVAL-053,NEWS-EVAL-054,NEWS-EVAL-056",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-056,"NEWS-EVAL-053,NEWS-EVAL-054,NEWS-EVAL-055",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-057,"NEWS-EVAL-058,NEWS-EVAL-059,NEWS-EVAL-060",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-058,"NEWS-EVAL-057,NEWS-EVAL-059,NEWS-EVAL-060",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-059,"NEWS-EVAL-057,NEWS-EVAL-058,NEWS-EVAL-060",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-060,"NEWS-EVAL-057,NEWS-EVAL-058,NEWS-EVAL-059",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-061,"NEWS-EVAL-062,NEWS-EVAL-063,NEWS-EVAL-064",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-062,"NEWS-EVAL-061,NEWS-EVAL-063,NEWS-EVAL-064",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-063,"NEWS-EVAL-061,NEWS-EVAL-062,NEWS-EVAL-064",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-064,"NEWS-EVAL-061,NEWS-EVAL-062,NEWS-EVAL-063",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-065,"NEWS-EVAL-066,NEWS-EVAL-067,NEWS-EVAL-068",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-066,"NEWS-EVAL-065,NEWS-EVAL-067,NEWS-EVAL-068",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-067,"NEWS-EVAL-065,NEWS-EVAL-066,NEWS-EVAL-068",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-068,"NEWS-EVAL-065,NEWS-EVAL-066,NEWS-EVAL-067",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-069,"NEWS-EVAL-070,NEWS-EVAL-071,NEWS-EVAL-072",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-070,"NEWS-EVAL-069,NEWS-EVAL-071,NEWS-EVAL-072",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-071,"NEWS-EVAL-069,NEWS-EVAL-070,NEWS-EVAL-072",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-072,"NEWS-EVAL-069,NEWS-EVAL-070,NEWS-EVAL-071",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-073,"NEWS-EVAL-074,NEWS-EVAL-075,NEWS-EVAL-076",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-074,"NEWS-EVAL-073,NEWS-EVAL-075,NEWS-EVAL-076",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-075,"NEWS-EVAL-073,NEWS-EVAL-074,NEWS-EVAL-076",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-076,"NEWS-EVAL-073,NEWS-EVAL-074,NEWS-EVAL-075",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-077,"NEWS-EVAL-078,NEWS-EVAL-079,NEWS-EVAL-080",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-078,"NEWS-EVAL-077,NEWS-EVAL-079,NEWS-EVAL-080",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-079,"NEWS-EVAL-077,NEWS-EVAL-078,NEWS-EVAL-080",url,url在4条样本中完全重复,warning,offline
+duplicate_url,NEWS-EVAL-080,"NEWS-EVAL-077,NEWS-EVAL-078,NEWS-EVAL-079",url,url在4条样本中完全重复,warning,offline
+near_duplicate_content,NEWS-EVAL-068,NEWS-EVAL-072,content,正文相似度=0.8476; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-072,content,正文相似度=0.8416; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-071,content,正文相似度=0.8339; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-060,NEWS-EVAL-072,content,正文相似度=0.8321; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-032,NEWS-EVAL-072,content,正文相似度=0.8319; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-070,content,正文相似度=0.8317; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-066,content,正文相似度=0.8313; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-066,NEWS-EVAL-070,content,正文相似度=0.8311; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-072,content,正文相似度=0.8301; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-058,NEWS-EVAL-070,content,正文相似度=0.8299; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-054,NEWS-EVAL-066,content,正文相似度=0.8297; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-048,NEWS-EVAL-072,content,正文相似度=0.8291; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-040,content,正文相似度=0.8281; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-054,content,正文相似度=0.8275; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-044,NEWS-EVAL-072,content,正文相似度=0.8271; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-056,NEWS-EVAL-072,content,正文相似度=0.8270; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-070,content,正文相似度=0.8264; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-058,NEWS-EVAL-066,content,正文相似度=0.8252; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-007,NEWS-EVAL-071,content,正文相似度=0.8245; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-054,NEWS-EVAL-070,content,正文相似度=0.8245; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-042,NEWS-EVAL-070,content,正文相似度=0.8244; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-070,content,正文相似度=0.8240; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-072,NEWS-EVAL-076,content,正文相似度=0.8238; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-047,NEWS-EVAL-071,content,正文相似度=0.8225; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-048,content,正文相似度=0.8215; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-068,content,正文相似度=0.8213; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-067,NEWS-EVAL-071,content,正文相似度=0.8211; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-055,content,正文相似度=0.8207; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-047,NEWS-EVAL-067,content,正文相似度=0.8207; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-048,content,正文相似度=0.8206; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-072,content,正文相似度=0.8205; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-063,NEWS-EVAL-071,content,正文相似度=0.8200; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-066,NEWS-EVAL-074,content,正文相似度=0.8197; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-064,NEWS-EVAL-072,content,正文相似度=0.8197; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-066,content,正文相似度=0.8196; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-059,NEWS-EVAL-071,content,正文相似度=0.8195; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-066,content,正文相似度=0.8194; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-066,content,正文相似度=0.8194; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-070,NEWS-EVAL-074,content,正文相似度=0.8194; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-054,NEWS-EVAL-058,content,正文相似度=0.8188; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-058,NEWS-EVAL-074,content,正文相似度=0.8186; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-038,content,正文相似度=0.8184; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-072,content,正文相似度=0.8182; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-043,NEWS-EVAL-071,content,正文相似度=0.8181; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-023,NEWS-EVAL-071,content,正文相似度=0.8180; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-055,NEWS-EVAL-071,content,正文相似度=0.8171; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-011,NEWS-EVAL-039,content,正文相似度=0.8170; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-070,content,正文相似度=0.8165; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-054,content,正文相似度=0.8154; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-074,content,正文相似度=0.8152; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-056,NEWS-EVAL-068,content,正文相似度=0.8149; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-050,NEWS-EVAL-070,content,正文相似度=0.8149; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-011,NEWS-EVAL-047,content,正文相似度=0.8147; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-028,content,正文相似度=0.8147; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-051,NEWS-EVAL-075,content,正文相似度=0.8146; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-070,NEWS-EVAL-078,content,正文相似度=0.8146; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-031,NEWS-EVAL-071,content,正文相似度=0.8145; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-052,NEWS-EVAL-072,content,正文相似度=0.8145; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-062,NEWS-EVAL-066,content,正文相似度=0.8145; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-048,NEWS-EVAL-056,content,正文相似度=0.8144; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-032,NEWS-EVAL-048,content,正文相似度=0.8143; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-060,NEWS-EVAL-076,content,正文相似度=0.8143; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-062,NEWS-EVAL-070,content,正文相似度=0.8141; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-072,content,正文相似度=0.8141; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-044,content,正文相似度=0.8137; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-007,NEWS-EVAL-027,content,正文相似度=0.8136; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-058,content,正文相似度=0.8135; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-066,content,正文相似度=0.8134; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-068,content,正文相似度=0.8130; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-026,content,正文相似度=0.8127; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-011,NEWS-EVAL-071,content,正文相似度=0.8126; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-056,NEWS-EVAL-060,content,正文相似度=0.8123; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-065,NEWS-EVAL-069,content,正文相似度=0.8123; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-043,content,正文相似度=0.8120; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-048,NEWS-EVAL-068,content,正文相似度=0.8120; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-040,content,正文相似度=0.8118; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-070,content,正文相似度=0.8117; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-071,NEWS-EVAL-075,content,正文相似度=0.8117; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-072,NEWS-EVAL-080,content,正文相似度=0.8116; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-050,NEWS-EVAL-074,content,正文相似度=0.8113; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-071,NEWS-EVAL-079,content,正文相似度=0.8112; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-051,NEWS-EVAL-071,content,正文相似度=0.8111; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-056,content,正文相似度=0.8111; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-058,content,正文相似度=0.8111; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-058,content,正文相似度=0.8110; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-042,NEWS-EVAL-078,content,正文相似度=0.8110; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-011,NEWS-EVAL-067,content,正文相似度=0.8109; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-059,NEWS-EVAL-075,content,正文相似度=0.8109; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-054,content,正文相似度=0.8107; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-030,NEWS-EVAL-070,content,正文相似度=0.8107; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-056,content,正文相似度=0.8104; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-064,NEWS-EVAL-068,content,正文相似度=0.8103; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-024,content,正文相似度=0.8103; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-014,NEWS-EVAL-046,content,正文相似度=0.8100; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-046,content,正文相似度=0.8100; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-039,NEWS-EVAL-047,content,正文相似度=0.8100; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-060,NEWS-EVAL-068,content,正文相似度=0.8099; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-032,NEWS-EVAL-068,content,正文相似度=0.8099; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-015,NEWS-EVAL-071,content,正文相似度=0.8096; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-009,NEWS-EVAL-037,content,正文相似度=0.8092; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-028,content,正文相似度=0.8091; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-022,content,正文相似度=0.8090; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-020,NEWS-EVAL-028,content,正文相似度=0.8089; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-048,NEWS-EVAL-076,content,正文相似度=0.8089; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-058,content,正文相似度=0.8088; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-058,content,正文相似度=0.8087; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-016,NEWS-EVAL-072,content,正文相似度=0.8086; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-060,content,正文相似度=0.8086; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-001,NEWS-EVAL-069,content,正文相似度=0.8085; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-054,content,正文相似度=0.8082; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-004,NEWS-EVAL-072,content,正文相似度=0.8079; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-038,content,正文相似度=0.8076; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-043,NEWS-EVAL-055,content,正文相似度=0.8076; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-048,content,正文相似度=0.8075; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-068,content,正文相似度=0.8074; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-056,content,正文相似度=0.8073; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-052,NEWS-EVAL-076,content,正文相似度=0.8073; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-047,NEWS-EVAL-055,content,正文相似度=0.8072; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-044,NEWS-EVAL-048,content,正文相似度=0.8070; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-030,NEWS-EVAL-046,content,正文相似度=0.8067; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-046,content,正文相似度=0.8066; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-052,content,正文相似度=0.8065; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-025,NEWS-EVAL-069,content,正文相似度=0.8064; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-057,NEWS-EVAL-069,content,正文相似度=0.8064; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-039,NEWS-EVAL-051,content,正文相似度=0.8061; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-038,NEWS-EVAL-050,content,正文相似度=0.8061; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-076,content,正文相似度=0.8059; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-042,content,正文相似度=0.8058; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-003,NEWS-EVAL-071,content,正文相似度=0.8057; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-018,NEWS-EVAL-026,content,正文相似度=0.8057; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-023,NEWS-EVAL-047,content,正文相似度=0.8057; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-048,content,正文相似度=0.8056; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-060,content,正文相似度=0.8055; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-039,NEWS-EVAL-071,content,正文相似度=0.8054; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-038,content,正文相似度=0.8053; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-062,content,正文相似度=0.8053; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-046,content,正文相似度=0.8053; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-023,NEWS-EVAL-055,content,正文相似度=0.8052; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-032,NEWS-EVAL-056,content,正文相似度=0.8049; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-066,content,正文相似度=0.8048; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-014,NEWS-EVAL-070,content,正文相似度=0.8044; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-047,content,正文相似度=0.8043; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-052,content,正文相似度=0.8043; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-042,NEWS-EVAL-058,content,正文相似度=0.8043; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-053,NEWS-EVAL-069,content,正文相似度=0.8043; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-002,NEWS-EVAL-070,content,正文相似度=0.8038; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-054,NEWS-EVAL-074,content,正文相似度=0.8038; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-063,NEWS-EVAL-067,content,正文相似度=0.8038; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-068,content,正文相似度=0.8035; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-060,content,正文相似度=0.8035; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-054,content,正文相似度=0.8034; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-070,content,正文相似度=0.8034; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-074,content,正文相似度=0.8033; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-019,NEWS-EVAL-027,content,正文相似度=0.8033; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-050,NEWS-EVAL-066,content,正文相似度=0.8033; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-005,NEWS-EVAL-069,content,正文相似度=0.8032; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-048,content,正文相似度=0.8030; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-032,content,正文相似度=0.8030; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-026,content,正文相似度=0.8029; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-046,content,正文相似度=0.8029; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-062,content,正文相似度=0.8029; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-044,NEWS-EVAL-068,content,正文相似度=0.8025; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-044,NEWS-EVAL-060,content,正文相似度=0.8025; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-068,NEWS-EVAL-076,content,正文相似度=0.8020; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-012,NEWS-EVAL-076,content,正文相似度=0.8019; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-007,NEWS-EVAL-055,content,正文相似度=0.8019; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-063,content,正文相似度=0.8019; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-043,NEWS-EVAL-079,content,正文相似度=0.8019; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-031,NEWS-EVAL-055,content,正文相似度=0.8019; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-045,NEWS-EVAL-069,content,正文相似度=0.8016; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-064,content,正文相似度=0.8015; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-068,content,正文相似度=0.8015; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-040,NEWS-EVAL-060,content,正文相似度=0.8015; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-014,NEWS-EVAL-058,content,正文相似度=0.8014; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-009,NEWS-EVAL-065,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-032,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-052,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-026,NEWS-EVAL-078,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-042,NEWS-EVAL-046,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-055,NEWS-EVAL-067,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-059,NEWS-EVAL-067,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-046,NEWS-EVAL-074,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-062,NEWS-EVAL-078,content,正文相似度=0.8010; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-002,NEWS-EVAL-058,content,正文相似度=0.8009; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-076,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-008,NEWS-EVAL-076,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-052,NEWS-EVAL-068,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-027,NEWS-EVAL-067,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-042,NEWS-EVAL-066,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-006,NEWS-EVAL-022,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-022,NEWS-EVAL-062,content,正文相似度=0.8005; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-010,NEWS-EVAL-054,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-014,NEWS-EVAL-066,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-018,NEWS-EVAL-070,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-024,NEWS-EVAL-076,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-028,NEWS-EVAL-040,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-031,NEWS-EVAL-047,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-039,NEWS-EVAL-059,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-047,NEWS-EVAL-059,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-050,NEWS-EVAL-058,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-051,NEWS-EVAL-067,content,正文相似度=0.8000; same_topic=False,warning,offline
+near_duplicate_content,NEWS-EVAL-055,NEWS-EVAL-063,content,正文相似度=0.8000; same_topic=False,warning,offline
+knowledge_text_embedded,NEWS-EVAL-001,EVAL-KB-0001,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-002,EVAL-KB-0001,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-003,EVAL-KB-0001,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-004,EVAL-KB-0001,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-005,EVAL-KB-0002,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-006,EVAL-KB-0002,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-007,EVAL-KB-0002,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-008,EVAL-KB-0002,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-009,EVAL-KB-0003,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-010,EVAL-KB-0003,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-011,EVAL-KB-0003,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-012,EVAL-KB-0003,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-013,EVAL-KB-0004,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-014,EVAL-KB-0004,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-015,EVAL-KB-0004,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-016,EVAL-KB-0004,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-017,EVAL-KB-0005,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-018,EVAL-KB-0005,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-019,EVAL-KB-0005,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-020,EVAL-KB-0005,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-021,EVAL-KB-0006,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-022,EVAL-KB-0006,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-023,EVAL-KB-0006,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-024,EVAL-KB-0006,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-025,EVAL-KB-0007,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-026,EVAL-KB-0007,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-027,EVAL-KB-0007,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-028,EVAL-KB-0007,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-029,EVAL-KB-0008,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-030,EVAL-KB-0008,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-031,EVAL-KB-0008,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-032,EVAL-KB-0008,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-033,EVAL-KB-0009,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-034,EVAL-KB-0009,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-035,EVAL-KB-0009,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-036,EVAL-KB-0009,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-037,EVAL-KB-0010,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-038,EVAL-KB-0010,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-039,EVAL-KB-0010,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-040,EVAL-KB-0010,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-041,EVAL-KB-0011,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-042,EVAL-KB-0011,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-043,EVAL-KB-0011,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-044,EVAL-KB-0011,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-045,EVAL-KB-0012,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-046,EVAL-KB-0012,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-047,EVAL-KB-0012,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-048,EVAL-KB-0012,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-049,EVAL-KB-0013,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-050,EVAL-KB-0013,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-051,EVAL-KB-0013,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-052,EVAL-KB-0013,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-053,EVAL-KB-0014,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-054,EVAL-KB-0014,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-055,EVAL-KB-0014,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-056,EVAL-KB-0014,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-057,EVAL-KB-0015,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-058,EVAL-KB-0015,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-059,EVAL-KB-0015,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-060,EVAL-KB-0015,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-061,EVAL-KB-0016,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-062,EVAL-KB-0016,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-063,EVAL-KB-0016,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-064,EVAL-KB-0016,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-065,EVAL-KB-0017,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-066,EVAL-KB-0017,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-067,EVAL-KB-0017,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-068,EVAL-KB-0017,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-069,EVAL-KB-0018,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-070,EVAL-KB-0018,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-071,EVAL-KB-0018,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-072,EVAL-KB-0018,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-073,EVAL-KB-0019,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-074,EVAL-KB-0019,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-075,EVAL-KB-0019,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-076,EVAL-KB-0019,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-077,EVAL-KB-0020,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-078,EVAL-KB-0020,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-079,EVAL-KB-0020,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+knowledge_text_embedded,NEWS-EVAL-080,EVAL-KB-0020,content,知识库正文被逐字包含在评测新闻正文中,high,offline
+split_leakage_unverifiable,,,split/topic_id,数据无划分字段，无法验证同事件是否跨验证集和测试集,high,offline

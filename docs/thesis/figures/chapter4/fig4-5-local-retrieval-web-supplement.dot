@@ -1,0 +1,24 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=polyline; nodesep=0.30; ranksep=0.55;
+  query [label="规范化新闻标题＋正文\nDashScope生成1024维查询向量", shape=oval, fillcolor="#EAF2F8", color="#5B7C99"];
+  chroma [label="Chroma余弦距离检索\n召回Top-10本地候选"];
+  sufficient [label="允许并需要联网补充？\n前提：用户启用且系统允许\n条件：无本地证据；或Top-1＜0.45；\n或Top-1＜0.60且有效候选＜3\n（有效候选相似度≥0.30）", shape=diamond, style="filled", margin="0.08"];
+  bocha [label="博查搜索\n标题＋关键词；受数量与时效配置约束"];
+  merge [label="多源候选整理\n本地最多5条＋网络最多5条\n同源强标识去重；保留来源类型"];
+  pool [label="统一候选证据池\n生成kb:<id>／web:<序号>候选ID\nSHA-256种子确定来源中立顺序\n送入模型的候选不超过10条", shape=oval, fillcolor="#EAF2F8", color="#5B7C99"];
+
+  query -> chroma -> sufficient;
+  sufficient -> merge [label="否：本地证据足够"];
+  sufficient -> bocha [label="是"];
+  bocha -> merge [label="成功时合并；失败／无结果时仅保留本地项"];
+  merge -> pool;
+}

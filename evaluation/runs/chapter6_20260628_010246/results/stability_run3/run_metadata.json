@@ -1,0 +1,26 @@
+{
+  "commit_hash": "bf8010183bab0feed1d7f01852290cd358db99ef",
+  "run_date": "2026-06-28T13:19:51.037419+00:00",
+  "os": "Windows",
+  "os_release": "10",
+  "python_version": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "cpu_count_logical": 16,
+  "memory_note": "use psutil for detailed memory info",
+  "model_name": "deepseek-v4-pro",
+  "embedding_provider": "dashscope",
+  "embedding_model": "text-embedding-v4",
+  "top_k_rag": 10,
+  "rag_top1_threshold": 0.45,
+  "rag_top1_moderate": 0.6,
+  "rag_min_meaningful": 3,
+  "web_trigger_rules": {
+    "top1_below_trigger": 0.45,
+    "moderate_top1_below": 0.6,
+    "min_meaningful_results": 3
+  },
+  "scoring_formula": "正常: llm_score×0.5 + evidence_quality_score×0.3 + rule_score×0.2; 无证据: llm_score×0.6 + rule_score×0.4; LLM降级: rule_score",
+  "dataset_file_hash": "1023663fdf1070283547799fbccd54aa215281b17407baa4c886803275732b30",
+  "web_search_enabled_global": true,
+  "sample_limit": 4,
+  "command": "E:\\nan\\NewsCredibilityEvaluator\\evaluation\\run_evaluation.py --dataset evaluation/datasets/news_eval.csv --output-dir evaluation/runs/chapter6_20260628_010246/results/stability_run3 --sample-limit 4 --allow-web-search true --retries 1 --interval 1 --seed 42 --log-level INFO"
+}

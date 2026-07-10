@@ -1,0 +1,2 @@
+﻿baseline,variant,sample_count,accuracy_delta,accuracy_ci_low,accuracy_ci_high,macro_f1_delta,macro_f1_ci_low,macro_f1_ci_high,baseline_only_correct,variant_only_correct,discordant_pairs,mcnemar_exact_p,bootstrap_iterations,seed,label_change_count,mean_score_delta
+Local-only,Local+Web,12,-0.1667,-0.5,0.1667,-0.1042,-0.4417,0.2018,3,1,4,0.625,5000,20260702,5,-5.5083

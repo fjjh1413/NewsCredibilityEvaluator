@@ -1,0 +1,446 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-057",
+    "topic_id": "T15",
+    "gold_label": "可信新闻",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 93.5,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 93.5,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 20739.61,
+    "started_at_utc": "2026-07-02T04:56:45.969740+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 95.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻核心表述“大部分锡克教徒与旁遮普地区关系密切，许多人定居在旁遮普邦”与知识库证据（kb:238）完全一致，证据直接支持，且无矛盾信息。",
+    "risk_points": [],
+    "keywords": [
+      "锡克教徒",
+      "旁遮普邦",
+      "分布",
+      "可信样本"
+    ],
+    "suggestion": "该新闻信息与可查证据一致，可采信。",
+    "evidence_quality": {
+      "coverage": 100.0,
+      "consistency": 100.0,
+      "score": 100.0,
+      "assessment": "证据与新闻主张高度吻合，覆盖全部关键陈述，无冲突。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:238",
+          "relevance_score": 100,
+          "quality_score": 95,
+          "stance": "support",
+          "reason": "直接陈述锡克教徒分布，与新闻核心主张完全一致，来源明确。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:64",
+          "reason": "内容为健康辟谣，与锡克教徒分布无关。"
+        },
+        {
+          "candidate_id": "kb:152",
+          "reason": "为诈骗咨询求助，不涉及地理分布。"
+        },
+        {
+          "candidate_id": "kb:6",
+          "reason": "医保备案流程，无关联。"
+        },
+        {
+          "candidate_id": "kb:50",
+          "reason": "网络安全专家信息，不相关。"
+        },
+        {
+          "candidate_id": "kb:122",
+          "reason": "区块链行业动态，无关。"
+        },
+        {
+          "candidate_id": "kb:145",
+          "reason": "学术论文摘要，不涉及锡克教徒。"
+        },
+        {
+          "candidate_id": "kb:35",
+          "reason": "网络谣言案例通报，无关联。"
+        },
+        {
+          "candidate_id": "kb:82",
+          "reason": "九游会国际页面，不相关。"
+        },
+        {
+          "candidate_id": "kb:186",
+          "reason": "塔塔电子数据泄露事件，无关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 69,
+    "created_at": "2026-07-02 04:56:45.969120+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E9%94%A1%E5%85%8B%E6%95%99",
+    "final_score": 93.5,
+    "evidence_score": 90.28,
+    "llm_score": 95.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻核心表述“大部分锡克教徒与旁遮普地区关系密切，许多人定居在旁遮普邦”与知识库证据（kb:238）完全一致，证据直接支持，且无矛盾信息。",
+    "risk_points": [
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "来源",
+      "锡克教徒分布",
+      "可信样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "相关内容涉及",
+      "锡克教徒",
+      "旁遮普邦",
+      "分布"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 238,
+        "title": "锡克教徒分布",
+        "summary": "大部分锡克教徒与旁遮普地区关系密切，许多人定居在旁遮普邦。证据不支持其主要定居在圣母山或阿萨姆邦。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "锡克教|旁遮普邦",
+        "risk_level": "",
+        "similarity_score": 0.9027894735336304,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:238"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33200496435165405,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32168471813201904,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.317671000957489,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3153994083404541,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82"
+      },
+      {
+        "knowledge_id": 6,
+        "title": "国家医保局说明异地就医备案流程",
+        "summary": "异地就医备案应以医保官方平台和经办机构说明为准。",
+        "category": "健康",
+        "truth_label": "可信新闻",
+        "source_name": "医保部门办事指南",
+        "risk_level": "可信新闻",
+        "similarity_score": 0.30578625202178955,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:6"
+      },
+      {
+        "knowledge_id": 152,
+        "title": "这个有诈骗行为吗 - 咨询求助 - 包头24小时警局 - Powered by Discuz! Archiver",
+        "summary": "msms_X9JWk5yh\n发表于\n前天\n17:34\n这个有诈骗行为吗\n这个有诈骗行为吗\n页:\n[1]",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "包头市公安局综合服务平台",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30383944511413574,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:152"
+      },
+      {
+        "knowledge_id": 50,
+        "title": "相关人员检索 - 全国标准信息公共服务平台",
+        "summary": "负责专业范围为网络安全。\n擅长专业为网络安全领域资深专家,曾参与国际、国家标准制修订工作。主要领域:1\n.主导设计基于移动网络的高可信统一认证系统并大规模应用;2.设计实现基于移动安全机制的应用系统安全加固技术和智能安全网络产品;3.面向党政军企规模化应用自主安全产品,助力保障国家网络空间安全;4、研发面向家庭用户的家宽质量提升产品,按照“一点建设、服务全网”思路,建设智能加速云平台,实现网络精准调度、高效自动运维,家庭安全防护,游戏定向加速后丢包率降低96%\n,日均拦截威胁超90万次。已在江苏等6省试点,累计发展用户数344万,87%以上调研用户反馈良好。。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "国家市场监督管理总局",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.29767268896102905,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:50"
+      },
+      {
+        "knowledge_id": 122,
+        "title": "2023年新风口:区块链行业最新动态与机遇解析_tp官方网站下载app",
+        "summary": "区块链为何被称为新风口?\n最近,区块链这个词总是在朋友圈、社交媒体上冒出来。听起来像是科技感满满的词,实际上它背后潜藏着的商机和挑战,比你想象的还要复杂。有时候,我想,是不是很多朋友也像我一样,有点摸不着头脑?可是,区块链真的是个很有潜力的领域,不少人已经开始行动了,有投资的、有创业的,也有在这方面学习新知识的。听起来刺激吧?\n区块链的基本概念是什么?\n简单来说,区块链是一种去中心化的数据库技术。想象一下,有个账本,每个人都能看到,任何人都不能随意修改。这样一来,数据安全性和透明度都提升了,特别适合涉及金融、物流等领域的交易。其实,我第一次听说这个概念时,也是被这个“不可篡改”的特性吸引住了。我记得朋友开玩笑说:“就像大家一起在一个群里,每个人都是记录员,谁都不能删掉聊天记录。”有趣吧?\n最近的行业动态\n最近,区块链行业的消息如雨后春笋般冒出来,有些甚至一夜之间就风靡开来。比如,某个大型企业宣布要将区块链技术应用于供应链管理。这让人到了一件事情––想象一下,你在超市买水果,能通过区块链追踪到这颗苹果从树上到你手里的每一步,哇,这是不是很炫呢?\n还有一个值得注意的动态,就是越来越多的国家开始重视区块链技术的发展。像美国、瑞士等国家,在政策上都在支持区块链的创新和应用。根据最新数据,2023年,全球投资区块链的资金量已经突破了2500亿美元,真的是个庞大的数字。这个行业的发展速度,让我常常觉得有些跟不上。你们觉得呢?\n区块链在各个行业的应用\n别以为区块链只跟金融有关,它的应用场景几乎涵盖了各行各业。比如在食品安全方面,某些企业已经将区块链技术应用于牛奶的追溯。如果你在超市看到标明区块链追踪的产品,直接扫一扫,就能知道这份牛奶是从哪间农场来的,甚至是它喂过什么。这事儿我觉得超酷的,想象一下,一边喝牛奶一边看它的成长历程!\n再有,比如在版权保护方面,音乐、电影等作品的版权通过区块",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "m.czsfy.org",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2976177930831909,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:122"
+      },
+      {
+        "knowledge_id": 186,
+        "title": "苹果、特斯拉核心供应商塔塔电子遭网络攻击,超630GB数据被泄露_新浪财经_新浪网",
+        "summary": "6月23日,据报道,印度塔塔电子(Tata\nElectronics)证实,公司近期遭遇了一起“网络安全事件”。此前,安全研究人员披露,勒索软件组织“World\nLeaks”在暗网发布了超过20万个据称从塔塔电子窃取的文件,其中包含其核心客户苹果公司和特斯拉的组件设计、规格文件及商业机密。此次泄露的数据总量超过630GB。塔塔电子在一份声明中表示:“几周前,塔塔电子发现我们部分系统出现网络安全事件。我们的应对方案立即启动,该事件没有对我们各业务的运营造成任何影响,所有业务均未受到影响。”有知情人士表示,苹果公司目前正在对此次数据泄露事件展开“全面分析”调查。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "新浪财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2967902421951294,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:186"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 238,
+        "title": "锡克教徒分布",
+        "summary": "大部分锡克教徒与旁遮普地区关系密切，许多人定居在旁遮普邦。证据不支持其主要定居在圣母山或阿萨姆邦。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "锡克教|旁遮普邦",
+        "risk_level": "",
+        "similarity_score": 0.9027894735336304,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:238",
+        "relevance_score": 100.0,
+        "quality_score": 95.0,
+        "stance": "support",
+        "arbitration_reason": "直接陈述锡克教徒分布，与新闻核心主张完全一致，来源明确。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33200496435165405,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "内容为健康辟谣，与锡克教徒分布无关。"
+      },
+      {
+        "knowledge_id": 152,
+        "title": "这个有诈骗行为吗 - 咨询求助 - 包头24小时警局 - Powered by Discuz! Archiver",
+        "summary": "msms_X9JWk5yh\n发表于\n前天\n17:34\n这个有诈骗行为吗\n这个有诈骗行为吗\n页:\n[1]",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "包头市公安局综合服务平台",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.30383944511413574,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:152",
+        "rejection_reason": "为诈骗咨询求助，不涉及地理分布。"
+      },
+      {
+        "knowledge_id": 6,
+        "title": "国家医保局说明异地就医备案流程",
+        "summary": "异地就医备案应以医保官方平台和经办机构说明为准。",
+        "category": "健康",
+        "truth_label": "可信新闻",
+        "source_name": "医保部门办事指南",
+        "risk_level": "可信新闻",
+        "similarity_score": 0.30578625202178955,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:6",
+        "rejection_reason": "医保备案流程，无关联。"
+      },
+      {
+        "knowledge_id": 50,
+        "title": "相关人员检索 - 全国标准信息公共服务平台",
+        "summary": "负责专业范围为网络安全。\n擅长专业为网络安全领域资深专家,曾参与国际、国家标准制修订工作。主要领域:1\n.主导设计基于移动网络的高可信统一认证系统并大规模应用;2.设计实现基于移动安全机制的应用系统安全加固技术和智能安全网络产品;3.面向党政军企规模化应用自主安全产品,助力保障国家网络空间安全;4、研发面向家庭用户的家宽质量提升产品,按照“一点建设、服务全网”思路,建设智能加速云平台,实现网络精准调度、高效自动运维,家庭安全防护,游戏定向加速后丢包率降低96%\n,日均拦截威胁超90万次。已在江苏等6省试点,累计发展用户数344万,87%以上调研用户反馈良好。。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "国家市场监督管理总局",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.29767268896102905,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:50",
+        "rejection_reason": "网络安全专家信息，不相关。"
+      },
+      {
+        "knowledge_id": 122,
+        "title": "2023年新风口:区块链行业最新动态与机遇解析_tp官方网站下载app",
+        "summary": "区块链为何被称为新风口?\n最近,区块链这个词总是在朋友圈、社交媒体上冒出来。听起来像是科技感满满的词,实际上它背后潜藏着的商机和挑战,比你想象的还要复杂。有时候,我想,是不是很多朋友也像我一样,有点摸不着头脑?可是,区块链真的是个很有潜力的领域,不少人已经开始行动了,有投资的、有创业的,也有在这方面学习新知识的。听起来刺激吧?\n区块链的基本概念是什么?\n简单来说,区块链是一种去中心化的数据库技术。想象一下,有个账本,每个人都能看到,任何人都不能随意修改。这样一来,数据安全性和透明度都提升了,特别适合涉及金融、物流等领域的交易。其实,我第一次听说这个概念时,也是被这个“不可篡改”的特性吸引住了。我记得朋友开玩笑说:“就像大家一起在一个群里,每个人都是记录员,谁都不能删掉聊天记录。”有趣吧?\n最近的行业动态\n最近,区块链行业的消息如雨后春笋般冒出来,有些甚至一夜之间就风靡开来。比如,某个大型企业宣布要将区块链技术应用于供应链管理。这让人到了一件事情––想象一下,你在超市买水果,能通过区块链追踪到这颗苹果从树上到你手里的每一步,哇,这是不是很炫呢?\n还有一个值得注意的动态,就是越来越多的国家开始重视区块链技术的发展。像美国、瑞士等国家,在政策上都在支持区块链的创新和应用。根据最新数据,2023年,全球投资区块链的资金量已经突破了2500亿美元,真的是个庞大的数字。这个行业的发展速度,让我常常觉得有些跟不上。你们觉得呢?\n区块链在各个行业的应用\n别以为区块链只跟金融有关,它的应用场景几乎涵盖了各行各业。比如在食品安全方面,某些企业已经将区块链技术应用于牛奶的追溯。如果你在超市看到标明区块链追踪的产品,直接扫一扫,就能知道这份牛奶是从哪间农场来的,甚至是它喂过什么。这事儿我觉得超酷的,想象一下,一边喝牛奶一边看它的成长历程!\n再有,比如在版权保护方面,音乐、电影等作品的版权通过区块",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "m.czsfy.org",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2976177930831909,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:122",
+        "rejection_reason": "区块链行业动态，无关。"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.317671000957489,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "学术论文摘要，不涉及锡克教徒。"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.32168471813201904,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35",
+        "rejection_reason": "网络谣言案例通报，无关联。"
+      },
+      {
+        "knowledge_id": 82,
+        "title": "九游会国际_抚州新闻网",
+        "summary": "九游会国际_抚州新闻网",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "抚州新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3153994083404541,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:82",
+        "rejection_reason": "九游会国际页面，不相关。"
+      },
+      {
+        "knowledge_id": 186,
+        "title": "苹果、特斯拉核心供应商塔塔电子遭网络攻击,超630GB数据被泄露_新浪财经_新浪网",
+        "summary": "6月23日,据报道,印度塔塔电子(Tata\nElectronics)证实,公司近期遭遇了一起“网络安全事件”。此前,安全研究人员披露,勒索软件组织“World\nLeaks”在暗网发布了超过20万个据称从塔塔电子窃取的文件,其中包含其核心客户苹果公司和特斯拉的组件设计、规格文件及商业机密。此次泄露的数据总量超过630GB。塔塔电子在一份声明中表示:“几周前,塔塔电子发现我们部分系统出现网络安全事件。我们的应对方案立即启动,该事件没有对我们各业务的运营造成任何影响,所有业务均未受到影响。”有知情人士表示,苹果公司目前正在对此次数据泄露事件展开“全面分析”调查。",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "新浪财经",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.2967902421951294,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:186",
+        "rejection_reason": "塔塔电子数据泄露事件，无关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻信息与可查证据一致，可采信。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 100.0,
+      "consistency": 100.0,
+      "score": 100.0,
+      "assessment": "证据与新闻主张高度吻合，覆盖全部关键陈述，无冲突。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

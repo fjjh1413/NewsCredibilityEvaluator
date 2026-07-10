@@ -1,0 +1,463 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-050",
+    "topic_id": "T13",
+    "gold_label": "存疑信息",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 48.4,
+    "full_predicted_label": "疑似谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 48.4,
+    "no_retry_predicted_label": "疑似谣言",
+    "total_ms": 29106.78,
+    "started_at_utc": "2026-07-01T15:28:45.661053+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 45.0,
+    "risk_level": "存疑信息",
+    "reason": "新闻标题和正文均为测试样本，本身未断言事实，但指出了社交平台上流传的“蔡元培是自由主义唯一传播者”说法缺乏可验证证据。检索证据仅支持蔡元培提倡自由主义，无法验证该极端声称，故整体可信度存疑。",
+    "risk_points": [
+      "新闻中提及的“蔡元培是自由主义唯一传播者”说法无原始出处和完整上下文",
+      "该极端声称未得到任何检索证据支持，也无法严格反驳",
+      "知识库证据仅涵盖基本事实，无法验证附加断言",
+      "社交平台内容可能断章取义，存在误导风险"
+    ],
+    "keywords": [
+      "蔡元培",
+      "自由主义",
+      "唯一传播者",
+      "存疑样本",
+      "证据不足"
+    ],
+    "suggestion": "建议查证原始发布源头，对比其他历史学者论述，进行联网检索权威数据库或学术文献，避免仅凭关键词相似度做出判断，必要时标注“待核实”标签。",
+    "evidence_quality": {
+      "coverage": 25.0,
+      "consistency": 45.0,
+      "score": 33.0,
+      "assessment": "检索证据中仅一条与蔡元培与自由主义直接相关，覆盖率低；证据支持蔡元培提倡自由主义，但无法验证或反驳“唯一传播者”主张，一致性中等；综合质量较低，需补充权威资料。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:236",
+          "relevance_score": 95,
+          "quality_score": 80,
+          "stance": "neutral",
+          "reason": "直接涉及蔡元培与自由主义，支持其提倡自由主义，但未涉及“唯一传播者”说法，无法判断该附加主张的真伪。"
+        },
+        {
+          "candidate_id": "kb:233",
+          "relevance_score": 20,
+          "quality_score": 70,
+          "stance": "neutral",
+          "reason": "提供蔡元培教育经历与职务背景，与自由主义主张无直接关联，仅作辅助参考。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:239",
+          "reason": "主题为美国共和党政治倾向，与蔡元培或自由主义完全无关。"
+        },
+        {
+          "candidate_id": "kb:109",
+          "reason": "娱乐八卦新闻，与当前新闻主题无关。"
+        },
+        {
+          "candidate_id": "kb:242",
+          "reason": "太平岛主权信息，不相关。"
+        },
+        {
+          "candidate_id": "kb:210",
+          "reason": "防诈骗宣传，不相关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "科普辟谣文章，与蔡元培无关。"
+        },
+        {
+          "candidate_id": "kb:15",
+          "reason": "新能源充电桩免费活动核查样例，不相关。"
+        },
+        {
+          "candidate_id": "kb:72",
+          "reason": "名医虚假宣传报道，不相关。"
+        },
+        {
+          "candidate_id": "kb:101",
+          "reason": "体育类传言，不相关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 33,
+    "created_at": "2026-07-01 15:28:45.660036+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E8%87%AA%E7%94%B1%E4%B8%BB%E4%B9%89",
+    "final_score": 48.4,
+    "evidence_score": 67.58,
+    "llm_score": 45.0,
+    "rule_score": 80.0,
+    "risk_level": "疑似谣言",
+    "judgement_result": "该新闻疑似存在谣言风险",
+    "reason": "新闻标题和正文均为测试样本，本身未断言事实，但指出了社交平台上流传的“蔡元培是自由主义唯一传播者”说法缺乏可验证证据。检索证据仅支持蔡元培提倡自由主义，无法验证该极端声称，故整体可信度存疑。",
+    "risk_points": [
+      "新闻中提及的“蔡元培是自由主义唯一传播者”说法无原始出处和完整上下文",
+      "该极端声称未得到任何检索证据支持，也无法严格反驳",
+      "知识库证据仅涵盖基本事实，无法验证附加断言",
+      "社交平台内容可能断章取义，存在误导风险",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "虚假",
+      "权威",
+      "蔡元培与自由",
+      "主义",
+      "存疑样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "蔡元培",
+      "自由主义",
+      "唯一传播者",
+      "证据不足"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.865715503692627,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236"
+      },
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.48588889837265015,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.43081796169281006,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 15,
+        "title": "新能源车充电桩月底全部免费海报",
+        "summary": "大范围免费活动应有主管部门或运营企业明确公告。",
+        "category": "交通",
+        "truth_label": "存疑信息",
+        "source_name": "城市服务核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38774120807647705,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:15"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3689098358154297,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35638725757598877,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210"
+      },
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.3542379140853882,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239"
+      },
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35158491134643555,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3487149477005005,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101"
+      },
+      {
+        "knowledge_id": 109,
+        "title": "被造谣“蹭热度”?孔雪儿硬气回应击碎流言,顺手给鞠婧祎送了份大礼|传言|谣言|粉丝|流言蜚语|尴尬_新浪新闻",
+        "summary": "娱乐圈里总是少不了各种八卦和流言蜚语,有时候一些不知道从哪里冒出来的虚假信息,总能引发粉丝之间的争议和误解。最近,一则关于孔雪儿“曾说自己像鞠婧祎”的传言在网上流传开来,引起了不少网友的关注。面对这种毫无根据的说法,孔雪儿选择了直接站出来发声,用最明确的态度制止了谣言的进一步扩散。\n传言愈演愈烈的时候,孔雪儿通过个人微博发布了辟谣声明。她的态度非常坚决,用词也十分直接,明确表示自己从来没有说过这样的话,也不存在所谓的回应。为了防止别有用心的人继续断章取义,她还特别强调了“请不要造谣”,并在句末加上了多个感叹号,可以看出她对于这种凭空捏造的行为感到十分无奈和气愤。在信息传播极快的网络时代,艺人亲自下场澄清,往往是最直接有效的澄清方式。\n在澄清谣言的同时,孔雪儿并没有因为不实传言而影响到对同行的心情。当天正好是鞠婧祎的生日,孔雪儿在同一篇发文里大方地为鞠婧祎送上了生日祝福。这一举动不仅展现了她的大度,也侧面说明了两人之间并没有传言中试图制造的尴尬或对立关系。孔雪儿用送祝福的实际举动,化解了可能因为谣言而产生的粉丝摩擦,尽显同行之间的友好与善意。\n回看这次事件,其实只是一次典型的网络造谣案例。在这个信息碎片化的时代,有些人为了博取眼球,常常会捏造一些明星的言论来制造话题,试图挑起各家粉丝之间的争论。孔雪儿的果断回应,不仅是对自身名誉的维护,也是对这种不良网络风气的一种抵制。她没有选择沉默,也没有采取模棱两可的公关话术,而是干脆利落地把事实摆在公众面前。最终,这场因为一句不实传言引发的小风波,在孔雪儿的迅速回应下得以平息。公众也通过她的发文清楚地了解到了事实的真相。对于关注娱乐圈的网友来说,大家更希望看到的是艺人之间互相尊重、共同进步的良好氛围。也希望未来网络上的环境能更加清朗,少一些无中生有的造谣,多一些对作品和舞台的关注。\n特别声明:以上文章内容仅代表作者本人观点,不代表新浪",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "新浪网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3466010093688965,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:109"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.865715503692627,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236",
+        "relevance_score": 95.0,
+        "quality_score": 80.0,
+        "stance": "neutral",
+        "arbitration_reason": "直接涉及蔡元培与自由主义，支持其提倡自由主义，但未涉及“唯一传播者”说法，无法判断该附加主张的真伪。"
+      },
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.48588889837265015,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233",
+        "relevance_score": 20.0,
+        "quality_score": 70.0,
+        "stance": "neutral",
+        "arbitration_reason": "提供蔡元培教育经历与职务背景，与自由主义主张无直接关联，仅作辅助参考。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.3542379140853882,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239",
+        "rejection_reason": "主题为美国共和党政治倾向，与蔡元培或自由主义完全无关。"
+      },
+      {
+        "knowledge_id": 109,
+        "title": "被造谣“蹭热度”?孔雪儿硬气回应击碎流言,顺手给鞠婧祎送了份大礼|传言|谣言|粉丝|流言蜚语|尴尬_新浪新闻",
+        "summary": "娱乐圈里总是少不了各种八卦和流言蜚语,有时候一些不知道从哪里冒出来的虚假信息,总能引发粉丝之间的争议和误解。最近,一则关于孔雪儿“曾说自己像鞠婧祎”的传言在网上流传开来,引起了不少网友的关注。面对这种毫无根据的说法,孔雪儿选择了直接站出来发声,用最明确的态度制止了谣言的进一步扩散。\n传言愈演愈烈的时候,孔雪儿通过个人微博发布了辟谣声明。她的态度非常坚决,用词也十分直接,明确表示自己从来没有说过这样的话,也不存在所谓的回应。为了防止别有用心的人继续断章取义,她还特别强调了“请不要造谣”,并在句末加上了多个感叹号,可以看出她对于这种凭空捏造的行为感到十分无奈和气愤。在信息传播极快的网络时代,艺人亲自下场澄清,往往是最直接有效的澄清方式。\n在澄清谣言的同时,孔雪儿并没有因为不实传言而影响到对同行的心情。当天正好是鞠婧祎的生日,孔雪儿在同一篇发文里大方地为鞠婧祎送上了生日祝福。这一举动不仅展现了她的大度,也侧面说明了两人之间并没有传言中试图制造的尴尬或对立关系。孔雪儿用送祝福的实际举动,化解了可能因为谣言而产生的粉丝摩擦,尽显同行之间的友好与善意。\n回看这次事件,其实只是一次典型的网络造谣案例。在这个信息碎片化的时代,有些人为了博取眼球,常常会捏造一些明星的言论来制造话题,试图挑起各家粉丝之间的争论。孔雪儿的果断回应,不仅是对自身名誉的维护,也是对这种不良网络风气的一种抵制。她没有选择沉默,也没有采取模棱两可的公关话术,而是干脆利落地把事实摆在公众面前。最终,这场因为一句不实传言引发的小风波,在孔雪儿的迅速回应下得以平息。公众也通过她的发文清楚地了解到了事实的真相。对于关注娱乐圈的网友来说,大家更希望看到的是艺人之间互相尊重、共同进步的良好氛围。也希望未来网络上的环境能更加清朗,少一些无中生有的造谣,多一些对作品和舞台的关注。\n特别声明:以上文章内容仅代表作者本人观点,不代表新浪",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "新浪网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3466010093688965,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:109",
+        "rejection_reason": "娱乐八卦新闻，与当前新闻主题无关。"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3689098358154297,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242",
+        "rejection_reason": "太平岛主权信息，不相关。"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35638725757598877,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210",
+        "rejection_reason": "防诈骗宣传，不相关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.43081796169281006,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "科普辟谣文章，与蔡元培无关。"
+      },
+      {
+        "knowledge_id": 15,
+        "title": "新能源车充电桩月底全部免费海报",
+        "summary": "大范围免费活动应有主管部门或运营企业明确公告。",
+        "category": "交通",
+        "truth_label": "存疑信息",
+        "source_name": "城市服务核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38774120807647705,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:15",
+        "rejection_reason": "新能源充电桩免费活动核查样例，不相关。"
+      },
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35158491134643555,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72",
+        "rejection_reason": "名医虚假宣传报道，不相关。"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3487149477005005,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101",
+        "rejection_reason": "体育类传言，不相关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "建议查证原始发布源头，对比其他历史学者论述，进行联网检索权威数据库或学术文献，避免仅凭关键词相似度做出判断，必要时标注“待核实”标签。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 25.0,
+      "consistency": 45.0,
+      "score": 33.0,
+      "assessment": "检索证据中仅一条与蔡元培与自由主义直接相关，覆盖率低；证据支持蔡元培提倡自由主义，但无法验证或反驳“唯一传播者”主张，一致性中等；综合质量较低，需补充权威资料。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

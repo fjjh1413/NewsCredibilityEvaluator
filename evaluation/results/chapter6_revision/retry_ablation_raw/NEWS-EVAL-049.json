@@ -1,0 +1,453 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-049",
+    "topic_id": "T13",
+    "gold_label": "可信新闻",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 91.7,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 91.7,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 17462.84,
+    "started_at_utc": "2026-07-01T15:19:00.140432+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 95.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻核心陈述“蔡元培曾倡导自由主义”与知识库证据 kb:236 一致，证据明确支持该观点，人物身份、概念关系和事实均无冲突，且新闻本身为测试可信样本，无额外矛盾信息。",
+    "risk_points": [
+      "无风险点",
+      "核心主张有明确证据支持。"
+    ],
+    "keywords": [
+      "蔡元培",
+      "自由主义",
+      "中国近代",
+      "可信样本",
+      "思想流派"
+    ],
+    "suggestion": "该新闻内容与可追溯证据一致，无夸大或误导，可视为可信信息进行传播，但建议注明具体知识条目来源以供复核。",
+    "evidence_quality": {
+      "coverage": 90.0,
+      "consistency": 100.0,
+      "score": 94.0,
+      "assessment": "证据 kb:236 直接覆盖新闻核心主张，提供“自由主义以自由作为重要政治价值”及“CFEVER证据支持蔡元培提倡自由主义”的明确依据，与新闻陈述完全一致，无其他证据冲突，可信度高。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:236",
+          "relevance_score": 100,
+          "quality_score": 100,
+          "stance": "support",
+          "reason": "直接提及蔡元培与自由主义的关系，摘要明确支持蔡元培在中国近代提倡自由主义，与新闻核心主张完全吻合。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:145",
+          "reason": "内容为关于错误信息与身份的期刊文献，与蔡元培和自由主义无关。"
+        },
+        {
+          "candidate_id": "kb:15",
+          "reason": "涉及新能源车充电桩免费海报，与新闻主题无关。"
+        },
+        {
+          "candidate_id": "kb:242",
+          "reason": "关于太平岛实际控制，与新闻内容无关。"
+        },
+        {
+          "candidate_id": "kb:210",
+          "reason": "关于诈骗套路细节，与新闻内容无关。"
+        },
+        {
+          "candidate_id": "kb:239",
+          "reason": "关于美国共和党政治倾向，与新闻内容无关。"
+        },
+        {
+          "candidate_id": "kb:233",
+          "reason": "关于蔡元培教育经历与职务，但未涉及自由主义，与新闻核心主张无关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "为科普辟谣文章，与新闻主题无关。"
+        },
+        {
+          "candidate_id": "kb:216",
+          "reason": "关于演员闫学晶维权事件，与新闻内容无关。"
+        },
+        {
+          "candidate_id": "kb:33",
+          "reason": "关于辟谣上热搜的评论文章，与新闻内容无关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 13,
+    "created_at": "2026-07-01 15:19:00.139502+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E8%87%AA%E7%94%B1%E4%B8%BB%E4%B9%89",
+    "final_score": 91.7,
+    "evidence_score": 87.6,
+    "llm_score": 95.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻核心陈述“蔡元培曾倡导自由主义”与知识库证据 kb:236 一致，证据明确支持该观点，人物身份、概念关系和事实均无冲突，且新闻本身为测试可信样本，无额外矛盾信息。",
+    "risk_points": [
+      "无风险点",
+      "核心主张有明确证据支持。",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "来源",
+      "蔡元培与自由",
+      "主义",
+      "可信样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "蔡元培",
+      "自由主义",
+      "中国近代",
+      "思想流派"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.8760372400283813,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236"
+      },
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.46056538820266724,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40911757946014404,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 15,
+        "title": "新能源车充电桩月底全部免费海报",
+        "summary": "大范围免费活动应有主管部门或运营企业明确公告。",
+        "category": "交通",
+        "truth_label": "存疑信息",
+        "source_name": "城市服务核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3771069049835205,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:15"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.37421172857284546,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3545883297920227,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34642255306243896,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 216,
+        "title": "铁腕闫学晶:将4名造谣者送进拘留所,她还要向其他造谣者索赔_维权_侵权_媒体",
+        "summary": "2026年6月18日,著名演员闫学晶的代理律师蒋正清,对外发布维权阶段性成果:4名造谣者被行政拘留,多个造谣账号被闫学晶起诉到法院,要求民事赔偿。\n当晚18点47分,闫学晶在个人社交平台转发了4名造谣者的《行政拘留通知书》。网友纷纷为闫学晶的铁腕维权点赞。\n2025年12月,闫学晶的直播片段引发网络讨论。一些自媒体博主为了博流量,剪辑、拼接衍生出大量谣言,“酸黄瓜”“老农民”“能咋地”等视频满天飞。这给闫学晶及其家人带来巨大伤害,也让网友将闫学晶妖魔化了。\n2025年12月,闫学晶在直播间确实有言语不当行为,她为此公开道歉。\n但一些自媒体博主为了博流量,直播带货,刻意截取闫学晶直播中的特定语境语句,通过拼接剪辑,断章取义的方式,刻意制造争议。\n一时间,闫学晶的负面消息满天飞。\n还有人造谣,说闫学晶的儿子林傲霏进中戏读书,是靠走后门进去的,要求有关部门彻查。连中戏官网都发声明了,证明闫学晶的儿子是考进去的,不是开后门读的新疆班。\n但仍有一部分博主继续造谣,编造种种假消息,带节奏、拉对立,往闫学晶身上泼脏水。\n还有的博主造谣,说闫学晶得艾滋病,她被开除军籍,还遭遇离婚。\n闫学晶与儿子\n这些假消息,将闫学晶一家人的生活彻底打乱了,也给他们带来巨大的心理伤害。\n2026年1月11日,闫学晶就不当言论发长文道歉,但一些自媒体博主仍然不放过闫学晶。\n闫学晶是农村走出来的,心地善良,一向对媒体比较宽容。\n然而,一些自媒体、直播团伙为收获流量,带货牟利,完全失去了做人的底线。\n还有人利用AI修图、图像合成技术,伪造闫学晶亲属发声,千方百计贬损、打压闫学晶。\n在这种情况下,闫学晶拿起法律武器维护自己的合法权益。\n2026年1月中旬,闫学晶委托北京道章律师事务所为自己维权。\n同时,闫学晶向公安机关报案,4名核心造谣者张某、教某、史某、明某,分别被公安机关行政拘留。\n张某、教某分别拘留9天,史",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "搜狐",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3441464304924011,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:216"
+      },
+      {
+        "knowledge_id": 33,
+        "title": "让辟谣上热搜,才是对造谣最直接的震慑-杭州高新区(滨江)新闻网",
+        "summary": "摆拍,是宣传的一种手段,更是流量时代的剧本,看起来无伤大雅、娱乐大众,但慢慢地,也会“毒害”生态,衍生出扰人心神、滋生谣言、破坏生态等问题,不得不重视。前几天,“孤女模考648分遭舅舅烧书阻考”的假新闻曾刷屏全网,博主编剧本蹭热度,最后被警方行政拘留,全网拍手叫好,还有不少人要求“刑事拘留”,愤怒之情溢于网络。近日,这条辟谣消息直接登上了微博热搜,把真相送到了流量池中,送到了所有人眼前,这是个好信号,值得点赞。谣言为什么总能跑得比辟谣快?说白了,就是流量在作祟。造谣者太懂怎么抓眼球了:高考、孤女、亲情反杀,一套组合拳下来,天然带着情绪张力,大家看了会愤怒、会心疼,忍不住转发评论,每一次互动都在帮谣言加热。可真相往往没那么“好看”,辟谣大多干巴巴的,要么藏在官微角落,要么发出来也没几个人转。很多人都说,造谣一张嘴,辟谣跑断腿,就是这个道理。造谣的,靠剧本涨粉带货赚得盆满钵满,辟谣的,追得再快也赶不上扩散的速度,最后吃亏的,是被误导的公众和被透支的善意。让辟谣上热搜,就是用谣言的逻辑打败谣言。平台把辟谣单独放上热搜,不是多此一举,而是应有之义,维护的是生态平衡和公平正义的环境——既然谣言靠流量横行,那就用流量把它打下去。以前,辟谣只能跟在谣言后面追,靠大量正义网民转发,大多时候拼不过谣言产生的情绪烈度和裂变速度。现在,平台直接把热搜位给了辟谣,让它站到了和谣言一样的流量高地,让每一个网民看到了正反双方,不会被情绪左右,更容易理性辨别。我们要知道,热搜是什么?是全网的注意力中心,辟谣话题在这里被更多人看到,权威通报、媒体转发跟着跟上,原本还在跟风骂人的网友,刷到热搜上的真相,自然就停住了。更重要的是,这对造谣者,是实打实的震慑。以前造谣就算被锤,也早就赚够了流量,现在辟谣上热搜,等于把他们的坏事钉在全网的聚光灯下,社死+处罚一起上,再想换号重来,难度也大了很多。辟谣有了声量,舆",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "滨江区新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3441426753997803,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:33"
+      },
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.3435654640197754,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.8760372400283813,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236",
+        "relevance_score": 100.0,
+        "quality_score": 100.0,
+        "stance": "support",
+        "arbitration_reason": "直接提及蔡元培与自由主义的关系，摘要明确支持蔡元培在中国近代提倡自由主义，与新闻核心主张完全吻合。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34642255306243896,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "内容为关于错误信息与身份的期刊文献，与蔡元培和自由主义无关。"
+      },
+      {
+        "knowledge_id": 15,
+        "title": "新能源车充电桩月底全部免费海报",
+        "summary": "大范围免费活动应有主管部门或运营企业明确公告。",
+        "category": "交通",
+        "truth_label": "存疑信息",
+        "source_name": "城市服务核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3771069049835205,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:15",
+        "rejection_reason": "涉及新能源车充电桩免费海报，与新闻主题无关。"
+      },
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.3545883297920227,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242",
+        "rejection_reason": "关于太平岛实际控制，与新闻内容无关。"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.37421172857284546,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210",
+        "rejection_reason": "关于诈骗套路细节，与新闻内容无关。"
+      },
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.3435654640197754,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239",
+        "rejection_reason": "关于美国共和党政治倾向，与新闻内容无关。"
+      },
+      {
+        "knowledge_id": 233,
+        "title": "蔡元培教育经历与职务",
+        "summary": "蔡元培曾中进士并被点为翰林院庶吉士，后任中华民国首任教育总长。证据不支持其后来在Google担任工程师。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|庶吉士",
+        "risk_level": "",
+        "similarity_score": 0.46056538820266724,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:233",
+        "rejection_reason": "关于蔡元培教育经历与职务，但未涉及自由主义，与新闻核心主张无关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40911757946014404,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "为科普辟谣文章，与新闻主题无关。"
+      },
+      {
+        "knowledge_id": 216,
+        "title": "铁腕闫学晶:将4名造谣者送进拘留所,她还要向其他造谣者索赔_维权_侵权_媒体",
+        "summary": "2026年6月18日,著名演员闫学晶的代理律师蒋正清,对外发布维权阶段性成果:4名造谣者被行政拘留,多个造谣账号被闫学晶起诉到法院,要求民事赔偿。\n当晚18点47分,闫学晶在个人社交平台转发了4名造谣者的《行政拘留通知书》。网友纷纷为闫学晶的铁腕维权点赞。\n2025年12月,闫学晶的直播片段引发网络讨论。一些自媒体博主为了博流量,剪辑、拼接衍生出大量谣言,“酸黄瓜”“老农民”“能咋地”等视频满天飞。这给闫学晶及其家人带来巨大伤害,也让网友将闫学晶妖魔化了。\n2025年12月,闫学晶在直播间确实有言语不当行为,她为此公开道歉。\n但一些自媒体博主为了博流量,直播带货,刻意截取闫学晶直播中的特定语境语句,通过拼接剪辑,断章取义的方式,刻意制造争议。\n一时间,闫学晶的负面消息满天飞。\n还有人造谣,说闫学晶的儿子林傲霏进中戏读书,是靠走后门进去的,要求有关部门彻查。连中戏官网都发声明了,证明闫学晶的儿子是考进去的,不是开后门读的新疆班。\n但仍有一部分博主继续造谣,编造种种假消息,带节奏、拉对立,往闫学晶身上泼脏水。\n还有的博主造谣,说闫学晶得艾滋病,她被开除军籍,还遭遇离婚。\n闫学晶与儿子\n这些假消息,将闫学晶一家人的生活彻底打乱了,也给他们带来巨大的心理伤害。\n2026年1月11日,闫学晶就不当言论发长文道歉,但一些自媒体博主仍然不放过闫学晶。\n闫学晶是农村走出来的,心地善良,一向对媒体比较宽容。\n然而,一些自媒体、直播团伙为收获流量,带货牟利,完全失去了做人的底线。\n还有人利用AI修图、图像合成技术,伪造闫学晶亲属发声,千方百计贬损、打压闫学晶。\n在这种情况下,闫学晶拿起法律武器维护自己的合法权益。\n2026年1月中旬,闫学晶委托北京道章律师事务所为自己维权。\n同时,闫学晶向公安机关报案,4名核心造谣者张某、教某、史某、明某,分别被公安机关行政拘留。\n张某、教某分别拘留9天,史",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "搜狐",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3441464304924011,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:216",
+        "rejection_reason": "关于演员闫学晶维权事件，与新闻内容无关。"
+      },
+      {
+        "knowledge_id": 33,
+        "title": "让辟谣上热搜,才是对造谣最直接的震慑-杭州高新区(滨江)新闻网",
+        "summary": "摆拍,是宣传的一种手段,更是流量时代的剧本,看起来无伤大雅、娱乐大众,但慢慢地,也会“毒害”生态,衍生出扰人心神、滋生谣言、破坏生态等问题,不得不重视。前几天,“孤女模考648分遭舅舅烧书阻考”的假新闻曾刷屏全网,博主编剧本蹭热度,最后被警方行政拘留,全网拍手叫好,还有不少人要求“刑事拘留”,愤怒之情溢于网络。近日,这条辟谣消息直接登上了微博热搜,把真相送到了流量池中,送到了所有人眼前,这是个好信号,值得点赞。谣言为什么总能跑得比辟谣快?说白了,就是流量在作祟。造谣者太懂怎么抓眼球了:高考、孤女、亲情反杀,一套组合拳下来,天然带着情绪张力,大家看了会愤怒、会心疼,忍不住转发评论,每一次互动都在帮谣言加热。可真相往往没那么“好看”,辟谣大多干巴巴的,要么藏在官微角落,要么发出来也没几个人转。很多人都说,造谣一张嘴,辟谣跑断腿,就是这个道理。造谣的,靠剧本涨粉带货赚得盆满钵满,辟谣的,追得再快也赶不上扩散的速度,最后吃亏的,是被误导的公众和被透支的善意。让辟谣上热搜,就是用谣言的逻辑打败谣言。平台把辟谣单独放上热搜,不是多此一举,而是应有之义,维护的是生态平衡和公平正义的环境——既然谣言靠流量横行,那就用流量把它打下去。以前,辟谣只能跟在谣言后面追,靠大量正义网民转发,大多时候拼不过谣言产生的情绪烈度和裂变速度。现在,平台直接把热搜位给了辟谣,让它站到了和谣言一样的流量高地,让每一个网民看到了正反双方,不会被情绪左右,更容易理性辨别。我们要知道,热搜是什么?是全网的注意力中心,辟谣话题在这里被更多人看到,权威通报、媒体转发跟着跟上,原本还在跟风骂人的网友,刷到热搜上的真相,自然就停住了。更重要的是,这对造谣者,是实打实的震慑。以前造谣就算被锤,也早就赚够了流量,现在辟谣上热搜,等于把他们的坏事钉在全网的聚光灯下,社死+处罚一起上,再想换号重来,难度也大了很多。辟谣有了声量,舆",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "滨江区新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3441426753997803,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:33",
+        "rejection_reason": "关于辟谣上热搜的评论文章，与新闻内容无关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻内容与可追溯证据一致，无夸大或误导，可视为可信信息进行传播，但建议注明具体知识条目来源以供复核。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 90.0,
+      "consistency": 100.0,
+      "score": 94.0,
+      "assessment": "证据 kb:236 直接覆盖新闻核心主张，提供“自由主义以自由作为重要政治价值”及“CFEVER证据支持蔡元培提倡自由主义”的明确依据，与新闻陈述完全一致，无其他证据冲突，可信度高。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

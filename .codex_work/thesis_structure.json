@@ -1,0 +1,3235 @@
+{
+  "path": "E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\智闻辨真：基于RAG与大语言模型的新闻可信度评估系统3_第4章系统总体设计完成版.docx",
+  "paragraph_count": 398,
+  "table_count": 7,
+  "inline_shape_count": 13,
+  "section_count": 3,
+  "blocks": [
+    {
+      "index": 0,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "智闻辨真：基于RAG与大语言模型的新闻可信度评估系统 综合设计报告",
+      "drawings": 0
+    },
+    {
+      "index": 1,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 2,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 3,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 4,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 5,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 6,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 7,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 8,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "完成人：龙浩",
+      "drawings": 0
+    },
+    {
+      "index": 9,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "学号：2023013753",
+      "drawings": 0
+    },
+    {
+      "index": 10,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "班级：物联网23A1",
+      "drawings": 0
+    },
+    {
+      "index": 11,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 12,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 13,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "目录",
+      "drawings": 0
+    },
+    {
+      "index": 14,
+      "type": "paragraph",
+      "style": "toc 1",
+      "text": "第1章 绪论\t1",
+      "drawings": 0
+    },
+    {
+      "index": 15,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.1 研究背景\t1",
+      "drawings": 0
+    },
+    {
+      "index": 16,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.2 研究目的与意义\t2",
+      "drawings": 0
+    },
+    {
+      "index": 17,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.3 国内外研究现状\t3",
+      "drawings": 0
+    },
+    {
+      "index": 18,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.4 当前存在的问题\t4",
+      "drawings": 0
+    },
+    {
+      "index": 19,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.5 本系统的主要研究内容\t5",
+      "drawings": 0
+    },
+    {
+      "index": 20,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.6 本系统的创新点\t6",
+      "drawings": 0
+    },
+    {
+      "index": 21,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.7 系统开发技术路线\t7",
+      "drawings": 0
+    },
+    {
+      "index": 22,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "1.8 本章小结\t7",
+      "drawings": 0
+    },
+    {
+      "index": 23,
+      "type": "paragraph",
+      "style": "toc 1",
+      "text": "第2章 系统需求分析\t8",
+      "drawings": 0
+    },
+    {
+      "index": 24,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "2.1 系统需求概述\t8",
+      "drawings": 0
+    },
+    {
+      "index": 25,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "2.2 系统功能需求分析\t8",
+      "drawings": 0
+    },
+    {
+      "index": 26,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "2.3 业务流程分析\t11",
+      "drawings": 0
+    },
+    {
+      "index": 27,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "2.4 非功能需求分析\t14",
+      "drawings": 0
+    },
+    {
+      "index": 28,
+      "type": "paragraph",
+      "style": "toc 1",
+      "text": "第3章 系统开发环境与关键技术\t15",
+      "drawings": 0
+    },
+    {
+      "index": 29,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.1 系统开发环境概述\t15",
+      "drawings": 0
+    },
+    {
+      "index": 30,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.2 硬件与软件环境\t15",
+      "drawings": 0
+    },
+    {
+      "index": 31,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.3 前端开发技术及选择依据\t16",
+      "drawings": 0
+    },
+    {
+      "index": 32,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.4 后端开发技术及选择依据\t17",
+      "drawings": 0
+    },
+    {
+      "index": 33,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.5 数据存储与语义检索技术\t17",
+      "drawings": 0
+    },
+    {
+      "index": 34,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.6 智能服务与辅助开发技术\t18",
+      "drawings": 0
+    },
+    {
+      "index": 35,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.7 项目配置与环境管理\t19",
+      "drawings": 0
+    },
+    {
+      "index": 36,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "3.8 本章小结\t19",
+      "drawings": 0
+    },
+    {
+      "index": 37,
+      "type": "paragraph",
+      "style": "toc 1",
+      "text": "第4章 系统总体设计\t20",
+      "drawings": 0
+    },
+    {
+      "index": 38,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.1 系统设计目标与原则\t20",
+      "drawings": 0
+    },
+    {
+      "index": 39,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.2 系统总体架构设计\t22",
+      "drawings": 0
+    },
+    {
+      "index": 40,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.3 系统功能模块设计\t25",
+      "drawings": 0
+    },
+    {
+      "index": 41,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.4 新闻可信度评估流程设计\t28",
+      "drawings": 0
+    },
+    {
+      "index": 42,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.5 数据库设计\t35",
+      "drawings": 0
+    },
+    {
+      "index": 43,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.6 接口与权限体系设计\t39",
+      "drawings": 0
+    },
+    {
+      "index": 44,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.7 系统安全性与可靠性设计\t41",
+      "drawings": 0
+    },
+    {
+      "index": 45,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.8 用户界面与交互设计\t43",
+      "drawings": 0
+    },
+    {
+      "index": 46,
+      "type": "paragraph",
+      "style": "toc 2",
+      "text": "4.9 本章小结\t46",
+      "drawings": 0
+    },
+    {
+      "index": 47,
+      "type": "paragraph",
+      "style": "toc 1",
+      "text": "参考文献\t47",
+      "drawings": 0
+    },
+    {
+      "index": 48,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 49,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 50,
+      "type": "paragraph",
+      "style": "Heading 1",
+      "text": "第1章 绪论",
+      "drawings": 0
+    },
+    {
+      "index": 51,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.1 研究背景",
+      "drawings": 0
+    },
+    {
+      "index": 52,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "网络新闻平台、社交媒体和短视频平台降低了新闻生产与传播门槛，也使信息来源更加复杂、传播速度更快。普通用户在有限时间内往往难以核验新闻来源、事实依据和传播背景，尤其在公共安全、医疗健康、金融投资和突发事件等场景中，错误信息可能放大社会恐慌并影响公众判断。已有研究指出，虚假新闻检测不能只关注文本表面特征，还需要结合来源、上下文和外部证据进行综合判断[1]。",
+      "drawings": 0
+    },
+    {
+      "index": 53,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "传统新闻真伪鉴别方法主要包括人工审核、规则匹配、机器学习分类和深度学习检测。人工审核具有较强的专业性，但在海量信息和突发舆情场景下存在响应滞后、成本较高的问题；规则匹配和分类模型可以提升处理效率，但通常更偏向输出“真实”或“虚假”等分类结果，在证据追溯、判断理由展示和用户可理解性方面仍然不足。对于面向普通用户的新闻可信度辅助评估工具而言，系统不仅需要给出风险判断，还需要说明判断依据。",
+      "drawings": 0
+    },
+    {
+      "index": 54,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "大语言模型具备较强的语义理解、信息概括和推理解释能力，能够辅助分析新闻文本中的风险表达、事实矛盾和语义倾向。然而，大语言模型并不等同于事实核查系统。自然语言生成模型可能产生与输入内容或外部事实不一致的幻觉信息[3]，在缺少外部证据约束时，其判断结论可能存在事实依据不足、输出不稳定和难以追溯的问题。因此，新闻可信度评估不能只依赖大语言模型直接判断，而需要引入RAG证据检索、规则评分和可解释输出机制。",
+      "drawings": 0
+    },
+    {
+      "index": 55,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检索增强生成技术（Retrieval-Augmented Generation，RAG）通过在生成前检索外部知识资料，为大语言模型提供可追溯的上下文证据。Lewis等人提出的RAG方法将预训练生成模型与外部非参数化知识检索机制结合，使生成结果能够基于检索文档展开[2]。但是，语义相似度只能反映文本内容的接近程度，不能直接证明候选材料真实、可靠或与待评估新闻具有支持、反驳关系。因此，新闻可信度评估还需要对候选证据的相关性、质量和立场进行进一步分析。",
+      "drawings": 0
+    },
+    {
+      "index": 56,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "基于上述背景，本文设计“智闻辨真：基于RAG与大语言模型的新闻可信度评估系统”。系统定位为新闻可信度辅助评估工具和风险提示工具，围绕“新闻输入—本地检索—按需联网补充—候选证据组织—大语言模型仲裁—证据质量校验—分支式综合评分—结果解释”的业务链路开展设计与实现。",
+      "drawings": 0
+    },
+    {
+      "index": 57,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.2 研究目的与意义",
+      "drawings": 0
+    },
+    {
+      "index": 58,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.2.1 研究目的",
+      "drawings": 0
+    },
+    {
+      "index": 59,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本研究旨在设计并实现一个基于检索增强生成技术与大语言模型的新闻可信度评估系统，通过多源证据获取、证据语义仲裁、分支式可信度评分以及结果追溯等机制，增强新闻可信度评估的证据支撑能力、可解释性与系统鲁棒性。具体研究目的如下。",
+      "drawings": 0
+    },
+    {
+      "index": 60,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "其一，构建本地知识检索与按需联网补充相结合的多源证据获取机制。系统优先从Chroma向量数据库中召回相关证据，当本地证据不足时，在用户授权和系统配置允许的条件下补充网络信息。检索相似度仅用于候选召回和证据充足性判断，不直接代表证据可信度。",
+      "drawings": 0
+    },
+    {
+      "index": 61,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "其二，构建证据约束下的大语言模型分析与仲裁机制。系统对本地证据和网络证据进行统一格式化、去重和标识，由DeepSeek对证据的相关性、质量和立场进行判断。服务端对模型输出进行结构与范围校验，避免无效证据直接参与评分。",
+      "drawings": 0
+    },
+    {
+      "index": 62,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "其三，设计基于模型状态和证据状态的分支式可信度评分机制。系统综合大语言模型可信度分、证据质量分和确定性规则分进行评估，并根据模型服务和有效证据的可用情况选择评分分支。模型服务异常时，系统自动采用规则评分并标记降级状态。",
+      "drawings": 0
+    },
+    {
+      "index": 63,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "其四，实现评估结果的可解释与可追溯。系统展示可信度评分、风险等级、判断理由、风险点及证据使用情况，并保存候选证据、仲裁结果和异常信息，为用户理解结果、管理员复核及后续方法优化提供依据。",
+      "drawings": 0
+    },
+    {
+      "index": 64,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 65,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.2.2 研究意义",
+      "drawings": 0
+    },
+    {
+      "index": 66,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "从现实意义来看，本系统面向普通用户在网络新闻阅读中的可信度判断需求，提供一种基于证据和规则的风险提示方式。当用户面对来源不明、标题夸张或内容难以核验的新闻时，系统能够给出初步风险判断和可查看的证据材料，帮助用户提升信息辨别意识。系统不替代专业事实核查和人工审核，而是作为新闻阅读过程中的辅助评估工具。",
+      "drawings": 0
+    },
+    {
+      "index": 67,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "从技术意义来看，本系统探索了RAG、多源信息检索、大语言模型证据仲裁、确定性规则评分和Web应用系统的协同方式。系统使用Chroma完成本地候选召回，在本地证据不足时按需引入联网信息，并通过统一候选标识和来源中立排序降低证据来源及输入位置对模型判断的影响。大语言模型负责语义分析和逐条证据仲裁，服务端负责输出契约检查、证据质量重算和评分分支选择，从而限制生成式模型未经校验的结果直接改变最终业务状态。",
+      "drawings": 0
+    },
+    {
+      "index": 68,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "从课程设计意义来看，本系统综合涉及软件工程、数据库设计、Web后端开发、前端页面设计、人工智能应用开发、Prompt工程和数据可视化等内容。相比普通信息管理系统，本系统更能体现AI应用系统中数据管理、证据检索、模型调用、结果解释和工程实现之间的协同关系。",
+      "drawings": 0
+    },
+    {
+      "index": 69,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.3 国内外研究现状",
+      "drawings": 0
+    },
+    {
+      "index": 70,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.3.1 虚假新闻检测与事实核查研究现状",
+      "drawings": 0
+    },
+    {
+      "index": 71,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "虚假新闻检测是自然语言处理、数据挖掘和内容安全领域的重要研究方向。早期方法多依赖人工特征、情感倾向、新闻来源、传播路径和用户行为等信息，再结合机器学习模型完成分类。随着深度学习和预训练语言模型的发展，研究逐渐从单一文本分类扩展到多源信息融合、证据检索和可解释事实核查。Shu等人指出，社交媒体虚假新闻检测不仅依赖新闻内容，还需要考虑用户社交行为、传播关系和上下文因素[1]；Yang等人对事实核查类虚假新闻检测进行了综述，强调证据检索、证据推理和解释输出的重要性[4]。",
+      "drawings": 0
+    },
+    {
+      "index": 72,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "上述研究表明，虚假新闻检测不能停留在简单分类层面。对本系统而言，用户更需要看到“为什么存在风险”和“依据来自何处”，因此系统设计应将相似证据召回、来源信息和判断理由作为核心输出内容。",
+      "drawings": 0
+    },
+    {
+      "index": 73,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.3.2 大语言模型在新闻可信度评估中的应用",
+      "drawings": 0
+    },
+    {
+      "index": 74,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "大语言模型在文本理解、摘要生成、观点分析和推理解释方面具有较强能力，能够用于新闻主题识别、风险点提取和判断理由生成。Quelle和Bovet研究了大语言模型用于事实核查的可能性，认为模型在获得上下文信息时具有一定辅助价值，但其表现会受到声明类型、查询语言和证据质量等因素影响[5]。Ji等人的研究进一步指出，自然语言生成模型可能出现幻觉问题[3]。",
+      "drawings": 0
+    },
+    {
+      "index": 75,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "因此，大语言模型适合作为新闻可信度评估中的语义分析组件，而不宜作为唯一判断依据。本系统采用Prompt模板约束模型输出格式，并通过检索证据和规则评分对模型判断进行补充，避免将模型生成结果直接等同于事实核查结论。",
+      "drawings": 0
+    },
+    {
+      "index": 76,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.3.3 RAG技术在事实验证中的应用",
+      "drawings": 0
+    },
+    {
+      "index": 77,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "RAG技术的核心思想是在生成回答前先检索外部知识材料，再将检索结果与输入内容共同提供给生成模型。Lewis等人提出的RAG模型将生成模型与密集向量检索器结合，为开放域问答等知识密集型任务提供了外部知识支撑[2]。在自动事实核查领域，Ullrich等人将事实核查任务重新表述为RAG流程，通过检索器和证据标签生成模块完成证据获取与判断[7]；Yue等人提出的RAFTS方法强调在事实验证中综合支持证据与反驳证据[8]。",
+      "drawings": 0
+    },
+    {
+      "index": 78,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "这些研究为本系统提供了直接启示：新闻可信度评估应先召回可追溯的外部证据，再让大语言模型在证据约束下分析新闻内容。与此同时，RAG效果依赖检索质量，系统需要记录证据标题、摘要、来源、相似度和可信状态，以便用户理解证据来源。",
+      "drawings": 0
+    },
+    {
+      "index": 79,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.3.4 国内中文虚假新闻检测研究现状",
+      "drawings": 0
+    },
+    {
+      "index": 80,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "中文虚假新闻检测还面临跨来源、跨平台和表达方式差异等问题。Li等人构建的MCFEND数据集指出，单一来源训练方法在多来源测试场景中泛化能力会明显下降[6]。这说明真实应用中的新闻可信度评估不能只依赖固定数据来源或单一文本模式，而需要在知识库维护、来源信息记录和风险规则设计上具备一定扩展能力。",
+      "drawings": 0
+    },
+    {
+      "index": 81,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "对本系统而言，中文新闻场景下的跨来源差异要求系统在知识库中保留来源、类别、摘要和可信状态等字段，并在规则评分阶段考虑来源可靠性、敏感类别和证据冲突等因素，从而为后续扩充多来源知识材料提供基础。",
+      "drawings": 0
+    },
+    {
+      "index": 82,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "研究现状小结：已有研究为新闻可信度评估提供了文本分类、传播特征分析、事实核查、大语言模型推理和RAG证据检索等方法，但仍存在若干不足。传统虚假新闻检测较为重视分类结果，对证据来源和判断过程的展示不足；大语言模型具备较强的语义分析能力，但可能产生幻觉、遗漏证据或输出结构不稳定；RAG能够补充外部知识，但语义相似度并不能直接代表证据真实性，检索候选仍需要进行相关性、质量和立场判断。此外，当证据不足、证据冲突或外部模型不可用时，固定评分方式可能产生缺乏依据的结果。",
+      "drawings": 0
+    },
+    {
+      "index": 83,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "因此，本系统采用本地知识检索与按需联网补充相结合的候选获取方式，通过大语言模型完成逐条证据仲裁，并由服务端执行证据契约校验和质量重算；最终根据模型和有效证据的可用状态采用分支式评分与异常降级策略，形成面向普通用户的可解释新闻可信度辅助评估流程。",
+      "drawings": 0
+    },
+    {
+      "index": 84,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.4 当前存在的问题",
+      "drawings": 0
+    },
+    {
+      "index": 85,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第一，人工核查效率难以满足高频新闻传播场景。网络新闻数量大、传播速度快，仅依靠人工审核难以及时处理大量用户提交内容。针对该问题，本系统设计自动化检测流程，通过输入校验、文本预处理、向量检索、模型分析和规则评分完成初步风险评估，提升单条新闻处理效率。",
+      "drawings": 0
+    },
+    {
+      "index": 86,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第二，传统检测结果解释性不足。部分检测工具只输出“真实”或“虚假”等分类结论，缺少相似证据、判断理由和风险点说明。针对该问题，本系统在检测结果中展示可信度评分、风险等级、判断理由、风险点、检索证据、相似新闻和辟谣建议，使普通用户能够理解系统判断依据。",
+      "drawings": 0
+    },
+    {
+      "index": 87,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第三，大语言模型输出存在不稳定性和不可直接信任的问题。大语言模型可能遗漏候选证据、引用不存在的证据标识、给出超出范围的分值，或者在缺少充分依据时生成确定性结论。针对该问题，本系统为每条候选证据设置稳定标识，要求模型将所有候选完整划分为有效证据和排除证据，并输出相关性、质量、立场及理由。服务端继续执行字段、分值、枚举值和候选完整性校验；首次仲裁不符合要求时进行一次聚焦重试，仍不符合要求的候选不参与综合评分。",
+      "drawings": 0
+    },
+    {
+      "index": 88,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第四，证据质量和来源可信度会影响判断结果。当检索证据不足、证据相互冲突或来源可靠性较低时，模型分析结果可能受到影响。已有研究也指出，冲突证据会降低检索增强事实核查的可靠性，引入来源可信度有助于提升处理稳健性[9]。针对该问题，本系统在规则评分中考虑来源缺失、夸张表达、敏感类别和证据冲突等因素，并在结果中提示相关证据不足等情况。",
+      "drawings": 0
+    },
+    {
+      "index": 89,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第五，系统持续管理能力不足会限制应用效果。新闻可信度评估不仅依赖单次模型调用，还依赖知识库持续维护、检测记录追踪、高风险新闻管理和运行数据分析。针对该问题，本系统设计管理员后台，支持知识库、Prompt模板、检测记录、高风险新闻、报告、系统日志和ECharts可视化等管理功能，为系统持续运行提供工程支撑。",
+      "drawings": 0
+    },
+    {
+      "index": 90,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.5 本系统的主要研究内容",
+      "drawings": 0
+    },
+    {
+      "index": 91,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.5.1 新闻证据库构建与语义检索机制",
+      "drawings": 0
+    },
+    {
+      "index": 92,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统围绕新闻可信度评估任务构建本地新闻知识库，保存新闻标题、正文、摘要、来源、类别、可信状态和辟谣说明等信息。知识文本经过向量化后写入Chroma，用户提交新闻后，系统根据标题和正文召回语义相关候选，并通过知识条目标识回查MySQL中的当前业务数据，过滤已经失效或不存在的向量记录。",
+      "drawings": 0
+    },
+    {
+      "index": 93,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "当本地知识库没有召回候选，或者召回结果的数量和相似度不能满足设定条件时，系统在用户允许的情况下调用联网搜索补充近期证据。本地证据和网络证据经过统一格式化、URL规范化、重复项合并和稳定候选标识生成后形成候选证据集合。检索相似度用于候选发现、证据不足判定和展示，不直接进入最终可信度评分。",
+      "drawings": 0
+    },
+    {
+      "index": 94,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.5.2 证据约束的大语言模型可信度分析机制",
+      "drawings": 0
+    },
+    {
+      "index": 95,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统将将待评估新闻、统一候选证据和输出格式要求组织成RAG Prompt，并调用DeepSeek大语言模型生成结构化分析结果。模型除输出新闻可信度分量、判断理由、风险点、关键词和建议外，还需要对每条候选证据给出相关性、质量、立场和取舍理由。",
+      "drawings": 0
+    },
+    {
+      "index": 96,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统将候选证据划分为有效证据集合和排除证据集合。有效证据记录候选标识、相关性分、质量分、支持或反驳立场及判断理由；排除证据记录候选标识和排除原因。服务端要求两个集合共同构成全部候选标识的完整且不重复划分，并检查字段类型、分值范围和枚举值。仲裁结果不符合契约时，系统进行一次聚焦重试；重试后仍不满足要求的候选不参与后续证据评分。",
+      "drawings": 0
+    },
+    {
+      "index": 97,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.5.3 证据质量计算与分支式综合评分机制",
+      "drawings": 0
+    },
+    {
+      "index": 98,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统设置大语言模型可信度分(SL)、确定性规则分(SR)和证据质量分(SE)，三项分值均规范到0～100范围。证据质量分由证据覆盖度(C)和证据一致性(K)组成，其计算公式如式（1-1）所示：",
+      "drawings": 0
+    },
+    {
+      "index": 99,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "（1-1）",
+      "drawings": 0
+    },
+    {
+      "index": 100,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "式中，(C)表示有效证据对待评估新闻核心内容的覆盖程度，(K)表示有效证据之间以及证据与新闻判断之间的一致程度。为减少模型直接生成总分造成的计算偏差，服务端根据模型返回的覆盖度和一致性重新计算证据质量分。",
+      "drawings": 0
+    },
+    {
+      "index": 101,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "最终可信度分数根据模型与有效证据的可用状态分为三种情况：",
+      "drawings": 0
+    },
+    {
+      "index": 102,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "模型失败：S=SR",
+      "drawings": 0
+    },
+    {
+      "index": 103,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "模型可用但无有效证据:",
+      "drawings": 0
+    },
+    {
+      "index": 104,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "存在有效证据：",
+      "drawings": 0
+    },
+    {
+      "index": 105,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "当模型服务不可用时，系统不使用未经仲裁的候选证据，也不伪造证据质量分，而是退化为确定性规则评分，并在结果中标记模型服务异常。当模型可用但不存在通过仲裁的有效证据时，评分由模型可信度分和规则分组成；当存在有效证据时，模型可信度分、证据质量分和规则分共同参与计算。",
+      "drawings": 0
+    },
+    {
+      "index": 106,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "最终分数(S)按照统一阈值映射为风险等级：为可信新闻，为存疑信息，为疑似谣言，为高风险谣言。上述分值属于辅助风险评估结果，不替代专业事实核查结论。",
+      "drawings": 0
+    },
+    {
+      "index": 107,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "1.5.4 可解释结果输出与系统管理支撑",
+      "drawings": 0
+    },
+    {
+      "index": 108,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统面向普通用户提供可信度评分、风险等级、判断理由、风险点、关键词、有效证据、排除证据、相似新闻及辟谣建议等分析结果，并支持生成PDF检测报告，以直观呈现新闻可信度评估结论及其依据。",
+      "drawings": 0
+    },
+    {
+      "index": 109,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "为保证评估过程可追溯，系统同步保存各评分分量、候选证据、证据仲裁结果、证据质量状态、异常摘要及分析契约版本等信息，使用户和管理员能够对检测依据、评分过程及异常情况进行查询与复核。",
+      "drawings": 0
+    },
+    {
+      "index": 110,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员端提供知识库、Prompt模板、检测记录、高风险新闻、用户、报告、系统日志和数据可视化等管理功能，并支持知识向量同步与索引重建，为证据数据维护、检测结果复核、运行状态监控及系统持续维护提供支撑。",
+      "drawings": 0
+    },
+    {
+      "index": 111,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.6 本系统的创新点",
+      "drawings": 0
+    },
+    {
+      "index": 112,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第一，设计本地检索与按需联网补充相结合的多源候选证据获取机制。系统优先从可维护的本地新闻知识库中检索相关内容，当本地候选数量不足或最高相似度低于设定阈值时，按条件调用联网检索补充时效性信息。对于本地证据和网络证据，系统采用统一的数据结构、稳定的候选标识和来源中立的排序方式进行组织，以减少证据来源顺序对大语言模型分析结果的影响，提高多源证据处理的一致性。",
+      "drawings": 0
+    },
+    {
+      "index": 113,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第二，设计面向候选证据的结构化仲裁与契约校验机制。系统要求大语言模型逐条输出候选证据的相关性、质量、立场及判断理由，并将所有候选完整划分为有效证据和排除证据。服务端进一步对候选标识、字段类型、分值范围、证据划分完整性及重复情况进行校验，使未经仲裁、字段缺失或不满足输出契约的候选无法直接参与综合评分，从而降低模型输出不规范对评估结果的影响。",
+      "drawings": 0
+    },
+    {
+      "index": 114,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "第三，设计基于模型状态与证据可用性的分支式评分和异常降级机制。系统不将检索相似度直接作为新闻可信度评分，而是根据有效证据的覆盖程度、一致性和质量计算证据质量分量，并结合模型服务状态与有效证据数量选择相应的评分分支。当大语言模型调用失败、输出解析异常或有效证据不足时，系统切换至确定性规则评分，同时记录并展示异常状态，避免无效评分分量、未验证证据或虚构内容进入最终评估结果，提高系统在异常情况下的稳定性与结果可信度。",
+      "drawings": 0
+    },
+    {
+      "index": 115,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "1.7 系统开发技术路线",
+      "drawings": 0
+    },
+    {
+      "index": 116,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本系统采用前后端分离架构。前端使用Vue3、Element Plus和ECharts实现用户端页面、管理员后台页面和数据可视化页面；后端使用Python和FastAPI实现业务接口、用户认证、新闻检测、知识库管理、Prompt管理和报告生成；数据库使用MySQL存储用户信息、知识库数据、检测记录、报告信息和系统日志；向量数据库使用Chroma存储新闻知识库向量；大语言模型分析模块通过DeepSeek API实现。",
+      "drawings": 0
+    },
+    {
+      "index": 117,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统整体技术路线如下：用户输入新闻标题和正文后，系统首先进行输入校验、文本预处理和关键词提取；随后将输入内容转换为向量，并在Chroma向量数据库中检索相似新闻和相关证据；系统将检索证据与用户输入内容拼接成RAG Prompt，并调用DeepSeek大语言模型进行可信度分析；之后系统执行规则评分，对来源缺失、夸张表达、敏感类别和证据冲突等风险因素进行辅助判断；最后系统根据综合评分公式计算可信度分数，生成风险等级、判断理由、风险点、证据材料、辟谣建议和PDF检测报告。开发路线图如图1-1所示。",
+      "drawings": 0
+    },
+    {
+      "index": 118,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 119,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图1-1 系统总体技术路线",
+      "drawings": 0
+    },
+    {
+      "index": 120,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 121,
+      "type": "paragraph",
+      "style": "Heading 1",
+      "text": "第2章 系统需求分析",
+      "drawings": 0
+    },
+    {
+      "index": 122,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "2.1 系统需求概述",
+      "drawings": 0
+    },
+    {
+      "index": 123,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "“智闻辨真：基于RAG与大语言模型的新闻可信度评估系统”面向网络新闻可信度辅助判断场景，服务对象包括普通用户和管理员。普通用户关注新闻输入、检测结果查看和报告导出；管理员关注知识库维护、Prompt模板维护、检测记录管理、高风险新闻管理和运行数据分析。系统定位为风险提示工具，不替代专业事实核查。",
+      "drawings": 0
+    },
+    {
+      "index": 124,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统核心业务链路为：用户提交新闻标题和正文后，系统完成输入校验和文本预处理；随后通过Chroma向量数据库召回相关证据，将用户输入、检索证据和输出格式约束构造成RAG Prompt；DeepSeek大语言模型在证据约束下生成语义分析结果；系统结合规则评分形成综合可信度评分、风险等级和可解释检测结果。",
+      "drawings": 0
+    },
+    {
+      "index": 125,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "用户端总体需求包括新闻检测、检测结果查看、检索证据展示、辟谣建议查看和PDF检测报告导出。管理员端总体需求包括知识库管理、Prompt模板管理、检测记录管理、高风险新闻管理、用户管理、报告管理、系统日志和ECharts可视化统计。不同端的功能边界应保持清晰，普通用户侧重检测与查看，管理员侧重数据维护和运行管理。",
+      "drawings": 0
+    },
+    {
+      "index": 126,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "技术支撑需求包括前端交互、后端接口、结构化数据存储、向量检索、大语言模型调用和结果持久化。系统采用Vue3、Element Plus和ECharts构建前端页面，使用Python和FastAPI实现后端服务，采用MySQL保存业务数据，采用Chroma支持向量检索，并通过DeepSeek API完成证据约束下的语义分析。",
+      "drawings": 0
+    },
+    {
+      "index": 127,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "2.2 系统功能需求分析",
+      "drawings": 0
+    },
+    {
+      "index": 128,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统功能需求应围绕普通用户、管理员和智能评估支撑能力展开。普通用户端负责新闻检测与结果获取，管理员端负责数据和运行管理，智能评估模块负责证据检索、模型分析、规则评分和结果生成。系统功能需求如表2-1所示。",
+      "drawings": 0
+    },
+    {
+      "index": 129,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表2-1 系统功能需求表",
+      "drawings": 0
+    },
+    {
+      "index": 130,
+      "type": "table",
+      "rows": 13,
+      "cols": 5,
+      "text": [
+        [
+          "角色",
+          "功能模块",
+          "主要输入",
+          "主要输出",
+          "功能说明"
+        ],
+        [
+          "普通用户",
+          "新闻检测",
+          "新闻标题、 新闻正文",
+          "可信度评分、风险等级、判断理由",
+          "提交待检测新闻并触发输入校验、证据检索、模型分析和规则评分。"
+        ],
+        [
+          "普通用户",
+          "检测结果查看",
+          "检测任务或记录标识",
+          "风险点、检索证据、相似新闻、辟谣建议",
+          "查看检测结果及其依据，理解系统给出风险提示的原因。"
+        ],
+        [
+          "普通用户",
+          "PDF报告导出",
+          "检测结果、导出请求",
+          "PDF检测报告或失败提示",
+          "基于检测结果生成报告；导出失败时不影响结果查看。"
+        ],
+        [
+          "管理员",
+          "知识库管理",
+          "新闻标题、正文、摘要、来源、可信状态",
+          "MySQL记录、Chroma向量记录",
+          "维护真实新闻、存疑新闻、谣言样例和辟谣说明等证据数据。"
+        ],
+        [
+          "管理员",
+          "Prompt模板管理",
+          "模板内容、输出格式要求、启用状态",
+          "可用Prompt模板",
+          "维护大语言模型分析模板，约束输出结构和分析重点。"
+        ],
+        [
+          "管理员",
+          "检测记录管理",
+          "查询条件、记录操作",
+          "检测记录列表、详情和处理结果",
+          "查询、查看和管理用户新闻检测记录。"
+        ],
+        [
+          "管理员",
+          "高风险新闻管理",
+          "高风险记录、审核操作",
+          "高风险新闻列表和处理结果",
+          "集中查看高风险新闻并进行后续管理。"
+        ],
+        [
+          "管理员",
+          "用户管理",
+          "用户信息、权限状态",
+          "用户列表和账号状态",
+          "维护用户账号基础信息和使用状态。"
+        ],
+        [
+          "管理员",
+          "报告管理",
+          "报告记录、查询条件",
+          "报告列表和详情",
+          "管理系统生成的检测报告记录。"
+        ],
+        [
+          "管理员",
+          "系统日志",
+          "操作信息、异常信息",
+          "日志记录和查询结果",
+          "记录关键操作与异常情况，辅助维护和排查问题。"
+        ],
+        [
+          "管理员",
+          "数据可视化",
+          "检测记录、风险等级、统计条件",
+          "趋势图、分布图、关键词统计",
+          "通过ECharts展示检测趋势、风险分布和运行状态。"
+        ],
+        [
+          "系统",
+          "智能评估模块",
+          "新闻文本、Top-K证据、Prompt模板",
+          "评分、等级、理由、风险点、证据和建议",
+          "完成向量检索、RAG Prompt构造、模型分析、规则评分和结果生成。"
+        ]
+      ]
+    },
+    {
+      "index": 131,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.2.1 普通用户端功能需求",
+      "drawings": 0
+    },
+    {
+      "index": 132,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "普通用户端应提供新闻可信度检测入口。用户需要输入新闻标题和新闻正文，系统在接收请求后进行输入校验。标题或正文为空时，系统应提示用户补充必要内容；正文过短或信息不足时，系统应提示当前材料不足以形成充分判断，避免给出过度确定的结论。",
+      "drawings": 0
+    },
+    {
+      "index": 133,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新闻检测完成后，系统应展示可信度评分、风险等级、判断理由、风险点、关键词、检索证据、相似新闻和辟谣建议。若检索证据不足，结果中应明确提示“相关证据不足”，并说明该情况可能影响判断可靠性；若DeepSeek API调用异常，系统应返回检测失败提示，而不是生成缺少依据的判断结果。",
+      "drawings": 0
+    },
+    {
+      "index": 134,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "普通用户端还应支持检测历史查看和PDF检测报告导出。PDF报告应基于已经生成的检测结果形成，内容包括新闻标题、检测时间、评分、风险等级、理由、证据和建议等。若PDF生成失败，系统应提示导出失败，但不应影响用户查看页面中的检测结果。",
+      "drawings": 0
+    },
+    {
+      "index": 135,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.2.2 管理员端功能需求",
+      "drawings": 0
+    },
+    {
+      "index": 136,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员端功能可分为核心功能和辅助功能。核心功能包括知识库管理、Prompt模板管理、检测记录管理和高风险新闻管理，这些功能直接影响新闻可信度评估流程的数据基础、模型输出和风险处置能力。",
+      "drawings": 0
+    },
+    {
+      "index": 137,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "知识库管理用于维护真实新闻、存疑新闻、谣言样例、辟谣说明、摘要、来源和可信状态等信息。管理员新增、修改或删除知识库数据时，系统应同步维护MySQL结构化记录和Chroma向量数据，保证业务数据与检索数据一致。Prompt模板管理用于维护RAG Prompt的内容和输出格式约束，使大语言模型分析结果尽量结构化。",
+      "drawings": 0
+    },
+    {
+      "index": 138,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检测记录管理用于查询和查看用户提交的新闻检测记录，高风险新闻管理用于集中展示风险等级较高的检测结果，便于管理员后续跟踪。辅助功能包括用户管理、报告管理、系统日志和数据可视化，用于支持账号维护、报告查询、异常追踪和运行状态分析。",
+      "drawings": 0
+    },
+    {
+      "index": 139,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.2.3 智能评估支撑功能需求",
+      "drawings": 0
+    },
+    {
+      "index": 140,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "智能评估支撑功能是系统区别于普通信息管理系统的核心。向量检索模块应根据用户提交的新闻标题和正文返回Top-K相关证据，每条证据应包含标题、摘要、来源、相似度和可信状态等信息。若检索结果数量不足或相似度较低，系统应将该情况传递给结果生成环节。",
+      "drawings": 0
+    },
+    {
+      "index": 141,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "RAG Prompt应包含用户输入、检索证据和输出格式约束。用户输入用于描述待评估新闻，检索证据用于提供外部事实材料，输出格式约束用于要求大语言模型尽量生成结构化结果，包括模型判断、理由、风险点、关键词和辟谣建议。由于大语言模型存在幻觉风险[3]，系统需要避免让模型脱离证据生成绝对化判断。",
+      "drawings": 0
+    },
+    {
+      "index": 142,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "规则评分应考虑来源缺失、夸张表达、敏感类别、证据冲突和证据不足等因素。最终输出应包含可信度评分、风险等级、判断理由、风险点、检索证据和辟谣建议。该输出既服务普通用户理解检测结果，也为管理员进行高风险新闻管理和后续知识库维护提供依据。",
+      "drawings": 0
+    },
+    {
+      "index": 143,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "2.3 业务流程分析",
+      "drawings": 0
+    },
+    {
+      "index": 144,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.3.1 普通用户新闻检测流程",
+      "drawings": 0
+    },
+    {
+      "index": 145,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "普通用户新闻检测流程的输入为新闻标题和新闻正文，处理过程包括输入校验、文本预处理、向量检索、RAG Prompt构造、DeepSeek分析、规则评分和综合评分，输出为可信度评分、风险等级、判断理由、风险点、检索证据、辟谣建议和可导出的检测报告。",
+      "drawings": 0
+    },
+    {
+      "index": 146,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "用户新闻检测业务流程如图2-1所示。如图所示，新闻可信度评估业务流程以用户输入的新闻标题和正文为起点。系统首先对输入内容进行合法性校验，过滤空值、格式异常或无效文本；随后对新闻文本进行预处理，并基于处理后的内容在向量知识库中检索相关证据。系统将检索结果与待检测新闻共同构造成RAG Prompt，调用DeepSeek模型进行语义分析与可信度判断。同时，系统结合来源可靠性、风险词命中情况和规则策略进行规则评分，并将模型分析结果、检索证据相关度和规则评分进行综合计算，生成最终可信度评分与风险等级。最后，系统将检测结果、判断依据和风险提示展示给用户，并支持导出检测报告。",
+      "drawings": 0
+    },
+    {
+      "index": 147,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 148,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图2-1 用户新闻检测业务流程图",
+      "drawings": 0
+    },
+    {
+      "index": 149,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.3.2 管理员知识库维护流程",
+      "drawings": 0
+    },
+    {
+      "index": 150,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员知识库维护流程的输入为知识库数据新增、修改或删除请求，处理过程包括身份校验、数据保存、文本向量化和向量库同步，输出为维护结果和可用于后续检索的知识库记录。该流程要求MySQL中的结构化数据与Chroma中的向量数据保持一致。",
+      "drawings": 0
+    },
+    {
+      "index": 151,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员知识库维护业务流程如图2-2所示。如图所示，管理员登录系统后，首先对知识库数据进行维护操作，系统将相关结构化信息保存至MySQL数据库；随后对知识库文本内容进行向量化处理，并将生成的向量数据同步至Chroma向量数据库。完成数据同步后，系统返回维护结果，确保MySQL中的结构化数据与Chroma中的向量数据保持一致，为后续知识检索和RAG分析提供可靠的数据支撑。",
+      "drawings": 0
+    },
+    {
+      "index": 152,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 153,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图2-2 管理员知识库维护业务流程图",
+      "drawings": 0
+    },
+    {
+      "index": 154,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.3.3 Prompt模板维护流程",
+      "drawings": 0
+    },
+    {
+      "index": 155,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Prompt模板维护流程的输入为模板内容、输出格式要求和启用状态，处理过程包括模板校验、保存和启用控制，输出为后续新闻检测可使用的RAG Prompt模板。模板维护的目标是提高模型输出的稳定性和结构化程度。",
+      "drawings": 0
+    },
+    {
+      "index": 156,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.3.4 检测记录与高风险新闻管理流程",
+      "drawings": 0
+    },
+    {
+      "index": 157,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检测记录管理流程的输入为查询条件或记录操作请求，输出为检测记录列表、详情和处理结果。高风险新闻管理流程以风险等级较高的检测记录为对象，支持管理员集中查看和后续处理，为知识库补充和风险分析提供线索。",
+      "drawings": 0
+    },
+    {
+      "index": 158,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "2.3.5 报告生成与可视化统计流程",
+      "drawings": 0
+    },
+    {
+      "index": 159,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "报告生成流程以检测结果为输入，输出PDF检测报告或导出失败提示。可视化统计流程以检测记录、风险等级、新闻类别、关键词和用户活跃情况为数据基础，通过ECharts输出检测趋势、风险等级分布、新闻类别分布、高频风险关键词和高风险新闻占比等统计结果。",
+      "drawings": 0
+    },
+    {
+      "index": 160,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "2.4 非功能需求分析",
+      "drawings": 0
+    },
+    {
+      "index": 161,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "安全性需求方面，系统应对普通用户和管理员进行身份与权限控制，管理员后台功能不得向未授权用户开放。新闻检测请求、知识库维护、Prompt模板修改和报告查看等操作应保留必要的访问控制和日志记录，避免未授权操作影响系统数据。",
+      "drawings": 0
+    },
+    {
+      "index": 162,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可靠性需求方面，系统应对输入为空、正文过短、检索证据不足、大语言模型接口异常和PDF生成失败等情况进行明确处理。外部模型接口异常时，系统应返回检测失败提示；PDF生成失败时，应允许用户继续查看检测结果；证据不足时，应在结果中提示判断依据有限。",
+      "drawings": 0
+    },
+    {
+      "index": 163,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可维护性需求方面，系统应保持前后端分离、业务模块边界清晰和数据结构可管理。知识库、Prompt模板、检测记录、高风险新闻、报告和系统日志应分别管理，便于后续定位问题、调整模板和扩充知识库内容。",
+      "drawings": 0
+    },
+    {
+      "index": 164,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可扩展性需求方面，系统应支持新闻知识库持续扩充、向量数据同步更新、Prompt模板迭代和可视化统计维度扩展。后续如果增加新的新闻类别、来源字段或规则评分因子，应尽量减少对既有业务流程的影响。",
+      "drawings": 0
+    },
+    {
+      "index": 165,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可解释性需求方面，系统输出不能只给出单一结论，而应提供评分、风险等级、判断理由、风险点、检索证据和辟谣建议。对于证据不足、证据冲突或来源可靠性较低的情况，系统应在结果中明确提示，帮助用户理解风险提示的边界。",
+      "drawings": 0
+    },
+    {
+      "index": 166,
+      "type": "paragraph",
+      "style": "Heading 1",
+      "text": "第3章 系统开发环境与关键技术",
+      "drawings": 0
+    },
+    {
+      "index": 167,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.1 系统开发环境概述",
+      "drawings": 0
+    },
+    {
+      "index": 168,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本系统采用前后端分离的B/S架构。前端负责新闻输入、检测结果展示和后台管理交互，后端负责业务处理、数据访问、语义检索与外部智能服务调用。系统运行涉及Web应用、关系数据存储、向量检索和大语言模型服务，因此开发环境既要满足常规信息系统的开发需求，也要支持文本向量化和远程模型调用。",
+      "drawings": 0
+    },
+    {
+      "index": 169,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "技术选型主要考虑功能适配性、开发效率、可维护性以及课程设计条件下的可复现性。前端采用Vue 3技术栈，后端以Python和FastAPI为主，结构化数据存储使用MySQL，语义检索使用Chroma。大语言模型、Embedding和联网搜索通过远程API接入，从而减少本地计算资源需求。各项技术在系统中的具体组织方式将在后续章节说明。",
+      "drawings": 0
+    },
+    {
+      "index": 170,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.2 硬件与软件环境",
+      "drawings": 0
+    },
+    {
+      "index": 171,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统在64位Windows 10专业版环境中完成开发与联调。开发计算机采用Intel Core i7-10870H处理器和16GB内存。由于大语言模型分析和文本Embedding均通过远程API完成，本地不需要保存或加载大规模模型权重。本地资源主要用于运行前端开发服务器、后端服务、MySQL、Chroma和浏览器。",
+      "drawings": 0
+    },
+    {
+      "index": 172,
+      "type": "paragraph",
+      "style": "Normal",
+      "text": "表3-1 系统硬件与软件环境",
+      "drawings": 0
+    },
+    {
+      "index": 173,
+      "type": "table",
+      "rows": 8,
+      "cols": 3,
+      "text": [
+        [
+          "项目",
+          "配置或版本",
+          "用途"
+        ],
+        [
+          "开发计算机",
+          "Intel Core i7-10870H，16GB内存",
+          "项目开发与本地联调"
+        ],
+        [
+          "操作系统",
+          "Windows 10专业版，64位",
+          "前后端及数据库运行环境"
+        ],
+        [
+          "Python",
+          "3.14.2",
+          "后端服务运行环境"
+        ],
+        [
+          "Node.js / npm",
+          "22.22.3 / 10.9.8",
+          "前端依赖管理与构建"
+        ],
+        [
+          "MySQL",
+          "8.0.26",
+          "结构化数据存储"
+        ],
+        [
+          "Git",
+          "2.49.0.windows.1",
+          "版本控制"
+        ],
+        [
+          "PowerShell",
+          "Windows内置",
+          "启动命令与环境检查"
+        ]
+      ]
+    },
+    {
+      "index": 174,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "数据库连接、向量数据库目录、报告目录和外部服务参数由环境变量管理，减少了运行配置与业务代码之间的耦合。项目中的路径处理和服务地址均支持配置，为后续迁移到Linux服务器提供了基础。但不同操作系统下的文件权限、服务启动方式和字体环境仍需在部署时重新验证。",
+      "drawings": 0
+    },
+    {
+      "index": 175,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.3 前端开发技术及选择依据",
+      "drawings": 0
+    },
+    {
+      "index": 176,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.3.1 Vue 3与Vite",
+      "drawings": 0
+    },
+    {
+      "index": 177,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "前端采用Vue 3构建。Vue 3提供组件化开发和响应式数据管理能力，适合处理新闻输入、检测状态、评分结果、证据列表和后台管理表格等界面内容。系统可以将通用页面结构和结果展示区域拆分为可复用组件，降低页面之间的重复代码。当前package-lock.json解析的Vue版本为3.5.35。",
+      "drawings": 0
+    },
+    {
+      "index": 178,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Vite用于前端开发服务器和生产构建。其开发模式支持较快的模块加载与热更新，便于前后端接口联调。项目通过Vite代理转发“/api”请求，使前端在开发阶段使用统一的接口前缀。当前锁定版本为6.4.3。项目中存在依赖分包配置，但相关构建策略属于工程实现内容，本章不再展开。",
+      "drawings": 0
+    },
+    {
+      "index": 179,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.3.2 Element Plus与ECharts",
+      "drawings": 0
+    },
+    {
+      "index": 180,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Element Plus用于实现表单、表格、分页、对话框、消息提示和状态标签等界面元素。新闻检测页需要完成输入校验和状态反馈，管理员后台包含较多数据维护操作，采用成熟组件库能够减少基础交互控件的开发工作。项目当前使用Element Plus 2.14.1，并在其基础上编写了统一的页面样式。",
+      "drawings": 0
+    },
+    {
+      "index": 181,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "ECharts用于展示检测趋势、风险等级分布、新闻类别分布和关键词统计等信息。图表能够将后台统计结果转换为更直观的形式，便于管理员观察系统运行情况。项目当前使用ECharts 5.6.0。",
+      "drawings": 0
+    },
+    {
+      "index": 182,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.3.3 Vue Router、Pinia与Axios",
+      "drawings": 0
+    },
+    {
+      "index": 183,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Vue Router负责用户端和管理员端页面导航，并结合路由信息区分公开页面、登录用户页面和管理员页面。Pinia用于保存当前用户和访问令牌等共享状态。Axios用于封装前后端HTTP请求，并统一处理接口地址、身份令牌和响应错误。项目锁文件中的对应版本分别为Vue Router 4.6.4、Pinia 2.3.1和Axios 1.16.1。这些技术分工较为明确，能够减少页面组件中的重复通信与状态处理代码。",
+      "drawings": 0
+    },
+    {
+      "index": 184,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.4 后端开发技术及选择依据",
+      "drawings": 0
+    },
+    {
+      "index": 185,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.4.1 Python与FastAPI",
+      "drawings": 0
+    },
+    {
+      "index": 186,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "后端使用Python开发，当前开发环境版本为3.14.2。Python具有较为丰富的Web开发、文本处理和数据访问库，适合在同一环境中组织新闻文本清洗、数据库操作、向量服务调用和大语言模型调用。项目的requirements.txt未声明Python版本范围，因此3.14.2仅表示本机实际开发环境，不作为系统的最低版本要求。",
+      "drawings": 0
+    },
+    {
+      "index": 187,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Web框架采用FastAPI 0.111.0。FastAPI支持基于类型标注的接口定义、请求参数校验、依赖注入和OpenAPI文档生成，适合前后端分离项目。系统通过该框架组织认证、新闻检测、知识库维护、统计和报告等接口。后端采用分层方式组织代码，本章只说明技术用途，具体模块结构在第4章介绍。",
+      "drawings": 0
+    },
+    {
+      "index": 188,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.4.2 Pydantic与SQLAlchemy",
+      "drawings": 0
+    },
+    {
+      "index": 189,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Pydantic用于定义请求与响应数据模型，并完成字段类型、长度和取值范围校验。当前开发环境安装的是Pydantic 2.13.4，但requirements.txt未单独锁定该依赖，因此论文正文不将其作为固定复现版本。SQLAlchemy 2.0.31负责关系数据访问和事务管理，使业务代码可以通过模型对象操作MySQL数据。两项技术分别约束接口数据和持久化数据，有助于减少数据格式不一致问题。",
+      "drawings": 0
+    },
+    {
+      "index": 190,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.4.3 Uvicorn",
+      "drawings": 0
+    },
+    {
+      "index": 191,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Uvicorn 0.30.1用于运行FastAPI的ASGI应用。开发阶段通过Uvicorn启动后端服务，并向前端提供HTTP接口。ASGI运行方式也为后续处理异步任务和外部网络请求保留了扩展空间。应用启动配置、异常处理和权限控制的具体实现将在后续章节说明。",
+      "drawings": 0
+    },
+    {
+      "index": 192,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.5 数据存储与语义检索技术",
+      "drawings": 0
+    },
+    {
+      "index": 193,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.5.1 MySQL与Alembic",
+      "drawings": 0
+    },
+    {
+      "index": 194,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统使用MySQL保存用户信息、新闻知识、检测记录、证据记录、报告信息和系统日志等结构化数据。本机使用MySQL 8.0.26。关系数据库能够提供约束、索引和事务支持，适合处理用户与检测记录、检测记录与证据等关联数据。MySQL在系统中承担业务数据存储职责。",
+      "drawings": 0
+    },
+    {
+      "index": 195,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Alembic用于管理数据库结构版本。项目通过迁移脚本记录数据表和字段的变更，并在初始化或更新环境时执行数据库升级。该方式比手工修改数据库结构更便于追踪，也有助于保持不同开发环境中的表结构一致。当前项目使用Alembic 1.13.2。迁移脚本的具体内容属于数据库设计部分，将在后续章节说明。",
+      "drawings": 0
+    },
+    {
+      "index": 196,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.5.2 Chroma与文本Embedding",
+      "drawings": 0
+    },
+    {
+      "index": 197,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Chroma用于保存新闻知识文本的向量表示，并根据查询向量完成语义相似度检索。当前环境安装Chroma 1.5.9，requirements.txt将其约束在1.x版本范围。Chroma保存的是面向检索的向量索引，MySQL仍保存知识条目的结构化内容。将两类数据分别存储，有利于同时满足条件查询和语义检索需求。两者的数据同步设计将在第4章和第5章进一步说明。",
+      "drawings": 0
+    },
+    {
+      "index": 198,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "项目正式Embedding配置使用DashScope的text-embedding-v4模型，向量维度设置为1024。Embedding服务将新闻文本和知识库文本转换为同一向量空间中的数值表示，为Chroma检索提供输入。代码还提供Hash向量模式，用于缺少外部服务时测试向量写入和查询流程。Hash向量不具备正式语义检索能力，因此不作为本系统的RAG方案。",
+      "drawings": 0
+    },
+    {
+      "index": 199,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.6 智能服务与辅助开发技术",
+      "drawings": 0
+    },
+    {
+      "index": 200,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.6.1 DeepSeek大语言模型与RAG",
+      "drawings": 0
+    },
+    {
+      "index": 201,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统通过远程API调用DeepSeek大语言模型，用于分析待检测新闻及其相关证据，并生成判断理由、风险提示和辟谣建议。大语言模型的自然语言处理能力与大规模预训练技术的发展有关[11]。采用远程服务可以降低本地硬件要求，并允许通过配置文件调整模型名称和服务地址。",
+      "drawings": 0
+    },
+    {
+      "index": 202,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "大语言模型可能产生与事实不一致的内容，相关研究将其概括为模型幻觉问题，并从评估和缓解角度进行了分析[12]。因此，本系统不会只依赖模型输出判断新闻真实性，而是结合检索证据和规则评分进行辅助评估。证据约束、输出校验和调用失败时的处理方式将在第5章说明。",
+      "drawings": 0
+    },
+    {
+      "index": 203,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检索增强生成（Retrieval-Augmented Generation，RAG）在生成前检索外部知识，为模型分析提供上下文依据。相关综述将RAG划分为知识准备、检索和生成等环节，并指出检索质量会影响最终结果[10]。本系统以本地知识库提供可管理的证据，并在需要时通过联网搜索补充时效性信息。具体检索参数、候选证据处理和证据仲裁流程不在本章展开。",
+      "drawings": 0
+    },
+    {
+      "index": 204,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.6.2 联网搜索与BeautifulSoup4",
+      "drawings": 0
+    },
+    {
+      "index": 205,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统接入博查搜索服务，用于补充本地知识库未覆盖的近期网络信息。联网搜索结果经过统一整理后参与后续分析。BeautifulSoup4用于从新闻网页中提取标题、正文和发布时间等内容，支持用户通过新闻链接获取待检测文本。当前环境安装BeautifulSoup4 4.12.3。网页访问限制和内容提取规则将在详细实现章节说明。",
+      "drawings": 0
+    },
+    {
+      "index": 206,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.6.3 APScheduler",
+      "drawings": 0
+    },
+    {
+      "index": 207,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "APScheduler用于执行周期性新闻采集任务。管理员可以通过配置控制是否启用采集以及执行周期，从而为知识库更新提供辅助。当前环境安装APScheduler 3.11.2。本章只说明调度技术的用途，任务去重、数据入库和向量化过程将在第5章介绍。",
+      "drawings": 0
+    },
+    {
+      "index": 208,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "3.6.4 Jinja2与xhtml2pdf",
+      "drawings": 0
+    },
+    {
+      "index": 209,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统使用Jinja2 3.1.6将检测数据渲染为HTML报告模板，再通过xhtml2pdf 0.2.17生成PDF文件。模板化方式便于统一报告结构，并可以复用检测结果中的标题、评分、证据和建议等数据。报告文件管理和异常处理方式将在后续实现章节说明。",
+      "drawings": 0
+    },
+    {
+      "index": 210,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.7 项目配置与环境管理",
+      "drawings": 0
+    },
+    {
+      "index": 211,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "项目使用Git进行版本控制。后端依赖记录在requirements.txt中，前端依赖由package.json声明，并通过package-lock.json保存实际解析版本。数据库结构使用Alembic迁移脚本管理。这些文件为环境安装和项目复现提供了基础。",
+      "drawings": 0
+    },
+    {
+      "index": 212,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "数据库连接、JWT密钥、Chroma目录、报告目录和外部模型服务参数通过.env文件配置。.env.example用于说明所需配置项，不应保存真实密码和API密钥。Chroma数据目录与报告输出目录均可调整，便于在不同计算机或服务器上部署。更换Embedding模型或向量维度时，需要重新生成知识库向量索引。",
+      "drawings": 0
+    },
+    {
+      "index": 213,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "3.8 本章小结",
+      "drawings": 0
+    },
+    {
+      "index": 214,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本章介绍了系统的硬件与软件环境，并说明了前端、后端、数据存储、语义检索和智能服务所采用的主要技术。Vue 3与FastAPI分别用于界面开发和后端接口实现，MySQL与Chroma承担结构化数据存储和向量检索，DeepSeek、DashScope及联网搜索服务为新闻分析提供辅助能力。上述技术与项目功能相匹配，也便于在课程设计条件下进行开发和复现。后续章节将在此基础上说明系统架构、数据库设计和各功能模块的具体实现。",
+      "drawings": 0
+    },
+    {
+      "index": 215,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 216,
+      "type": "paragraph",
+      "style": "Heading 1",
+      "text": "第4章 系统总体设计",
+      "drawings": 0
+    },
+    {
+      "index": 217,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本章在前述需求分析与技术选型的基础上，给出“智闻辨真”新闻可信度评估系统的总体设计。设计内容以当前项目代码、数据库模型、迁移文件、前后端路由和运行配置为事实依据，重点说明系统边界、模块协作、评估流程、数据组织、权限体系及异常恢复路径。与第3章侧重开发环境和技术选择不同，本章回答各类技术如何被组织为可运行系统；具体类、函数和关键代码将在第5章展开，测试环境与测试结果不在本章讨论。",
+      "drawings": 0
+    },
+    {
+      "index": 218,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.1 系统设计目标与原则",
+      "drawings": 0
+    },
+    {
+      "index": 219,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.1.1 系统设计目标",
+      "drawings": 0
+    },
+    {
+      "index": 220,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统总体设计首先服务于新闻可信度评估这一核心业务。用户可以直接提交新闻标题和正文，也可以输入新闻URL，待系统提取网页内容后进行确认和修订。后端围绕待评估新闻组织本地语义检索、按需联网补充、证据仲裁、规则评分和大语言模型分析，最终输出可信度分值、风险等级、判断理由、风险点、建议及可追溯证据。登录用户还可以查询历史记录、重新评估并生成检测报告；管理员可以维护知识库和Prompt模板，复核高风险记录，管理用户、检测记录和报告，并查看统计信息与操作日志。",
+      "drawings": 0
+    },
+    {
+      "index": 221,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可解释性与可追溯性是本系统区别于单次大模型问答的主要设计目标。系统不把大语言模型生成的结论直接视为事实，而是先构造具有稳定候选标识的证据集合，再要求模型对每条候选证据给出相关性、质量、立场及取舍理由。服务端继续验证候选是否被完整仲裁、分值是否处于合法范围、证据质量字段是否齐全，只有通过契约校验并进入ranked集合的证据才会参与综合评分。检测记录同时保存候选证据、排除证据、仲裁状态、质量状态和分析契约版本，使后续复核能够还原当时的判断依据。",
+      "drawings": 0
+    },
+    {
+      "index": 222,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统还需要控制外部服务不确定性对主流程的影响。联网搜索失败时保留本地检索结果继续分析；模型服务失败时不使用未经仲裁的检索候选，而是退化为确定性规则评分；MySQL与Chroma之间无法形成跨存储事务，因此通过同步状态、错误信息、回滚和补偿恢复降低不一致概率。上述目标使系统在课程设计规模下兼顾功能完整度、结果可解释性、配置可复现性和后续维护成本。",
+      "drawings": 0
+    },
+    {
+      "index": 223,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.1.2 系统设计原则",
+      "drawings": 0
+    },
+    {
+      "index": 224,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统采用前后端分离和模块化设计。Vue 3前端负责页面导航、表单交互、状态反馈和结果展示，FastAPI后端负责身份认证、业务规则、外部服务调用和数据持久化。前端不保存决定可信度等级的业务规则，后端也不耦合具体页面布局，从而避免评分逻辑随界面变化而分散。",
+      "drawings": 0
+    },
+    {
+      "index": 225,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "数据职责分离原则体现在MySQL、Chroma和报告目录的分工上。MySQL是用户、知识条目、检测记录和审计信息的业务事实源；Chroma只承担由知识条目派生的语义索引；HTML与PDF报告保存到配置化文件目录，并在关系数据库中记录文件位置。检索命中向量后仍需根据knowledge_id回查MySQL，防止失效或孤立向量直接进入评估结果。",
+      "drawings": 0
+    },
+    {
+      "index": 226,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统遵循最小权限原则。公开页面和公开接口只提供新闻检测入口与已公开的高风险信息；历史记录、报告和独立RAG检索要求登录；管理端路由要求管理员身份，后端再次通过管理员依赖校验角色，避免仅依赖前端菜单隐藏形成权限空洞。对游客开放的检测接口使用可选身份依赖：无令牌时允许评估并将user_id保存为空，有令牌时则绑定当前有效用户。",
+      "drawings": 0
+    },
+    {
+      "index": 227,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统同时遵循可降级、可追溯和配置分离原则。外部模型、Embedding、联网搜索、数据库连接、向量目录和报告目录均通过环境变量配置；错误分支保留明确状态，而不是用默认成功结果掩盖异常；关键管理操作写入系统日志。对于跨MySQL与Chroma的写操作，项目明确采用应用层补偿而非宣称实现分布式事务，使系统能力边界与实际实现保持一致。",
+      "drawings": 0
+    },
+    {
+      "index": 228,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统角色与核心功能权限如表4-1所示。游客权限仅覆盖公开信息和一次性检测，注册用户获得个人数据能力，管理员在普通用户能力之上使用独立管理接口。",
+      "drawings": 0
+    },
+    {
+      "index": 229,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-1 系统角色与功能权限表",
+      "drawings": 0
+    },
+    {
+      "index": 230,
+      "type": "table",
+      "rows": 8,
+      "cols": 4,
+      "text": [
+        [
+          "功能",
+          "游客",
+          "注册用户",
+          "管理员"
+        ],
+        [
+          "浏览首页与公开高风险信息",
+          "允许",
+          "允许",
+          "允许"
+        ],
+        [
+          "提交新闻文本/URL预览与检测",
+          "允许，记录不绑定用户",
+          "允许，记录绑定本人",
+          "允许，记录绑定本人"
+        ],
+        [
+          "查看个人历史、详情与重新评估",
+          "不允许",
+          "仅本人",
+          "可使用个人功能；另有全局管理接口"
+        ],
+        [
+          "生成/下载个人检测报告",
+          "不允许",
+          "仅本人记录",
+          "可使用个人功能；管理端可查看全局报告"
+        ],
+        [
+          "独立RAG知识检索",
+          "不允许",
+          "允许",
+          "允许"
+        ],
+        [
+          "用户、检测、知识、Prompt、高风险管理",
+          "不允许",
+          "不允许",
+          "允许"
+        ],
+        [
+          "统计分析与系统日志",
+          "不允许",
+          "不允许",
+          "允许"
+        ]
+      ]
+    },
+    {
+      "index": 231,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.2 系统总体架构设计",
+      "drawings": 0
+    },
+    {
+      "index": 232,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.2.1 系统总体架构",
+      "drawings": 0
+    },
+    {
+      "index": 233,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统采用浏览器/服务器（Browser/Server，B/S）架构，整体由浏览器用户、Vue 3前端、FastAPI后端、业务服务、数据与文件存储以及外部智能服务组成。系统总体架构如图4-1所示。",
+      "drawings": 0
+    },
+    {
+      "index": 234,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 235,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-1 系统总体架构图",
+      "drawings": 0
+    },
+    {
+      "index": 236,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "浏览器中的游客、注册用户和管理员通过同一前端应用访问不同功能。Vue Router根据路由元信息控制公开页面、登录页面和管理页面，Pinia保存用户会话状态，Axios负责向“/api”前缀下的REST接口发送JSON请求。FastAPI接收请求后完成参数校验、身份依赖解析和统一异常处理，再把具体业务交给服务层。",
+      "drawings": 0
+    },
+    {
+      "index": 237,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "后端业务服务覆盖检测编排、知识库语义检索、DeepSeek分析、证据仲裁、规则与综合评分、报告生成、统计和系统日志。MySQL保存结构化业务记录，Chroma保存knowledge_items集合的向量索引，报告目录保存生成的HTML和PDF文件。外部服务包括DeepSeek对话模型、DashScope Embedding、博查搜索及新闻网页内容源。APScheduler随应用生命周期启动，在配置允许且外部搜索凭据可用时触发周期性新闻采集。该架构将确定性业务数据、派生语义索引和外部智能能力分开，为异常定位和局部替换提供了清晰边界。",
+      "drawings": 0
+    },
+    {
+      "index": 238,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.2.2 前后端交互架构",
+      "drawings": 0
+    },
+    {
+      "index": 239,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "前端页面通过Axios访问后端REST接口。开发环境由Vite把“/api”请求代理到后端，生产环境的接口基础地址由配置决定。请求和响应主要使用JSON；报告下载属于文件响应。后端成功响应统一包含code、message和data三个字段，HTTP异常、参数校验异常与数据库异常也被转换为相同外层结构，前端可以集中处理成功提示、字段错误、未登录跳转和权限不足提示。",
+      "drawings": 0
+    },
+    {
+      "index": 240,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "登录成功后，后端签发包含用户标识、角色和过期时间的JWT访问令牌。前端把令牌附加到Authorization请求头，后端以Bearer方式解析。前端路由守卫只用于改善导航体验，真正的访问控制仍由后端依赖完成：普通登录接口使用get_current_user，管理接口使用get_current_admin，游客检测使用get_optional_current_user。这样既支持游客快速评估，又避免管理接口因前端状态被篡改而越权。",
+      "drawings": 0
+    },
+    {
+      "index": 241,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新闻URL输入采用“提取预览—人工确认—提交检测”的两阶段交互。提取预览接口只返回规范化后的标题、正文、发布时间和来源信息，不直接启动检测或写入检测记录。用户确认后，前端再提交最终文本。该设计既允许系统利用网页抽取减少复制成本，也把网页结构解析误差暴露给用户修订，降低错误正文直接进入后续模型分析的概率。",
+      "drawings": 0
+    },
+    {
+      "index": 242,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.2.3 后端分层架构",
+      "drawings": 0
+    },
+    {
+      "index": 243,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "后端按真实目录划分为API、Schema、Service、CRUD、Model和Core等层次，其依赖关系如图4-2所示。",
+      "drawings": 0
+    },
+    {
+      "index": 244,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 245,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-2 后端分层架构图",
+      "drawings": 0
+    },
+    {
+      "index": 246,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "API层位于app/api，负责定义路由、注入数据库会话和身份依赖、解释查询参数并组织HTTP响应。Schema层位于app/schemas，以Pydantic模型约束标题、正文、分页参数、枚举值和响应结构。Service层位于app/services，是业务复杂度的主要承载位置，包括检测主流程、证据仲裁、知识库同步、报告生成、统计和外部服务适配。CRUD层集中封装SQLAlchemy查询、分页和持久化操作；Model层定义表、主外键、唯一约束和级联关系。",
+      "drawings": 0
+    },
+    {
+      "index": 247,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Core层提供横向基础能力，包括环境配置、JWT、数据库会话、角色依赖、内存滑动窗口限流、APScheduler初始化和全局异常处理。Chroma和报告文件并不通过SQLAlchemy模型访问，而由Service层的专门服务封装。总体依赖方向由上层用例向下层数据能力推进，API层不直接编写复杂SQL，CRUD层也不负责模型调用和业务决策，从而把接口变化、业务变化和数据结构变化控制在不同层次。",
+      "drawings": 0
+    },
+    {
+      "index": 248,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.2.4 数据存储与智能服务架构",
+      "drawings": 0
+    },
+    {
+      "index": 249,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "MySQL承担系统的结构化事实存储，包括用户、知识条目、检测记录、有效证据、Prompt模板、报告、系统日志和采集任务。Chroma中的向量、文档和元数据均由知识条目派生，不作为独立业务事实源。知识新增或修改后，系统构造包含标题、正文、类别、摘要、关键词、真伪标签和辟谣说明的文本，调用DashScope的text-embedding-v4生成1024维向量，再以knowledge:<id>作为向量文档标识写入knowledge_items集合。",
+      "drawings": 0
+    },
+    {
+      "index": 250,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "DeepSeek在系统中的职责是受候选证据约束的语义分析，而非替代数据库或直接决定最终等级。系统向其提供规范化新闻和候选证据，要求返回新闻可信度分量、理由、风险点、建议、证据质量以及逐条仲裁结果。博查搜索只在本地证据不足且用户允许联网时补充候选信息，失败不阻断本地RAG路径。新闻网页则由受限抓取器提取内容，抓取结果须经用户确认后才进入检测。上述分工使模型生成、语义召回和结构化持久化各自承担单一职责。",
+      "drawings": 0
+    },
+    {
+      "index": 251,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.3 系统功能模块设计",
+      "drawings": 0
+    },
+    {
+      "index": 252,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统功能由六个相互协作的模块组成，模块关系如图4-3所示。",
+      "drawings": 0
+    },
+    {
+      "index": 253,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 254,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-3 系统功能模块图",
+      "drawings": 0
+    },
+    {
+      "index": 255,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-2概括各模块的服务对象、输入、主要处理和输出。模块划分覆盖用户端评估、管理端治理、数据统计与审计，也保留了知识持续更新和向量恢复路径，能够反映项目从单一模型调用扩展为完整Web系统的实际工作量。",
+      "drawings": 0
+    },
+    {
+      "index": 256,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-2 系统主要功能模块说明表",
+      "drawings": 0
+    },
+    {
+      "index": 257,
+      "type": "table",
+      "rows": 7,
+      "cols": 4,
+      "text": [
+        [
+          "功能模块",
+          "服务对象与输入",
+          "主要处理",
+          "主要输出"
+        ],
+        [
+          "用户认证与个人中心",
+          "游客、注册用户；账号、密码与会话令牌",
+          "注册、登录、令牌校验、账户状态检查、会话恢复",
+          "用户信息、访问令牌、个人页面状态"
+        ],
+        [
+          "新闻可信度评估",
+          "游客和用户；新闻文本或URL确认文本",
+          "语义检索、联网补充、证据仲裁、规则与综合评分",
+          "分值、等级、理由、风险点、建议和证据"
+        ],
+        [
+          "检测记录与报告",
+          "登录用户；记录ID、筛选条件",
+          "历史查询、详情、重新评估、模板渲染和PDF生成",
+          "检测历史、详情、HTML/PDF报告"
+        ],
+        [
+          "知识库与新闻采集",
+          "管理员、调度器；知识条目或采集配置",
+          "条目维护、Embedding、Chroma同步、单条重试、全量重建、定时采集",
+          "知识记录、同步状态、采集任务记录"
+        ],
+        [
+          "管理员业务管理",
+          "管理员；管理筛选和操作请求",
+          "用户启停、检测管理、Prompt管理、高风险复核与公开控制",
+          "管理列表、详情和操作结果"
+        ],
+        [
+          "数据统计与系统日志",
+          "管理员；时间范围和统计维度",
+          "聚合趋势、分布、关键词、活跃度并记录管理行为",
+          "统计数据、审计日志"
+        ]
+      ]
+    },
+    {
+      "index": 258,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.1 用户认证与个人中心模块",
+      "drawings": 0
+    },
+    {
+      "index": 259,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "该模块面向游客和注册用户。注册输入包括用户名、密码和可选邮箱，服务端完成字段校验、重复性检查和bcrypt密码哈希；登录时验证密码、账户状态并签发JWT。个人中心和历史记录要求有效登录状态，前端恢复本地会话后仍会请求当前用户接口确认令牌有效性，避免仅凭本地缓存判断身份。",
+      "drawings": 0
+    },
+    {
+      "index": 260,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "模块输出包括当前用户基本信息、角色、状态和访问令牌。它向新闻检测模块提供可选用户身份，向历史和报告模块提供强制用户身份，并向管理端提供角色基础。账户被禁用后，即使已有令牌尚未过期，后端依赖仍会根据数据库中的status拒绝访问。",
+      "drawings": 0
+    },
+    {
+      "index": 261,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.2 新闻可信度评估模块",
+      "drawings": 0
+    },
+    {
+      "index": 262,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "该模块是系统核心，输入为标题、正文、来源、发布时间和是否允许联网搜索等信息。主要处理包括文本清洗、关键词提取、Chroma召回、本地证据充分性判断、博查补充、多源候选整理、DeepSeek分析、证据契约校验、规则评分、综合评分和风险等级映射。输出不仅包含最终结论，还包含构成结论的有效证据、模型理由、规则命中项和降级状态。",
+      "drawings": 0
+    },
+    {
+      "index": 263,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "该模块与知识库模块共享向量检索能力，与Prompt模块读取当前默认模板，与记录模块共同完成持久化，与高风险模块共享风险等级与高风险标识。其创新点集中体现在“先仲裁、后计分”的证据治理、来源中立的候选顺序、服务端重算证据质量分和按证据可用性切换的分支式评分。",
+      "drawings": 0
+    },
+    {
+      "index": 264,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.3 检测记录与报告模块",
+      "drawings": 0
+    },
+    {
+      "index": 265,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检测完成后，系统保存输入快照、各评分分量、最终等级、分析载荷和有效证据。登录用户可以按分页条件查询自己的历史记录，查看详情、删除记录或在保留原始输入的基础上重新评估。游客检测记录的user_id为空，不进入登录用户的个人历史；游客结果页用于承接当次检测数据，持久化详情接口仍要求登录身份。",
+      "drawings": 0
+    },
+    {
+      "index": 266,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "报告模块以检测记录为输入，通过Jinja2模板生成HTML，再调用xhtml2pdf生成PDF。reports表对detection_id设置唯一约束，使一条检测记录最多对应一条报告记录。报告生成与检测结果展示相互独立，PDF生成失败不会改变既有检测结论，用户仍可以查看页面结果。",
+      "drawings": 0
+    },
+    {
+      "index": 267,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.4 知识库与新闻采集模块",
+      "drawings": 0
+    },
+    {
+      "index": 268,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "知识库模块面向管理员，负责知识条目的新增、查询、修改、删除、单条向量化和全量索引重建。每条知识记录同时保存vector_id、vector_sync_status和vector_sync_error，用于表明派生向量的同步状态。检索返回Chroma候选后，服务端依据knowledge_id重新读取MySQL条目并补充摘要和同步状态，防止向量元数据替代业务数据。",
+      "drawings": 0
+    },
+    {
+      "index": 269,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新闻采集由APScheduler和news_crawler服务执行。调度器根据环境配置注册周期任务，博查搜索获取候选网页，安全抓取器提取正文，服务完成重复检查、知识条目创建和可选向量化，并把执行统计写入crawl_tasks。当前项目没有采集任务前端页面，也没有采集任务REST接口，因此本章只把它作为后台调度能力描述，不虚构人工管理入口。",
+      "drawings": 0
+    },
+    {
+      "index": 270,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.5 管理员业务管理模块",
+      "drawings": 0
+    },
+    {
+      "index": 271,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员模块覆盖用户、检测记录、知识库、Prompt模板、高风险新闻和报告管理。用户管理支持列表查询、用户启用和禁用，后端还保留角色更新接口；检测管理支持全局记录筛选、详情和删除；Prompt管理支持新增、修改、启停和设置默认模板；高风险管理支持复核状态、是否公开和管理员备注维护；报告管理支持列表与详情查询。",
+      "drawings": 0
+    },
+    {
+      "index": 272,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "所有管理接口统一依赖get_current_admin。前端AdminLayout和路由守卫用于限制页面入口，后端角色校验构成最终安全边界。管理员操作与系统日志服务联动，以用户标识、动作、模块、描述和IP地址形成审计记录。",
+      "drawings": 0
+    },
+    {
+      "index": 273,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.3.6 数据统计与系统日志模块",
+      "drawings": 0
+    },
+    {
+      "index": 274,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "统计模块基于MySQL业务记录提供检测概览、时间趋势、风险等级分布、类别分布、关键词统计、用户活跃度、知识库概览和向量同步状态分布。前端使用ECharts呈现这些聚合结果，统计接口只返回图表所需数据，不在后端生成截图。",
+      "drawings": 0
+    },
+    {
+      "index": 275,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统日志模块记录关键管理行为，支持按动作、模块、用户和时间等条件分页查询。统计反映系统业务数据的总体状态，日志提供具体操作轨迹，两者共同服务于管理复核和问题定位，但不替代应用运行日志和外部服务监控。",
+      "drawings": 0
+    },
+    {
+      "index": 276,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.4 新闻可信度评估流程设计",
+      "drawings": 0
+    },
+    {
+      "index": 277,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新闻可信度评估主流程如图4-4所示。该流程把检索增强生成（Retrieval-Augmented Generation，RAG）的知识准备、检索和生成环节[10]落实为可验证的候选证据管线，并针对大语言模型幻觉风险[12]增加证据契约、服务端质量重算和确定性降级。",
+      "drawings": 0
+    },
+    {
+      "index": 278,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 279,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-4 新闻可信度评估总体流程图",
+      "drawings": 0
+    },
+    {
+      "index": 280,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.1 新闻输入与文本规范化处理",
+      "drawings": 0
+    },
+    {
+      "index": 281,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "用户可以手工输入新闻，也可以先调用提取预览接口处理URL。URL抓取只允许HTTP和HTTPS协议，默认拒绝指向本机、私有地址、链路本地地址及其他保留地址的目标；重定向由服务手动跟随，并在每一跳重新进行主机解析与地址检查，以降低服务端请求伪造风险。抓取设置超时时间，解析后返回标题、正文、发布时间和最终来源地址。用户可在检测页修改提取内容，再提交正式评估。",
+      "drawings": 0
+    },
+    {
+      "index": 282,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "正式检测入口对标题和正文执行统一清洗，标题截取到255字符，正文截取到12000字符，任一为空则拒绝进入后续流程。清洗后的标题和正文用于关键词提取、RAG查询和模型分析；来源、发布时间和URL作为辅助元数据保存。该入口同时应用滑动窗口限流，游客以请求来源标识、登录用户以身份信息参与限流键构造，减少网页抓取和模型调用被高频滥用的风险。",
+      "drawings": 0
+    },
+    {
+      "index": 283,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.2 本地知识库证据召回",
+      "drawings": 0
+    },
+    {
+      "index": 284,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本地召回先把标题和正文拼接为查询文本，并限制查询文本长度。DashScope Embedding把查询转换为1024维向量，Chroma在knowledge_items集合中按余弦距离检索Top-10候选。检索结果包含向量ID、文档、元数据和距离，服务端按“1－距离”转换为相似度，并根据元数据中的knowledge_id回查MySQL。",
+      "drawings": 0
+    },
+    {
+      "index": 285,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "回查过程会跳过数据库中已不存在的条目，并以MySQL当前值覆盖标题、摘要、类别、真伪标签、来源、风险等级和同步状态。由此，Chroma负责快速发现语义邻近项，MySQL负责确认条目仍然有效。该二次校验增加了一次关系库查询，但避免索引残留直接污染证据池。",
+      "drawings": 0
+    },
+    {
+      "index": 286,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.3 证据不足判定与联网补充",
+      "drawings": 0
+    },
+    {
+      "index": 287,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本地检索与联网补充流程如图4-5所示。",
+      "drawings": 0
+    },
+    {
+      "index": 288,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 289,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-5 本地检索与联网补充流程图",
+      "drawings": 0
+    },
+    {
+      "index": 290,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "联网搜索必须同时满足系统全局开关允许和用户在本次请求中启用。满足前提后，出现以下任一情况即触发补充：本地没有证据；Top-1相似度低于0.45；或者Top-1相似度低于0.60且相似度不低于0.30的“有效候选”少于3条。第一条规则处理知识库完全未覆盖的新闻，第二条处理最高命中仍明显偏弱的情况，第三条处理只有少量中等相关候选、证据面不足的情况。",
+      "drawings": 0
+    },
+    {
+      "index": 291,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "博查搜索查询由标题和已提取关键词组成，结果数量和时效范围由环境配置控制。服务异常、超时或无结果时，检测流程保留本地候选继续执行，不把联网能力作为强制依赖。web_triggered和网络证据数量等信息随分析载荷保存，便于区分“未触发搜索”和“触发后未得到可用证据”。",
+      "drawings": 0
+    },
+    {
+      "index": 292,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.4 多源候选证据整理",
+      "drawings": 0
+    },
+    {
+      "index": 293,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本地候选和网络候选首先映射为统一证据结构，保留标题、摘要或片段、来源名称、来源URL、发布时间、来源类型和相似度等字段。合并时本地最多保留5条，网络最多保留5条；同一来源内部按稳定标识进行去重，不对不同来源的相似标题做强制跨源合并，以免把独立报道错误折叠为同一条证据。",
+      "drawings": 0
+    },
+    {
+      "index": 294,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "每条候选随后获得稳定candidate_id：知识库证据使用kb:<knowledge_id>形式，网络证据使用web:<序号>形式。系统以新闻标题和正文构造种子，通过SHA-256得到可复现的来源中立顺序，再截取不超过10条候选送入模型。该设计避免始终把知识库或网络证据排在前面造成位置偏差，也使相同输入下的候选顺序可重现。原始候选列表仍被保存，模型输入上限不会导致审计信息丢失。",
+      "drawings": 0
+    },
+    {
+      "index": 295,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.5 大语言模型证据分析与仲裁",
+      "drawings": 0
+    },
+    {
+      "index": 296,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "DeepSeek接收新闻文本、统一候选证据和当前默认Prompt模板，输出新闻可信度分量、理由、风险点、关键词、建议、证据质量和证据仲裁。仲裁的ranked项必须包含candidate_id、相关性分、质量分、立场和理由；立场限定为support、contradict或neutral。rejected项包含candidate_id和排除原因。服务端要求ranked与rejected共同构成候选ID的完整、不重复划分，并检查分值、枚举和字段类型。",
+      "drawings": 0
+    },
+    {
+      "index": 297,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "如果首次输出缺少仲裁对象、候选ID不完整、存在重复或证据质量字段无效，系统发起一次只聚焦证据仲裁的重试。重试通过后采用新的仲裁和质量数据；仍未通过时把状态标记为retry_exhausted，不让未完成仲裁的候选影响评分。证据质量包含覆盖度C、一致性K和说明，服务端不信任模型直接给出的总分，而是按0.6C＋0.4K重新计算证据质量分。该机制把生成式输出转化为可验证的数据契约，是本系统可解释评估链路的核心设计。",
+      "drawings": 0
+    },
+    {
+      "index": 298,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.6 可信度评分与风险等级判定",
+      "drawings": 0
+    },
+    {
+      "index": 299,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "评分与风险分级流程如图4-6所示。",
+      "drawings": 0
+    },
+    {
+      "index": 300,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 301,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-6 可信度评分与风险分级流程图",
+      "drawings": 0
+    },
+    {
+      "index": 302,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "设大语言模型可信度分为S_L，确定性规则分为S_R，证据质量分为S_E，三者范围均规范到0～100。S_E由证据覆盖度C与一致性K按式（4-1）计算：",
+      "drawings": 0
+    },
+    {
+      "index": 303,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "S_E=0.6C+0.4K　　　　　　　　　　　　　　　（4-1）",
+      "drawings": 0
+    },
+    {
+      "index": 304,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "当前主流程采用分支式综合评分，而不是对所有请求套用固定权重。若模型服务失败，由于检索候选尚未获得可信仲裁，最终分仅取规则分，如式（4-2）所示：",
+      "drawings": 0
+    },
+    {
+      "index": 305,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "S=S_R　　　　　　　　　　　　　　　　　　　（4-2）",
+      "drawings": 0
+    },
+    {
+      "index": 306,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "若模型可用但没有有效证据，最终分由模型分和规则分组成，如式（4-3）所示：",
+      "drawings": 0
+    },
+    {
+      "index": 307,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "S=0.6S_L+0.4S_R　　　　　　　　　　　　　　（4-3）",
+      "drawings": 0
+    },
+    {
+      "index": 308,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "若存在通过仲裁的有效证据，则使用式（4-4）：",
+      "drawings": 0
+    },
+    {
+      "index": 309,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "S=0.5S_L+0.3S_E+0.2S_R　　　　　　　　　　　（4-4）",
+      "drawings": 0
+    },
+    {
+      "index": 310,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "规则分以100分为基准，根据可解释规则扣分：标题或正文出现夸张词扣15分，缺少来源扣20分，情绪化词语扣15分，绝对化表达扣15分；在有效证据Top-5中发现相似度不低于0.70且立场冲突的内容时扣25分，最低为0分。检索相似度均值仍计算并保存为evidence_score，用于展示和诊断，但不进入当前综合公式，避免把语义相似直接等同于事实可信。",
+      "drawings": 0
+    },
+    {
+      "index": 311,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "最终分S按统一阈值映射：S≥80为“可信新闻”，60≤S＜80为“存疑信息”，40≤S＜60为“疑似谣言”，S＜40为“高风险谣言”。高风险标识同时依据分值低于40或等级为高风险谣言确定。该阈值函数被检测结果、高风险列表和管理复核共同使用，避免不同模块各自判断产生等级漂移。",
+      "drawings": 0
+    },
+    {
+      "index": 312,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.4.7 异常降级与评估结果保存",
+      "drawings": 0
+    },
+    {
+      "index": 313,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "联网搜索异常时系统继续使用本地候选；模型初次返回不满足证据契约时聚焦重试一次；模型服务整体失败时只使用规则分，并在理由和风险点中标记模型服务异常。Chroma操作会清理缓存的客户端和集合句柄后重试一次，但检索或写入仍失败时由服务抛出可识别异常，接口转换为统一错误响应。数据库写入失败时回滚当前会话，不返回伪成功结果。",
+      "drawings": 0
+    },
+    {
+      "index": 314,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "评估成功后，detection_records保存输入快照、evidence_score、llm_score、rule_score、final_score、风险等级、判断结果、理由、风险点、建议和高风险标识。analysis_payload进一步保存候选证据、排除证据、相似新闻、证据质量、仲裁状态、质量状态、错误摘要、尝试次数、契约版本及本地/网络有效命中标识。evidence_matches只保存最终有效证据，并以rank_order记录仲裁后的顺序。这样的持久化粒度既支持用户展示，也为管理员复核和算法迭代保留了上下文。",
+      "drawings": 0
+    },
+    {
+      "index": 315,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.5 数据库设计",
+      "drawings": 0
+    },
+    {
+      "index": 316,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.5.1 数据需求分析",
+      "drawings": 0
+    },
+    {
+      "index": 317,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统数据可以分为身份权限数据、知识数据、评估过程数据、配置数据、报告文件索引、审计数据和采集运行数据。身份权限数据回答谁可以访问何种功能；知识数据为RAG提供可维护事实材料；评估数据记录输入、分量、结论和证据；Prompt模板控制模型输出契约；报告表关联生成文件；系统日志记录管理行为；采集任务记录后台调度的数量和状态。",
+      "drawings": 0
+    },
+    {
+      "index": 318,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "由于语义检索数据由知识条目派生，系统还需要保存向量ID、同步状态和同步错误。此类字段不是业务内容本身，却是判断MySQL与Chroma是否一致的重要运维数据。数据设计因此同时考虑业务查询、级联删除、可空关系和跨存储补偿，而不只保存最终评分。",
+      "drawings": 0
+    },
+    {
+      "index": 319,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.5.2 数据实体及关系设计",
+      "drawings": 0
+    },
+    {
+      "index": 320,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统真实实体及关系如图4-7所示。",
+      "drawings": 0
+    },
+    {
+      "index": 321,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 322,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-7 数据库ER图",
+      "drawings": 0
+    },
+    {
+      "index": 323,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "users与detection_records存在两类一对多关系：用户可以创建多条检测记录，管理员也可以复核多条记录；user_id和reviewed_by均允许为空，并在用户删除时置空，以保留业务历史。detection_records与evidence_matches是一对多关系，删除检测记录时证据级联删除。evidence_matches到knowledge_items的外键允许为空，知识条目删除后将knowledge_id置空，但证据标题、摘要、来源和相似度快照仍可保留。",
+      "drawings": 0
+    },
+    {
+      "index": 324,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "detection_records与reports是一对零或一关系，reports.detection_id具有唯一约束，检测删除时报告记录级联删除。users与reports、prompt_templates、system_logs均为一对多可空关系，用户删除时外键置空。crawl_tasks记录调度执行结果，不与用户或知识条目建立强外键，避免单次采集统计因后续知识维护而失真。",
+      "drawings": 0
+    },
+    {
+      "index": 325,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.5.3 关系数据库表结构设计",
+      "drawings": 0
+    },
+    {
+      "index": 326,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "核心关系表如表4-3所示。表中仅列出决定实体职责和关系的关键字段，时间戳、一般描述字段和全部索引细节留待第5章结合模型实现说明。",
+      "drawings": 0
+    },
+    {
+      "index": 327,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-3 核心数据表说明",
+      "drawings": 0
+    },
+    {
+      "index": 328,
+      "type": "table",
+      "rows": 9,
+      "cols": 5,
+      "text": [
+        [
+          "表名",
+          "主键",
+          "关键外键/约束",
+          "关键业务字段",
+          "主要职责"
+        ],
+        [
+          "users",
+          "id",
+          "username、email唯一",
+          "password_hash、role、status",
+          "保存账号、角色和账户状态"
+        ],
+        [
+          "knowledge_items",
+          "id",
+          "无强外键",
+          "title、content、truth_label、source、vector_id、vector_sync_status",
+          "保存知识事实及向量同步状态"
+        ],
+        [
+          "detection_records",
+          "id",
+          "user_id、reviewed_by→users，可空",
+          "输入快照、三类分量、final_score、risk_level、analysis_payload",
+          "保存完整评估结果与复核状态"
+        ],
+        [
+          "evidence_matches",
+          "id",
+          "detection_id→detection_records；knowledge_id→knowledge_items，可空",
+          "title、summary、source_name、similarity_score、rank_order",
+          "保存参与最终判断的有效证据快照"
+        ],
+        [
+          "prompt_templates",
+          "id",
+          "created_by→users，可空",
+          "name、type、content、is_default、status",
+          "管理模型提示模板和默认模板"
+        ],
+        [
+          "reports",
+          "id",
+          "detection_id唯一；user_id可空",
+          "title、html_path、pdf_path",
+          "关联检测记录与生成文件"
+        ],
+        [
+          "system_logs",
+          "id",
+          "user_id→users，可空",
+          "action、module、description、ip_address",
+          "保存管理操作审计信息"
+        ],
+        [
+          "crawl_tasks",
+          "id",
+          "无强外键",
+          "job_name、search_query、数量统计、started_at、finished_at、status",
+          "保存定时采集任务执行摘要"
+        ]
+      ]
+    },
+    {
+      "index": 329,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.5.4 Chroma集合与向量元数据设计",
+      "drawings": 0
+    },
+    {
+      "index": 330,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Chroma集合名称为knowledge_items，距离空间设置为cosine。每条向量文档ID采用knowledge:<item.id>，使向量可由关系库主键稳定定位。文档文本由title、content、category、summary、keywords、truth_label和debunking_explanation按字段标签拼接，长度由服务限制。正式配置使用DashScope text-embedding-v4，向量维度为1024。",
+      "drawings": 0
+    },
+    {
+      "index": 331,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "Chroma原生元数据只保存knowledge_id、title、category、truth_label、source_name和risk_level，均为检索过滤或结果初步展示需要的轻量字段。vector_sync_status不写入Chroma元数据，而保存在MySQL；检索回查后才加入返回结果。该设计避免同步状态自身又成为需要双向同步的数据。向量查询返回distance后转换为similarity_score，类别、真伪标签和风险等级可作为where过滤条件。",
+      "drawings": 0
+    },
+    {
+      "index": 332,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.5.5 MySQL与Chroma数据一致性设计",
+      "drawings": 0
+    },
+    {
+      "index": 333,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "MySQL与Chroma协同关系如图4-8所示。",
+      "drawings": 0
+    },
+    {
+      "index": 334,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 335,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-8 MySQL与Chroma协同关系图",
+      "drawings": 0
+    },
+    {
+      "index": 336,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新增知识条目时系统先提交MySQL，再生成Embedding并写入Chroma；向量同步失败时保留知识条目，将vector_sync_status标记为failed并记录错误，便于管理员单条重试。更新知识条目时，MySQL修改暂不提交，服务先执行向量upsert；向量失败则回滚关系库修改，成功后再统一提交，从而使内容与索引尽量同时切换。",
+      "drawings": 0
+    },
+    {
+      "index": 337,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "删除采用“先删向量、再删MySQL”。若向量删除失败，关系记录保留并标记失败；若向量已删除而MySQL删除失败，服务回滚数据库会话并尝试恢复原向量，再把状态标记为delete_failed。管理接口还提供单条重新向量化与全量重建集合。Chroma客户端或集合句柄异常时，服务清除缓存句柄并重试一次。",
+      "drawings": 0
+    },
+    {
+      "index": 338,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "这些策略属于应用层顺序控制和补偿，不是MySQL与Chroma的分布式事务。极端情况下仍可能需要管理员依据vector_sync_status和vector_sync_error执行单条重试或全量重建。明确这一边界比笼统宣称“强一致”更符合当前实现，也为后续引入异步补偿队列或软删除机制保留了演进方向。",
+      "drawings": 0
+    },
+    {
+      "index": 339,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.6 接口与权限体系设计",
+      "drawings": 0
+    },
+    {
+      "index": 340,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.6.1 接口设计原则",
+      "drawings": 0
+    },
+    {
+      "index": 341,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统接口按业务资源分组，统一使用“/api”前缀。列表接口采用page、page_size和业务筛选参数，详情接口使用资源ID，修改类接口使用明确的POST、PUT、PATCH或DELETE语义。请求体由Pydantic模型校验，返回体以code、message和data封装；文件下载接口根据资源权限返回实际文件响应。接口层只组织HTTP语义，评分和同步逻辑放在Service层，避免相同规则在用户接口和管理员接口重复实现。",
+      "drawings": 0
+    },
+    {
+      "index": 342,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "公开、登录和管理员接口在路由层明确区分。检测与URL提取预览允许可选登录，高风险公开列表与系统健康检查不要求令牌；历史、详情、重新评估、RAG搜索和报告生成要求登录；所有/admin接口要求管理员。采集任务目前由调度器根据配置执行，没有对外REST接口，本章不将crawl_tasks误列为可人工调用的接口资源。",
+      "drawings": 0
+    },
+    {
+      "index": 343,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.6.2 系统接口分类",
+      "drawings": 0
+    },
+    {
+      "index": 344,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统主要接口分类如表4-4所示。",
+      "drawings": 0
+    },
+    {
+      "index": 345,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-4 系统接口分类表",
+      "drawings": 0
+    },
+    {
+      "index": 346,
+      "type": "table",
+      "rows": 10,
+      "cols": 4,
+      "text": [
+        [
+          "接口类别",
+          "典型前缀/资源",
+          "访问要求",
+          "主要职责"
+        ],
+        [
+          "认证接口",
+          "/auth",
+          "注册、登录公开；/me需登录",
+          "注册、登录、获取当前用户"
+        ],
+        [
+          "新闻检测接口",
+          "/detect",
+          "新闻检测和提取预览可选登录；历史、详情、重评需登录",
+          "提交评估、URL预览、历史与详情"
+        ],
+        [
+          "RAG检索接口",
+          "/rag",
+          "登录",
+          "独立查询知识库相似条目"
+        ],
+        [
+          "报告接口",
+          "/report",
+          "登录且校验记录归属",
+          "生成和下载检测报告"
+        ],
+        [
+          "高风险公开接口",
+          "/high-risk",
+          "公开",
+          "已公开高风险列表、排行、关键词和分类"
+        ],
+        [
+          "管理业务接口",
+          "/admin/users、/admin/detections、/admin/high-risk",
+          "管理员",
+          "用户、检测和高风险复核管理"
+        ],
+        [
+          "知识与Prompt接口",
+          "/admin/knowledge、/admin/prompts",
+          "管理员",
+          "知识维护、向量恢复和模板管理"
+        ],
+        [
+          "统计、报告与日志接口",
+          "/admin/statistics、/admin/reports、/admin/logs",
+          "管理员",
+          "统计聚合、报告查看和日志审计"
+        ],
+        [
+          "健康检查接口",
+          "/health",
+          "公开",
+          "返回服务运行状态和版本信息"
+        ]
+      ]
+    },
+    {
+      "index": 347,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.6.3 身份认证设计",
+      "drawings": 0
+    },
+    {
+      "index": 348,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "用户登录时，服务端以bcrypt验证明文密码与password_hash，校验账户为active后生成JWT。令牌至少包含sub和exp，并附带role及用户名信息；签名密钥、算法和过期分钟数来自环境配置。受保护接口通过OAuth2PasswordBearer读取Authorization头，解码令牌后仍按sub查询数据库用户，以确认用户存在且未被禁用。",
+      "drawings": 0
+    },
+    {
+      "index": 349,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "可选身份依赖在请求没有Authorization头时返回空用户；如果请求主动携带了格式错误、无效或已禁用用户的令牌，则返回401，而不是静默降级为游客。这一规则避免登录状态异常时产生归属不清的检测记录。前端会话恢复成功后才把用户视为已验证，路由守卫据此决定登录页、个人页和管理页跳转。",
+      "drawings": 0
+    },
+    {
+      "index": 350,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.6.4 角色权限控制设计",
+      "drawings": 0
+    },
+    {
+      "index": 351,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统角色与功能权限见表4-1。权限矩阵不仅区分页面入口，还对应后端依赖和资源归属校验。",
+      "drawings": 0
+    },
+    {
+      "index": 352,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "前端对/admin父路由及其子路由同时设置requiresAuth和requiresAdmin，后端所有管理路由再次依赖get_current_admin。公开高风险页面只展示is_public条件下的数据，审核状态、管理员备注和未公开记录留在管理接口。游客结果页可承接当次检测返回的数据，但需要持久化历史、详情或报告能力时必须登录，这一访问边界与后端接口保持一致。",
+      "drawings": 0
+    },
+    {
+      "index": 353,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.6.5 统一响应与异常处理设计",
+      "drawings": 0
+    },
+    {
+      "index": 354,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "普通JSON成功响应为{code, message, data}，其中code与预期HTTP语义一致。HTTPException由全局处理器保留状态码并转换detail；Pydantic请求校验异常统一返回422，并把字段位置和错误信息拼接为可读消息；SQLAlchemy异常返回500和数据库配置或操作提示。服务层可识别异常在API层映射为400、404、409、422或503等状态，避免所有错误都返回200。",
+      "drawings": 0
+    },
+    {
+      "index": 355,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "前端响应拦截器可依据HTTP状态和统一message给出提示，并在401时清理失效会话。统一外层结构不意味着抹平错误类型：模型服务异常、向量同步异常、资源不存在、权限不足和参数错误仍通过状态码及消息区分。报告下载属于二进制响应，不强行套用JSON结构。",
+      "drawings": 0
+    },
+    {
+      "index": 356,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.7 系统安全性与可靠性设计",
+      "drawings": 0
+    },
+    {
+      "index": 357,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "系统安全性与可靠性措施如表4-5所示。",
+      "drawings": 0
+    },
+    {
+      "index": 358,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "表4-5 系统安全性与可靠性设计表",
+      "drawings": 0
+    },
+    {
+      "index": 359,
+      "type": "table",
+      "rows": 8,
+      "cols": 3,
+      "text": [
+        [
+          "设计对象",
+          "已实现措施",
+          "主要作用与边界"
+        ],
+        [
+          "身份与密码",
+          "JWT、bcrypt、账户状态复查、管理员依赖",
+          "限制受保护资源访问；令牌安全仍依赖密钥保管和HTTPS部署"
+        ],
+        [
+          "输入与接口",
+          "Pydantic校验、文本清洗、长度限制、滑动窗口限流、CORS配置",
+          "降低非法参数和高频调用风险；当前限流为进程内实现"
+        ],
+        [
+          "数据访问",
+          "SQLAlchemy参数化查询、会话回滚、外键与唯一约束",
+          "降低注入与部分写入风险；需配合最小数据库权限"
+        ],
+        [
+          "URL抓取",
+          "仅HTTP/HTTPS、私有/保留地址阻断、逐跳重定向校验、超时",
+          "降低SSRF和长时间占用风险；不能替代网络层出口控制"
+        ],
+        [
+          "外部智能服务",
+          "API密钥环境变量、超时、结构校验、仲裁重试和降级",
+          "减少外部失败扩散；模型结论仍需人工复核"
+        ],
+        [
+          "双存储一致性",
+          "同步状态、错误记录、回滚、向量恢复、单条/全量重建",
+          "提供异常恢复路径；不是分布式强一致事务"
+        ],
+        [
+          "审计与文件",
+          "管理操作日志、配置化报告目录、数据库保存文件索引",
+          "支持追踪与文件定位；目录权限由部署环境保证"
+        ]
+      ]
+    },
+    {
+      "index": 360,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.7.1 用户输入与接口访问安全",
+      "drawings": 0
+    },
+    {
+      "index": 361,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "账号、分页、枚举和检测请求由Schema层进行类型与范围校验，文本进入业务前使用统一清洗函数处理。SQLAlchemy通过表达式和绑定参数访问数据库，业务代码不拼接用户输入生成SQL。注册、登录、新闻检测和URL预览使用进程内滑动窗口限流器，配置项控制时间窗口和请求数量。该实现适合当前单实例部署；若扩展为多进程或多节点，需要迁移到共享限流存储才能获得全局一致配额。",
+      "drawings": 0
+    },
+    {
+      "index": 362,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "CORS允许来源由环境变量控制。当允许来源不是通配符时才开启凭据支持，避免通配来源与凭据组合。管理接口要求管理员角色，普通用户接口还会检查记录归属。系统不声称完全消除越权风险，但通过前端导航限制、后端依赖校验和资源级归属检查形成多层访问边界。",
+      "drawings": 0
+    },
+    {
+      "index": 363,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.7.2 外部服务调用与敏感配置安全",
+      "drawings": 0
+    },
+    {
+      "index": 364,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "数据库密码、JWT密钥、DeepSeek密钥、DashScope密钥和博查密钥均从.env读取，.env.example只提供配置项说明。代码和论文不保存真实凭据。外部调用设置超时并捕获HTTP、网络和JSON解析异常；URL抓取在解析初始地址和每次重定向时检查目标地址，减少由恶意URL访问内部网络的可能性。",
+      "drawings": 0
+    },
+    {
+      "index": 365,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "模型响应需经过JSON提取、字段清洗、分值归一化和证据契约校验。即使模型返回了evidence_quality.score，服务端仍使用覆盖度与一致性重算；即使候选相似度较高，未完成仲裁也不进入评分。这些措施不能证明模型输出必然正确，但可以限制非结构化输出直接改变业务状态的范围。",
+      "drawings": 0
+    },
+    {
+      "index": 366,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.7.3 数据一致性与故障降级设计",
+      "drawings": 0
+    },
+    {
+      "index": 367,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "MySQL写操作使用会话提交和回滚，检测记录与有效证据在同一业务过程内保存。知识更新把数据库提交推迟到Chroma upsert成功之后；删除失败时尝试恢复向量并记录delete_failed。向量同步状态为pending、synced、failed或delete_failed，管理员可据此执行单条向量化或全量重建。",
+      "drawings": 0
+    },
+    {
+      "index": 368,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "联网搜索是可选增强，失败时不影响本地证据路径；模型失败时使用规则分而不伪造证据质量；报告生成失败不改变检测记录。上述降级策略优先保证已确定数据不被外部故障破坏，同时在结果中暴露能力缺失。对于Chroma完全不可用或数据库不可用等核心依赖故障，系统返回明确错误而不是生成无依据结论。",
+      "drawings": 0
+    },
+    {
+      "index": 369,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.7.4 系统日志与操作审计设计",
+      "drawings": 0
+    },
+    {
+      "index": 370,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "system_logs保存操作者、动作、模块、描述、IP地址和时间。知识条目维护、Prompt变更、用户启停、高风险复核、报告和检测记录管理等操作可形成审计轨迹。管理员日志页支持筛选和分页，便于定位谁在何时修改了关键配置或业务数据。",
+      "drawings": 0
+    },
+    {
+      "index": 371,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "检测过程自身的可追溯信息主要保存在detection_records.analysis_payload，而不是全部写入system_logs。前者记录算法上下文，后者记录管理行为，两者职责分离。应用运行日志仍由Python日志系统输出，用于记录外部服务异常、重试和补偿失败；生产环境可在此基础上接入集中日志平台，但当前项目未实现独立监控告警系统。",
+      "drawings": 0
+    },
+    {
+      "index": 372,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.8 用户界面与交互设计",
+      "drawings": 0
+    },
+    {
+      "index": 373,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.8.1 用户端界面结构设计",
+      "drawings": 0
+    },
+    {
+      "index": 374,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "用户端真实页面结构如图4-9所示。",
+      "drawings": 0
+    },
+    {
+      "index": 375,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 376,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-9 用户端页面结构图",
+      "drawings": 0
+    },
+    {
+      "index": 377,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "UserLayout提供公共导航和内容出口。首页、新闻检测、检测结果和高风险新闻为公开路由；登录和注册为guestOnly路由，已验证登录用户访问时会被重定向；历史记录和个人中心要求登录。新闻检测页同时提供文本输入和URL提取预览，用户可以控制是否允许联网搜索。结果页以评分卡、风险标签、判断理由、风险点、建议和证据列表组织信息，避免只呈现单一真假标签。",
+      "drawings": 0
+    },
+    {
+      "index": 378,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "页面交互统一考虑加载、空数据和失败状态。检测期间显示步骤与加载反馈，防止用户重复提交；历史和高风险页面使用筛选与分页；证据列表按有效与排除语义组织；登录用户可从结果或历史进入报告生成。公开结果页只承担当次结果呈现，个人历史与持久化详情仍由登录权限保护。",
+      "drawings": 0
+    },
+    {
+      "index": 379,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.8.2 管理员端界面结构设计",
+      "drawings": 0
+    },
+    {
+      "index": 380,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "管理员端真实页面结构如图4-10所示。",
+      "drawings": 0
+    },
+    {
+      "index": 381,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 1
+    },
+    {
+      "index": 382,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "图4-10 管理员端页面结构图",
+      "drawings": 0
+    },
+    {
+      "index": 383,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "AdminLayout下包含后台首页、用户管理、检测记录、知识库、Prompt模板、高风险管理、数据统计、报告管理和系统日志九个页面。后台首页与统计页负责概览和图表，核心业务页以筛选、表格、分页、详情和确认对话框为主，知识库页额外提供单条向量化和全量索引重建，高风险页提供复核、公开状态和管理员备注操作。",
+      "drawings": 0
+    },
+    {
+      "index": 384,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "当前Vue Router中没有采集任务页面，因此图4-10不包含“采集任务管理”。采集状态只保存在crawl_tasks并由后台调度器写入。这样的如实划界能够避免论文界面设计与实际可访问页面不一致，也说明采集能力当前属于系统内部维护机制而非管理员交互功能。",
+      "drawings": 0
+    },
+    {
+      "index": 385,
+      "type": "paragraph",
+      "style": "Heading 3",
+      "text": "4.8.3 核心业务交互流程设计",
+      "drawings": 0
+    },
+    {
+      "index": 386,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "核心交互从新闻输入开始。手工模式下，用户填写标题、正文和可选来源；URL模式下，用户先请求提取预览，核对后再提交。前端在请求期间展示加载状态，成功后跳转结果页；失败时保留用户输入并展示后端message。结果页优先呈现最终分和风险等级，其后是判断理由、风险点、建议、有效证据和相似新闻，使用户先获得结论，再逐层查看依据。",
+      "drawings": 0
+    },
+    {
+      "index": 387,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "登录用户可以从历史列表进入详情，或使用原输入重新评估。报告生成由用户主动触发，成功后提供下载入口。管理员在后台通过筛选定位记录或知识条目，危险操作使用确认交互；高风险记录可以先复核再决定是否公开；统计页把趋势、分布和关键词数据转换为图表。整个交互设计围绕“输入可修订、过程有反馈、结论有证据、管理可追踪”展开，并与后端权限和数据状态保持一致。",
+      "drawings": 0
+    },
+    {
+      "index": 388,
+      "type": "paragraph",
+      "style": "Heading 2",
+      "text": "4.9 本章小结",
+      "drawings": 0
+    },
+    {
+      "index": 389,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "本章依据项目真实实现完成了系统总体设计。系统以Vue 3与FastAPI构成前后端分离架构，以MySQL保存业务事实、Chroma维护知识语义索引，并通过DeepSeek、DashScope、博查搜索和新闻网页提取形成多源智能处理链路。功能上覆盖认证、新闻评估、记录与报告、知识与采集、管理治理、统计与审计六个模块。",
+      "drawings": 0
+    },
+    {
+      "index": 390,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "新闻评估流程采用本地Top-10召回、条件式联网补充、候选证据稳定标识、来源中立排序、逐条证据仲裁、服务端证据质量重算和分支式综合评分。MySQL与Chroma通过同步状态、回滚、恢复和索引重建降低不一致风险，并明确其应用层补偿边界。接口、权限、安全和界面设计均与当前路由、模型和服务保持一致，为第5章的详细设计与实现提供了结构化依据。",
+      "drawings": 0
+    },
+    {
+      "index": 391,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "",
+      "drawings": 0
+    },
+    {
+      "index": 392,
+      "type": "paragraph",
+      "style": "Heading 1",
+      "text": "参考文献",
+      "drawings": 0
+    },
+    {
+      "index": 393,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[1] Shu K, Sliva A, Wang S, Tang J, Liu H. Fake News Detection on Social Media: A Data Mining Perspective[J]. ACM SIGKDD Explorations Newsletter, 2017, 19(1): 22-36.",
+      "drawings": 0
+    },
+    {
+      "index": 394,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[2] Lewis P, Perez E, Piktus A, et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks[C]. Advances in Neural Information Processing Systems, 2020.",
+      "drawings": 0
+    },
+    {
+      "index": 395,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[3] Ji Z, Lee N, Frieske R, et al. Survey of Hallucination in Natural Language Generation[J]. ACM Computing Surveys, 2023, 55(12): 1-38.",
+      "drawings": 0
+    },
+    {
+      "index": 396,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[4] Yang Y, Zhou Y, Ying Q, Qian Z, Zeng D, Liu L. Fact-checking based fake news detection: a review[EB/OL]. arXiv:2401.01717, 2024.",
+      "drawings": 0
+    },
+    {
+      "index": 397,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[5] Quelle D, Bovet A. The perils and promises of fact-checking with large language models[J]. Frontiers in Artificial Intelligence, 2024, 7:1341697.",
+      "drawings": 0
+    },
+    {
+      "index": 398,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[6] Li Y, He H, Bai J, Wen D. MCFEND: A Multi-source Benchmark Dataset for Chinese Fake News Detection[C]. Proceedings of the ACM Web Conference 2024, 2024: 4018-4027.",
+      "drawings": 0
+    },
+    {
+      "index": 399,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[7] Ullrich H, Mlynář T, Drchal J. AIC CTU system at AVeriTeC: Re-framing automated fact-checking as a simple RAG task[EB/OL]. arXiv:2410.11446, 2024.",
+      "drawings": 0
+    },
+    {
+      "index": 400,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[8] Yue Z, Zeng H, Shang L, Liu Y, Zhang Y, Wang D. Retrieval Augmented Fact Verification by Synthesizing Contrastive Arguments[EB/OL]. arXiv:2406.09815, 2024.",
+      "drawings": 0
+    },
+    {
+      "index": 401,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[9] Ge Z, Wu Y, Chin D W K, Lee R K W, Cao R. Resolving Conflicting Evidence in Automated Fact-Checking: A Study on Retrieval-Augmented LLMs[EB/OL]. arXiv:2505.17762, 2025.",
+      "drawings": 0
+    },
+    {
+      "index": 402,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[10] 张犬俊, 谢杨, 房春荣, 等. 检索增强生成在软件工程中的应用综述[J]. 软件学报, 2026, 37(3): 1316-1339. DOI:10.13328/j.cnki.jos.007567.",
+      "drawings": 0
+    },
+    {
+      "index": 403,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[11] 高彦杰, 陈跃国. 大语言模型预训练系统关键技术综述[J]. 软件学报, 2026, 37(1): 200-229. DOI:10.13328/j.cnki.jos.007438.",
+      "drawings": 0
+    },
+    {
+      "index": 404,
+      "type": "paragraph",
+      "style": "Normal (Web)",
+      "text": "[12] 刘泽垣, 王鹏江, 宋晓斌, 等. 大语言模型的幻觉问题研究综述[J]. 软件学报, 2025, 36(3): 1152-1185. DOI:10.13328/j.cnki.jos.007242.",
+      "drawings": 0
+    }
+  ]
+}

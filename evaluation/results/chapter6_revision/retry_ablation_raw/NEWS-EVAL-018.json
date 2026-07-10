@@ -1,0 +1,455 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-018",
+    "topic_id": "T05",
+    "gold_label": "存疑信息",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 49.9,
+    "full_predicted_label": "疑似谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 49.9,
+    "no_retry_predicted_label": "疑似谣言",
+    "total_ms": 26009.23,
+    "started_at_utc": "2026-07-01T15:25:29.529271+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 45.0,
+    "risk_level": "存疑信息",
+    "reason": "待核验文章称“所有爬行动物都必须每天固定晒太阳三小时”，但未提供物种差异、气候条件或实验来源。现有知识条目确认爬行动物依赖环境调节体温，但未提及固定时长。当前证据不足以支持或反驳该说法，属于证据不足情况。",
+    "risk_points": [
+      "说法绝对化，未考虑物种和气候差异",
+      "缺乏可验证的原始数据或研究来源",
+      "现有科学共识未支持固定时长要求"
+    ],
+    "keywords": [
+      "爬行动物",
+      "体温调节",
+      "晒太阳",
+      "存疑信息",
+      "证据不足"
+    ],
+    "suggestion": "应进一步检索爬行动物生理学权威资料，或等待专业机构核实，不宜直接判定真伪。",
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 50.0,
+      "score": 38.0,
+      "assessment": "仅有一条相关证据，涵盖了一般体温调节原理，但未涉及具体时长要求，无法覆盖核心说法，一致性一般。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:228",
+          "relevance_score": 90,
+          "quality_score": 70,
+          "stance": "neutral",
+          "reason": "直接解释爬行动物体温调节机制，但既不支持也不反驳固定三小时的说法。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:64",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:66",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:16",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:160",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:65",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:21",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:33",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:67",
+          "reason": "与爬行动物体温调节无关"
+        },
+        {
+          "candidate_id": "kb:164",
+          "reason": "与爬行动物体温调节无关"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 25,
+    "created_at": "2026-07-01 15:25:29.528662+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E7%88%AC%E8%A1%8C%E5%8A%A8%E7%89%A9",
+    "final_score": 49.9,
+    "evidence_score": 81.86,
+    "llm_score": 45.0,
+    "rule_score": 80.0,
+    "risk_level": "疑似谣言",
+    "judgement_result": "该新闻疑似存在谣言风险",
+    "reason": "待核验文章称“所有爬行动物都必须每天固定晒太阳三小时”，但未提供物种差异、气候条件或实验来源。现有知识条目确认爬行动物依赖环境调节体温，但未提及固定时长。当前证据不足以支持或反驳该说法，属于证据不足情况。",
+    "risk_points": [
+      "说法绝对化，未考虑物种和气候差异",
+      "缺乏可验证的原始数据或研究来源",
+      "现有科学共识未支持固定时长要求",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "虚假",
+      "权威",
+      "来源",
+      "爬行动物体温",
+      "调节",
+      "存疑样本",
+      "围绕",
+      "近期社交平台",
+      "爬行动物",
+      "体温调节",
+      "晒太阳",
+      "存疑信息"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 228,
+        "title": "爬行动物体温调节",
+        "summary": "爬行动物主要依赖环境吸收或散发热量调节体温，例如晒太阳升温或进入阴凉处散热。环境调节的是热量，不是血液量、密度等指标。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "爬行动物",
+        "risk_level": "",
+        "similarity_score": 0.8185687065124512,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:228"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34678471088409424,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 164,
+        "title": "第五章演示：网传喝柠檬水三天清除血管垃圾",
+        "summary": "单一食物不能替代慢病管理或医学治疗。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "健康谣言核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3306160569190979,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:164"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3259773254394531,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67"
+      },
+      {
+        "knowledge_id": 21,
+        "title": "快递外包装统一携带病毒说法",
+        "summary": "“所有快递都携带病毒”属于绝对化恐慌表述。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "公共卫生核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.324438214302063,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:21"
+      },
+      {
+        "knowledge_id": 66,
+        "title": "国家卫生健康委在线访谈 | 一滴热血,一份爱心;无偿献血,挽救生命_腾讯新闻",
+        "summary": "大家好!首先我建议大家要相信科学信源,坚决做到不信谣、不传谣。当大家在网络上遇到那些耸人听闻的“内幕消息”时,不妨先在心里打个问号:这条信息有权威的出处吗?它符合基本的医学常识吗?在这里,我建议大家多关注官方渠道,比如健康中国官方微信公众号、各地“血站”的官方公众号以及国家卫生健康委官网等。这些权威平台会提供最准确的政策解读和最科学的科普知识。除了线上了解,我也非常推荐大家在线下多去咨询和体验。您可以直接前往当地的固定献血屋、流动献血车,这些献血点不仅方便,更是获取专业知识的最佳窗口。现场通常都有经验丰富的专业医护人员,您可以随时向他们咨询关于献血流程、身体条件要求以及献血前后的各种注意事项。通过各种专业的指导,您就会深刻明白这份“血液安全”是来之不易的,自然也就不会轻易被谣言误导了。第二,积极行使监督权,共同营造正能量的网络空间。如果您在社交媒体上发现有人散布献血恐慌,恶意诋毁这项公益事业,请您果断点击“举报”按钮。除了在各大平台内部直接点击“举报”按钮,您还可以通过更权威的官方渠道进行投诉。例如,您可以登录中央网信办(国家互联网信息办公室)违法和不良信息举报中心的官网进行举报,或者直接前往国家卫生健康委官方网站的“健康科普辟谣平台”,提交相关虚假线索,让谣言无处遁形。当然,除了抵制谣言,我们更鼓励大家成为正能量的传播者。如果您也是一位光荣的献血者,非常欢迎您分享自己的真实感受,用温暖的亲身经历去融化冷漠与偏见。我们也在此呼吁各大网络平台加强内容审核,杜绝伪科普的传播;同时希望媒体多报道一些献血救人的感人故事。让我们共同努力,让正能量的声音更响亮,让每一份宝贵的热血都不被“冷言冷语”所冷却。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "腾讯网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3232717514038086,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:66"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3200674057006836,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65"
+      },
+      {
+        "knowledge_id": 16,
+        "title": "某品牌矿泉水含致癌物剪辑视频",
+        "summary": "食品安全指控需有检测报告、批次和监管结论。",
+        "category": "消费",
+        "truth_label": "疑似谣言",
+        "source_name": "食品安全核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.31874001026153564,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:16"
+      },
+      {
+        "knowledge_id": 160,
+        "title": "谨防上当受骗!顺义城南体育中心发布辟谣声明",
+        "summary": "近日,有个别自媒体以城南体育中心名义在微信视频号、抖音等平台,向公众发布游泳健身虚假开业信息及优惠活动,诱导消费者进行线上线下交易。为维护公众合法权益、避免误导,顺义区体育场馆管理服务中心发布辟谣声明:\n顺义城南体育中心从未发布任何形式的游泳馆开业信息及优惠活动,也未授权任何第三方机构、个人以城南体育中心名义宣传场馆有关信息。有关城南体育中心的最新动态,请以“顺义体育”微信公众号和场馆张贴的公告为准。也呼吁广大市民提高警惕,加强自我防范意识,以免上当受骗。",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "陕西省委网信办违法和不良信息举报中心首页",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3174755573272705,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:160"
+      },
+      {
+        "knowledge_id": 33,
+        "title": "让辟谣上热搜,才是对造谣最直接的震慑-杭州高新区(滨江)新闻网",
+        "summary": "摆拍,是宣传的一种手段,更是流量时代的剧本,看起来无伤大雅、娱乐大众,但慢慢地,也会“毒害”生态,衍生出扰人心神、滋生谣言、破坏生态等问题,不得不重视。前几天,“孤女模考648分遭舅舅烧书阻考”的假新闻曾刷屏全网,博主编剧本蹭热度,最后被警方行政拘留,全网拍手叫好,还有不少人要求“刑事拘留”,愤怒之情溢于网络。近日,这条辟谣消息直接登上了微博热搜,把真相送到了流量池中,送到了所有人眼前,这是个好信号,值得点赞。谣言为什么总能跑得比辟谣快?说白了,就是流量在作祟。造谣者太懂怎么抓眼球了:高考、孤女、亲情反杀,一套组合拳下来,天然带着情绪张力,大家看了会愤怒、会心疼,忍不住转发评论,每一次互动都在帮谣言加热。可真相往往没那么“好看”,辟谣大多干巴巴的,要么藏在官微角落,要么发出来也没几个人转。很多人都说,造谣一张嘴,辟谣跑断腿,就是这个道理。造谣的,靠剧本涨粉带货赚得盆满钵满,辟谣的,追得再快也赶不上扩散的速度,最后吃亏的,是被误导的公众和被透支的善意。让辟谣上热搜,就是用谣言的逻辑打败谣言。平台把辟谣单独放上热搜,不是多此一举,而是应有之义,维护的是生态平衡和公平正义的环境——既然谣言靠流量横行,那就用流量把它打下去。以前,辟谣只能跟在谣言后面追,靠大量正义网民转发,大多时候拼不过谣言产生的情绪烈度和裂变速度。现在,平台直接把热搜位给了辟谣,让它站到了和谣言一样的流量高地,让每一个网民看到了正反双方,不会被情绪左右,更容易理性辨别。我们要知道,热搜是什么?是全网的注意力中心,辟谣话题在这里被更多人看到,权威通报、媒体转发跟着跟上,原本还在跟风骂人的网友,刷到热搜上的真相,自然就停住了。更重要的是,这对造谣者,是实打实的震慑。以前造谣就算被锤,也早就赚够了流量,现在辟谣上热搜,等于把他们的坏事钉在全网的聚光灯下,社死+处罚一起上,再想换号重来,难度也大了很多。辟谣有了声量,舆",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "滨江区新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3165857791900635,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:33"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 228,
+        "title": "爬行动物体温调节",
+        "summary": "爬行动物主要依赖环境吸收或散发热量调节体温，例如晒太阳升温或进入阴凉处散热。环境调节的是热量，不是血液量、密度等指标。",
+        "category": "自然科学",
+        "truth_label": "待核查",
+        "source_name": "爬行动物",
+        "risk_level": "",
+        "similarity_score": 0.8185687065124512,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:228",
+        "relevance_score": 90.0,
+        "quality_score": 70.0,
+        "stance": "neutral",
+        "arbitration_reason": "直接解释爬行动物体温调节机制，但既不支持也不反驳固定三小时的说法。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.34678471088409424,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 66,
+        "title": "国家卫生健康委在线访谈 | 一滴热血,一份爱心;无偿献血,挽救生命_腾讯新闻",
+        "summary": "大家好!首先我建议大家要相信科学信源,坚决做到不信谣、不传谣。当大家在网络上遇到那些耸人听闻的“内幕消息”时,不妨先在心里打个问号:这条信息有权威的出处吗?它符合基本的医学常识吗?在这里,我建议大家多关注官方渠道,比如健康中国官方微信公众号、各地“血站”的官方公众号以及国家卫生健康委官网等。这些权威平台会提供最准确的政策解读和最科学的科普知识。除了线上了解,我也非常推荐大家在线下多去咨询和体验。您可以直接前往当地的固定献血屋、流动献血车,这些献血点不仅方便,更是获取专业知识的最佳窗口。现场通常都有经验丰富的专业医护人员,您可以随时向他们咨询关于献血流程、身体条件要求以及献血前后的各种注意事项。通过各种专业的指导,您就会深刻明白这份“血液安全”是来之不易的,自然也就不会轻易被谣言误导了。第二,积极行使监督权,共同营造正能量的网络空间。如果您在社交媒体上发现有人散布献血恐慌,恶意诋毁这项公益事业,请您果断点击“举报”按钮。除了在各大平台内部直接点击“举报”按钮,您还可以通过更权威的官方渠道进行投诉。例如,您可以登录中央网信办(国家互联网信息办公室)违法和不良信息举报中心的官网进行举报,或者直接前往国家卫生健康委官方网站的“健康科普辟谣平台”,提交相关虚假线索,让谣言无处遁形。当然,除了抵制谣言,我们更鼓励大家成为正能量的传播者。如果您也是一位光荣的献血者,非常欢迎您分享自己的真实感受,用温暖的亲身经历去融化冷漠与偏见。我们也在此呼吁各大网络平台加强内容审核,杜绝伪科普的传播;同时希望媒体多报道一些献血救人的感人故事。让我们共同努力,让正能量的声音更响亮,让每一份宝贵的热血都不被“冷言冷语”所冷却。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "腾讯网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3232717514038086,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:66",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 16,
+        "title": "某品牌矿泉水含致癌物剪辑视频",
+        "summary": "食品安全指控需有检测报告、批次和监管结论。",
+        "category": "消费",
+        "truth_label": "疑似谣言",
+        "source_name": "食品安全核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.31874001026153564,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:16",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 160,
+        "title": "谨防上当受骗!顺义城南体育中心发布辟谣声明",
+        "summary": "近日,有个别自媒体以城南体育中心名义在微信视频号、抖音等平台,向公众发布游泳健身虚假开业信息及优惠活动,诱导消费者进行线上线下交易。为维护公众合法权益、避免误导,顺义区体育场馆管理服务中心发布辟谣声明:\n顺义城南体育中心从未发布任何形式的游泳馆开业信息及优惠活动,也未授权任何第三方机构、个人以城南体育中心名义宣传场馆有关信息。有关城南体育中心的最新动态,请以“顺义体育”微信公众号和场馆张贴的公告为准。也呼吁广大市民提高警惕,加强自我防范意识,以免上当受骗。",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "陕西省委网信办违法和不良信息举报中心首页",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3174755573272705,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:160",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3200674057006836,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 21,
+        "title": "快递外包装统一携带病毒说法",
+        "summary": "“所有快递都携带病毒”属于绝对化恐慌表述。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "公共卫生核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.324438214302063,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:21",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 33,
+        "title": "让辟谣上热搜,才是对造谣最直接的震慑-杭州高新区(滨江)新闻网",
+        "summary": "摆拍,是宣传的一种手段,更是流量时代的剧本,看起来无伤大雅、娱乐大众,但慢慢地,也会“毒害”生态,衍生出扰人心神、滋生谣言、破坏生态等问题,不得不重视。前几天,“孤女模考648分遭舅舅烧书阻考”的假新闻曾刷屏全网,博主编剧本蹭热度,最后被警方行政拘留,全网拍手叫好,还有不少人要求“刑事拘留”,愤怒之情溢于网络。近日,这条辟谣消息直接登上了微博热搜,把真相送到了流量池中,送到了所有人眼前,这是个好信号,值得点赞。谣言为什么总能跑得比辟谣快?说白了,就是流量在作祟。造谣者太懂怎么抓眼球了:高考、孤女、亲情反杀,一套组合拳下来,天然带着情绪张力,大家看了会愤怒、会心疼,忍不住转发评论,每一次互动都在帮谣言加热。可真相往往没那么“好看”,辟谣大多干巴巴的,要么藏在官微角落,要么发出来也没几个人转。很多人都说,造谣一张嘴,辟谣跑断腿,就是这个道理。造谣的,靠剧本涨粉带货赚得盆满钵满,辟谣的,追得再快也赶不上扩散的速度,最后吃亏的,是被误导的公众和被透支的善意。让辟谣上热搜,就是用谣言的逻辑打败谣言。平台把辟谣单独放上热搜,不是多此一举,而是应有之义,维护的是生态平衡和公平正义的环境——既然谣言靠流量横行,那就用流量把它打下去。以前,辟谣只能跟在谣言后面追,靠大量正义网民转发,大多时候拼不过谣言产生的情绪烈度和裂变速度。现在,平台直接把热搜位给了辟谣,让它站到了和谣言一样的流量高地,让每一个网民看到了正反双方,不会被情绪左右,更容易理性辨别。我们要知道,热搜是什么?是全网的注意力中心,辟谣话题在这里被更多人看到,权威通报、媒体转发跟着跟上,原本还在跟风骂人的网友,刷到热搜上的真相,自然就停住了。更重要的是,这对造谣者,是实打实的震慑。以前造谣就算被锤,也早就赚够了流量,现在辟谣上热搜,等于把他们的坏事钉在全网的聚光灯下,社死+处罚一起上,再想换号重来,难度也大了很多。辟谣有了声量,舆",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "滨江区新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3165857791900635,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:33",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3259773254394531,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67",
+        "rejection_reason": "与爬行动物体温调节无关"
+      },
+      {
+        "knowledge_id": 164,
+        "title": "第五章演示：网传喝柠檬水三天清除血管垃圾",
+        "summary": "单一食物不能替代慢病管理或医学治疗。",
+        "category": "健康",
+        "truth_label": "疑似谣言",
+        "source_name": "健康谣言核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3306160569190979,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:164",
+        "rejection_reason": "与爬行动物体温调节无关"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "应进一步检索爬行动物生理学权威资料，或等待专业机构核实，不宜直接判定真伪。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 30.0,
+      "consistency": 50.0,
+      "score": 38.0,
+      "assessment": "仅有一条相关证据，涵盖了一般体温调节原理，但未涉及具体时长要求，无法覆盖核心说法，一致性一般。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

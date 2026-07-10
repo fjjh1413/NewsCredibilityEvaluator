@@ -20,6 +20,9 @@ backend/.env
 # Logs
 *.log
 
+# Local backups
+backups/
+
 # Frontend
 node_modules/
 frontend/node_modules/

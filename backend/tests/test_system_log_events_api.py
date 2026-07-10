@@ -86,7 +86,7 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["user_id"], 1)
         self.assertEqual(kwargs["module"], "auth")
         self.assertEqual(kwargs["action"], "login")
-        self.assertEqual(kwargs["ip_address"], "203.0.113.7")
+        self.assertEqual(kwargs["ip_address"], "testclient")
         self.assertNotIn("super-secret", kwargs["description"])
         mocked_create_token.assert_called_once()
 
@@ -126,7 +126,7 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["user_id"], 7)
         self.assertEqual(kwargs["module"], "detection")
         self.assertEqual(kwargs["action"], "detect_news")
-        self.assertEqual(kwargs["ip_address"], "203.0.113.9")
+        self.assertEqual(kwargs["ip_address"], "testclient")
         self.assertIn("detection_id=12", kwargs["description"])
         self.assertIn("risk_level=存疑信息", kwargs["description"])
         self.assertNotIn(VALID_NEWS_CONTENT, kwargs["description"])
@@ -154,7 +154,7 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["user_id"], 99)
         self.assertEqual(kwargs["module"], "admin")
         self.assertEqual(kwargs["action"], "disable_user")
-        self.assertEqual(kwargs["ip_address"], "203.0.113.10")
+        self.assertEqual(kwargs["ip_address"], "testclient")
         self.assertIn("target_user_id=1", kwargs["description"])
 
 

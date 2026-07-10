@@ -1,0 +1,31 @@
+﻿requirement_id,test_case,precondition,expected_result,actual_result,evidence_file,conclusion
+FR-U01,test_detect_news_rejects_short_title/content；前端表单测试,新闻输入接口与前端可用,空值/短文本拒绝，合法输入规范化,短标题和短正文返回422；前端14项测试通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log; evaluation/runs/chapter6_20260628_010246/logs/frontend_tests.log,通过
+FR-U02,test_extract_preview_*,URL为HTTP/HTTPS,提取预览或返回明确失败,正常提取、SSRF、抓取失败和空内容分支通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-U03,test_detect_news_endpoint_returns_success/degraded,检测依赖可用或可降级,输出评分、等级、理由和状态,正常与模型降级接口用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-U04,test_user_detail_returns_evidence_matches；结果视图构建,已有检测记录,展示结果、有效/排除证据与状态,详情序列化与前端生产构建通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log; evaluation/runs/chapter6_20260628_010246/logs/frontend_build.log,通过
+FR-U05,test_user_can_read_own_history；test_user_can_re_evaluate_owned_detection_without_overwriting_source,登录用户有本人记录,分页、归属隔离、重评新建记录,对应历史、详情、重评用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-U06,test_user_can_generate_owned_report；test_real_html_to_pdf_converter_creates_pdf,登录且记录归本人,生成PDF，失败不改检测记录,归属校验与真实PDF转换用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-A01,test_knowledge_sync.py,管理员知识操作,同步状态、重试和恢复可观察,写入/删除失败、回滚和恢复用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-A02,test_admin_prompts_api.py；test_prompt_service.py,管理员身份,模板校验、启停和默认设置受约束,无效模板不能启用或设默认,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-A03,test_high_risk_api.py；test_high_risk_service.py,管理员身份和高风险记录,复核与公开规则生效,未批准记录不能公开，权限用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-A04,test_admin_users_api.py；test_detection_history_api.py；test_admin_reports_api.py,管理员身份,全局列表、详情和管理操作,用户、检测、报告管理用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-A05,test_admin_statistics_api.py；test_system_logs_api.py,管理员身份,聚合统计和分页日志,统计筛选、权限和日志查询用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-S01,test_web_search_service.py；搜索服务故障注入,本地索引与联网开关,按阈值补充；联网失败保留本地,触发规则测试通过，注入搜索失败后保留1条本地证据,backend_pytest.log; reliability_security.log,通过
+FR-S02,test_candidates_have_no_rank_order/present_and_unique；去重测试,多源候选,标准化、去重、稳定标识,候选ID唯一，多种同源重复规则通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-S03,test_llm_excludes_irrelevant_kb_evidence,候选池与模型仲裁返回,完整划分有效与排除证据,不相关本地证据被排除，未参与最终证据,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-S04,test_missing_arbitration_retries_and_uses_retry_result；未知ID注入,首次契约不合格,聚焦重试一次，仍失败则隔离候选,成功修复与retry_exhausted分支均通过,backend_pytest.log; reliability_security.log,通过
+FR-S05,test_detect_news_degrades_and_saves_when_deepseek_fails；无证据分支,正常/无证据/模型失败,选择对应评分分支和标准风险等级,三类路径用例通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+FR-S06,test_save_detection_record_persists_analysis_payload；提交失败注入,评估完成后持久化,过程可追溯；失败回滚,过程字段可持久化，但检测记录commit失败未显式rollback,backend_pytest.log; reliability_security.log,部分通过
+NFR-S01,游客/普通用户/管理员权限测试,不同角色,越权请求拒绝且资源归属隔离,游客401、普通用户403/404、本人资源可访问,security_test_results.csv,通过
+NFR-S02,短文本、超长正文、非法角色测试,接口边界,空值、超长和非法枚举被限制,短文本及非法角色拒绝；12001字符正文仍通过Schema后由服务层截断,security_test_results.csv,部分通过
+NFR-S03,私网/协议/重定向安全测试,URL预览,每一跳阻断私有/保留地址,直接地址均阻断；自动重定向后的response.geturl未复核,security_test_results.csv,未通过
+NFR-S04,test_secret_key_startup_validation；评测脱敏测试,配置与日志,密钥不进入源码、普通日志和结果,弱密钥启动阻断，Bearer/API key脱敏测试通过,backend_pytest.log; evaluation_tests.log,通过
+NFR-R01,外部服务异常与降级测试,注入抓取/搜索/模型超时,失败不被解释为风险升高,抓取明确失败；搜索保留本地；模型规则降级,fault_injection_results.csv,通过
+NFR-R02,非JSON、未知ID、缺失字段、重试耗尽,模型输出异常,字段/范围/枚举/完整性校验,结构解析和契约校验用例通过,fault_injection_results.csv,通过
+NFR-D01,test_knowledge_sync.py,MySQL与Chroma操作,同步状态、补偿、重试和重建,失败状态与恢复用例通过；Alembic仍有模型漂移,backend_pytest.log; alembic_check.log,部分通过
+NFR-E01,正常、无证据、模型失败详情测试,检测结果,给出分量、原因、证据取舍与降级说明,详情字段与前端状态测试通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log; evaluation/runs/chapter6_20260628_010246/logs/frontend_tests.log,通过
+NFR-M01,模块级测试与配置快照,项目源码,职责与外部配置边界清晰,服务模块和配置集中化可验证；未做长期维护性量化,environment.json; backend_pytest.log,部分通过
+NFR-X01,Embedding/Search适配器替换测试,替换供应商/来源,稳定入口和需求编号,供应商配置可替换；未执行新增新闻类别的端到端扩展,backend_pytest.log,部分通过
+NFR-P01,历史分页、管理员统计测试,存在记录,分页有界、统计聚合,page_size上限和聚合接口测试通过,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过
+NFR-P02,响应体/候选/超时/正文限制测试,外部调用,输入和候选有上限且超时退出,抓取、搜索、模型和候选有限制；正文仅服务层截断,environment.json; security_test_results.csv,部分通过
+NFR-A01,test_system_log_events_api.py；test_system_logs_api.py,关键管理操作,记录操作者、动作、模块和时间,用户启停等操作产生可查询审计事件,evaluation/runs/chapter6_20260628_010246/logs/backend_pytest.log,通过

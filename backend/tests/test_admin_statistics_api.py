@@ -1,3 +1,4 @@
+import os
 import unittest
 from datetime import date
 from types import SimpleNamespace
@@ -6,6 +7,7 @@ from unittest.mock import Mock, patch
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
+from app.core.config import get_settings
 from app.core.deps import get_current_admin
 from app.db.session import get_db
 from app.main import app
@@ -18,6 +20,18 @@ def _db_override():
 
 def _admin_override():
     return SimpleNamespace(id=1, username="admin", role="admin", status="active")
+
+
+class _FakeRedisClient:
+    def __init__(self) -> None:
+        self.values: dict[str, str] = {}
+
+    async def get(self, key: str):
+        return self.values.get(key)
+
+    async def set(self, key: str, value: str, ex: int):
+        self.values[key] = value
+        return True
 
 
 STATISTICS_ENDPOINTS = [
@@ -33,12 +47,23 @@ STATISTICS_ENDPOINTS = [
 
 class AdminStatisticsApiTestCase(unittest.TestCase):
     def setUp(self) -> None:
+        self.previous_redis_enabled = os.environ.get("REDIS_ENABLED")
+        self.previous_cache_prefix = os.environ.get("CACHE_KEY_PREFIX")
         app.dependency_overrides[get_db] = _db_override
         app.dependency_overrides[get_current_admin] = _admin_override
         self.client = TestClient(app)
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
+        if self.previous_redis_enabled is None:
+            os.environ.pop("REDIS_ENABLED", None)
+        else:
+            os.environ["REDIS_ENABLED"] = self.previous_redis_enabled
+        if self.previous_cache_prefix is None:
+            os.environ.pop("CACHE_KEY_PREFIX", None)
+        else:
+            os.environ["CACHE_KEY_PREFIX"] = self.previous_cache_prefix
+        get_settings.cache_clear()
 
     @patch("app.api.v1.admin_statistics.get_statistics_overview")
     def test_admin_can_read_overview(self, mocked_overview) -> None:
@@ -55,6 +80,41 @@ class AdminStatisticsApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["total_reports"], 5)
+
+    @patch("app.api.v1.admin_statistics.get_statistics_overview")
+    def test_overview_uses_redis_cache_when_enabled(self, mocked_overview) -> None:
+        os.environ["REDIS_ENABLED"] = "true"
+        os.environ["CACHE_KEY_PREFIX"] = "testapp"
+        get_settings.cache_clear()
+        redis_client = _FakeRedisClient()
+        mocked_overview.side_effect = [
+            {
+                "total_detections": 10,
+                "today_detections": 2,
+                "total_users": 3,
+                "total_knowledge": 4,
+                "total_high_risk": 1,
+                "total_reports": 5,
+            },
+            {
+                "total_detections": 99,
+                "today_detections": 99,
+                "total_users": 99,
+                "total_knowledge": 99,
+                "total_high_risk": 99,
+                "total_reports": 99,
+            },
+        ]
+
+        with patch("app.core.cache.redis_manager", SimpleNamespace(client=redis_client)):
+            first = self.client.get("/api/admin/statistics/overview")
+            second = self.client.get("/api/admin/statistics/overview")
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(first.json()["data"]["total_reports"], 5)
+        self.assertEqual(second.json()["data"]["total_reports"], 5)
+        self.assertEqual(mocked_overview.call_count, 1)
 
     @patch("app.api.v1.admin_statistics.get_detection_trend")
     def test_trend_forwards_days_and_date_range(self, mocked_trend) -> None:

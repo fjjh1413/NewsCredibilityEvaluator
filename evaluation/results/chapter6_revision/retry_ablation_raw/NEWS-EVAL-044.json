@@ -1,0 +1,460 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-044",
+    "topic_id": "T11",
+    "gold_label": "高风险谣言",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 48.9,
+    "full_predicted_label": "疑似谣言",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 48.9,
+    "no_retry_predicted_label": "疑似谣言",
+    "total_ms": 19895.21,
+    "started_at_utc": "2026-07-01T15:28:05.344190+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 5.0,
+    "risk_level": "高风险谣言",
+    "reason": "新闻文章声称“导弹的用途从不区分战略和战术，这两个类别是媒体虚构的”，该核心主张直接与检索证据kb:234（“按用途可将导弹大致分为战略导弹和战术导弹”）相矛盾。文章使用“权威确认”“官方已经证实”等确定语气但无任何可核验文件，且反复要求转发，具备典型谣言传播特征。证据明确证伪，故评为高风险谣言。",
+    "risk_points": [
+      "文章核心主张“导弹用途从不区分战略和战术”与权威知识直接矛盾",
+      "使用“权威确认”“官方已经证实”等绝对化表述但无出处",
+      "反复要求读者立即转发，具有煽动传播特征",
+      "缺乏可核验的官方文件或数据支撑",
+      "信息内容与工程科技领域基本常识严重不符"
+    ],
+    "keywords": [
+      "导弹用途",
+      "战略导弹",
+      "战术导弹",
+      "虚构",
+      "权威确认",
+      "媒体虚构",
+      "转发"
+    ],
+    "suggestion": "该新闻断言与可验证事实严重不符，属于高风险谣言。请勿转发，并参考专业军事资料或官方渠道获取导弹分类信息。如发现类似信息，可通过权威渠道进行核实。",
+    "evidence_quality": {
+      "coverage": 80.0,
+      "consistency": 100.0,
+      "score": 88.0,
+      "assessment": "检索证据中的kb:234直接针对新闻核心主张，提供明确矛盾事实，覆盖全面；所有相关证据一致反驳文章断言，无内部矛盾；证据来源为知识库，虽非权威官方但针对评测目的具有明确指向性，质量总体可靠。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:234",
+          "relevance_score": 95,
+          "quality_score": 85,
+          "stance": "contradict",
+          "reason": "直接说明导弹按用途分为战略导弹和战术导弹，与文章声称“从不区分”完全矛盾，是核心反驳证据。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:153",
+          "reason": "关于SpaceX华裔女工程师，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:25",
+          "reason": "关于虚假众筹，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:166",
+          "reason": "关于银行存款利率上调群消息，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:13",
+          "reason": "关于地铁安检发现不明辐射物，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:67",
+          "reason": "关于放射检查谣言，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:22",
+          "reason": "关于AI押题命中广告，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "电子报刊摘要，无导弹分类内容。"
+        },
+        {
+          "candidate_id": "kb:65",
+          "reason": "关于放射检查谣言，与导弹用途分类无关。"
+        },
+        {
+          "candidate_id": "kb:87",
+          "reason": "关于中方驳斥欧盟指控，与导弹用途分类无关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 31,
+    "created_at": "2026-07-01 15:28:05.343597+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E5%AF%BC%E5%BC%B9",
+    "final_score": 48.9,
+    "evidence_score": 83.8,
+    "llm_score": 5.0,
+    "rule_score": 100.0,
+    "risk_level": "疑似谣言",
+    "judgement_result": "该新闻疑似存在谣言风险",
+    "reason": "新闻文章声称“导弹的用途从不区分战略和战术，这两个类别是媒体虚构的”，该核心主张直接与检索证据kb:234（“按用途可将导弹大致分为战略导弹和战术导弹”）相矛盾。文章使用“权威确认”“官方已经证实”等确定语气但无任何可核验文件，且反复要求转发，具备典型谣言传播特征。证据明确证伪，故评为高风险谣言。",
+    "risk_points": [
+      "文章核心主张“导弹用途从不区分战略和战术”与权威知识直接矛盾",
+      "使用“权威确认”“官方已经证实”等绝对化表述但无出处",
+      "反复要求读者立即转发，具有煽动传播特征",
+      "缺乏可核验的官方文件或数据支撑",
+      "信息内容与工程科技领域基本常识严重不符"
+    ],
+    "keywords": [
+      "官方",
+      "权威",
+      "导弹用途分类",
+      "高风险样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "导弹用途",
+      "战略导弹",
+      "战术导弹",
+      "虚构"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 234,
+        "title": "导弹用途分类",
+        "summary": "按用途可将导弹大致分为战略导弹和战术导弹。将其写成“战斗和战技”或声称不包含战略、战术均与证据不符。",
+        "category": "工程与科技",
+        "truth_label": "待核查",
+        "source_name": "导弹",
+        "risk_level": "",
+        "similarity_score": 0.8380001187324524,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:234"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.40106844902038574,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25"
+      },
+      {
+        "knowledge_id": 22,
+        "title": "AI软件可保证高考押题命中广告",
+        "summary": "“保证押题命中”属于高风险教育营销话术。",
+        "category": "教育",
+        "truth_label": "疑似谣言",
+        "source_name": "教育培训核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3962346315383911,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:22"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3902503252029419,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38834112882614136,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3789694309234619,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.375069260597229,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3623998165130615,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13"
+      },
+      {
+        "knowledge_id": 153,
+        "title": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣|spacex|华裔女|误导性|郭璨_手机网易网",
+        "summary": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣\n网易号社区管理员\n2026-06-18\n18:20\n·北京\n·网易号社区管理官方账号\n为了营造网易新闻良好的内容生态环境,提升用户体验,网易号平台即日起展开辟谣专项行动:用户发布上传的内容必须真实、可靠、准确。一切未经证实的虚假信息、或具有误导性的信息,将被平台及时辟谣及公示。本次行动的全部公告,将通过网易号官方平台、网易号官方微博进行全网推送。\n打开网易新闻\n查看精彩图片",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "网易",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.360822856426239,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:153"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35489678382873535,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 234,
+        "title": "导弹用途分类",
+        "summary": "按用途可将导弹大致分为战略导弹和战术导弹。将其写成“战斗和战技”或声称不包含战略、战术均与证据不符。",
+        "category": "工程与科技",
+        "truth_label": "待核查",
+        "source_name": "导弹",
+        "risk_level": "",
+        "similarity_score": 0.8380001187324524,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:234",
+        "relevance_score": 95.0,
+        "quality_score": 85.0,
+        "stance": "contradict",
+        "arbitration_reason": "直接说明导弹按用途分为战略导弹和战术导弹，与文章声称“从不区分”完全矛盾，是核心反驳证据。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 153,
+        "title": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣|spacex|华裔女|误导性|郭璨_手机网易网",
+        "summary": "SpaceX爆火华裔女工程师真名叫郭璨?本人辟谣\n网易号社区管理员\n2026-06-18\n18:20\n·北京\n·网易号社区管理官方账号\n为了营造网易新闻良好的内容生态环境,提升用户体验,网易号平台即日起展开辟谣专项行动:用户发布上传的内容必须真实、可靠、准确。一切未经证实的虚假信息、或具有误导性的信息,将被平台及时辟谣及公示。本次行动的全部公告,将通过网易号官方平台、网易号官方微博进行全网推送。\n打开网易新闻\n查看精彩图片",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "网易",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.360822856426239,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:153",
+        "rejection_reason": "关于SpaceX华裔女工程师，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 25,
+        "title": "虚假众筹称儿童急需手术",
+        "summary": "公益求助需核验身份、医疗证明和收款主体。",
+        "category": "公益",
+        "truth_label": "高风险谣言",
+        "source_name": "公益风险演示样例",
+        "risk_level": "高风险谣言",
+        "similarity_score": 0.40106844902038574,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:25",
+        "rejection_reason": "关于虚假众筹，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.35489678382873535,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166",
+        "rejection_reason": "关于银行存款利率上调群消息，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 13,
+        "title": "地铁安检发现不明辐射物短视频",
+        "summary": "公共安全短视频需核验地点、时间和官方处置通报。",
+        "category": "公共安全",
+        "truth_label": "存疑信息",
+        "source_name": "短视频核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3623998165130615,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:13",
+        "rejection_reason": "关于地铁安检发现不明辐射物，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 67,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站 - 社会民生 - 陕西网",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n发布于:2026-06-16\n15:39\n来源:健康中国",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "陕西网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.375069260597229,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:67",
+        "rejection_reason": "关于放射检查谣言，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 22,
+        "title": "AI软件可保证高考押题命中广告",
+        "summary": "“保证押题命中”属于高风险教育营销话术。",
+        "category": "教育",
+        "truth_label": "疑似谣言",
+        "source_name": "教育培训核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.3962346315383911,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:22",
+        "rejection_reason": "关于AI押题命中广告，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3902503252029419,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "电子报刊摘要，无导弹分类内容。"
+      },
+      {
+        "knowledge_id": 65,
+        "title": "破除五大谣言,科学做好放射检查 | 谣言终结站_新闻频道_央视网(cctv.com)",
+        "summary": "破除五大谣言,科学做好放射检查\n|\n谣言终结站\n来源:健康中国\n|\n2026年06月15日\n15:02:51\n健康中国\n|\n2026年06月15日\n15:02:51\n原标题:破除五大谣言,科学做好放射检查\n|\n谣言终结站",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3789694309234619,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:65",
+        "rejection_reason": "关于放射检查谣言，与导弹用途分类无关。"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38834112882614136,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87",
+        "rejection_reason": "关于中方驳斥欧盟指控，与导弹用途分类无关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该新闻断言与可验证事实严重不符，属于高风险谣言。请勿转发，并参考专业军事资料或官方渠道获取导弹分类信息。如发现类似信息，可通过权威渠道进行核实。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 80.0,
+      "consistency": 100.0,
+      "score": 88.0,
+      "assessment": "检索证据中的kb:234直接针对新闻核心主张，提供明确矛盾事实，覆盖全面；所有相关证据一致反驳文章断言，无内部矛盾；证据来源为知识库，虽非权威官方但针对评测目的具有明确指向性，质量总体可靠。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

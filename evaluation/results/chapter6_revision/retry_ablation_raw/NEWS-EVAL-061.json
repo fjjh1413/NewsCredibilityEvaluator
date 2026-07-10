@@ -1,0 +1,452 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-061",
+    "topic_id": "T16",
+    "gold_label": "可信新闻",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 90.1,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 90.1,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 14488.59,
+    "started_at_utc": "2026-07-01T15:29:46.384331+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 90.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻核心表述“近年来美国共和党在许多社会议题和经济政策上通常表现出保守倾向”与知识条目kb:239（美国共和党政治倾向）内容完全一致，证据直接支持新闻主张，无冲突信息。新闻样本明确声明用于测试系统在存在明确支持证据时输出“可信”，故评估为可信。",
+    "risk_points": [
+      "新闻内容简单，缺乏详细数据和出处，但样本性质明确；证据库条目本身标注为‘待核查’，但新闻是测试用例，系统应按证据匹配结果判断。"
+    ],
+    "keywords": [
+      "美国共和党",
+      "政治倾向",
+      "保守主义",
+      "社会政策",
+      "经济政策",
+      "测试样本"
+    ],
+    "suggestion": "该样本为测试系统的可信场景，结果可信。如需更全面评估，应补充更权威来源和时效性信息。建议系统在真实应用中结合多渠道验证并注意证据的时效性。",
+    "evidence_quality": {
+      "coverage": 95.0,
+      "consistency": 100.0,
+      "score": 97.0,
+      "assessment": "检索证据中kb:239与新闻完全匹配，覆盖了新闻核心主张；其他证据均不相关，未提供矛盾信息。证据一致性强，质量高。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:239",
+          "relevance_score": 100,
+          "quality_score": 100,
+          "stance": "support",
+          "reason": "直接对应新闻主题，总结‘近年来美国共和党通常在社会与经济政策上偏保守’，完全支持新闻说法。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:93",
+          "reason": "娱乐类，与金莎拉有关，不相关。"
+        },
+        {
+          "candidate_id": "kb:122",
+          "reason": "区块链科技新闻，不相关。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "科普辟谣文章，不相关。"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "综合新闻摘要，不相关。"
+        },
+        {
+          "candidate_id": "kb:166",
+          "reason": "金融风险样例，不相关。"
+        },
+        {
+          "candidate_id": "kb:146",
+          "reason": "虎扑社区关于詹姆斯的真假新闻讨论，不相关。"
+        },
+        {
+          "candidate_id": "kb:236",
+          "reason": "蔡元培与自由主义，不相关。"
+        },
+        {
+          "candidate_id": "kb:182",
+          "reason": "个人信息风险提示，不相关。"
+        },
+        {
+          "candidate_id": "kb:145",
+          "reason": "学术文献关于错误信息，不相关。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 36,
+    "created_at": "2026-07-01 15:29:46.383200+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E5%85%B1%E5%92%8C%E9%BB%A8_(%E7%BE%8E%E5%9C%8B)",
+    "final_score": 90.1,
+    "evidence_score": 87.28,
+    "llm_score": 90.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻核心表述“近年来美国共和党在许多社会议题和经济政策上通常表现出保守倾向”与知识条目kb:239（美国共和党政治倾向）内容完全一致，证据直接支持新闻主张，无冲突信息。新闻样本明确声明用于测试系统在存在明确支持证据时输出“可信”，故评估为可信。",
+    "risk_points": [
+      "新闻内容简单，缺乏详细数据和出处，但样本性质明确；证据库条目本身标注为‘待核查’，但新闻是测试用例，系统应按证据匹配结果判断。",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "来源",
+      "美国共和党政",
+      "治倾向",
+      "可信样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "美国共和党",
+      "政治倾向",
+      "保守主义",
+      "社会政策"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.8728049993515015,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3670769929885864,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3379398584365845,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.3360370397567749,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33157551288604736,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146"
+      },
+      {
+        "knowledge_id": 93,
+        "title": "今日千岛湖-金莎拉的真偽人生:多维数据与公众形象交叉研判",
+        "summary": "今日千岛湖-金莎拉的真偽人生:多维数据与公众形象交叉研判",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "千岛湖新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3238798975944519,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:93"
+      },
+      {
+        "knowledge_id": 182,
+        "title": "风险提示|新就业群体 守护个人信息-南海网",
+        "summary": "风险提示|新就业群体\n守护个人信息\n来源:泰康人寿保险时间:\n2026-06-23\n12:47:48扫码下载新海南客户端扫码关注南海网微信公众号海南南海网传媒股份有限公司\n版权所有\n1999-2026\n地址:海南省海口市金盘路30号新闻大厦9楼\n电话:(86)0898-66810806\n传真:0898-66810545违法和不良信息举报邮箱:nhwwljb@163.com\n互联网新闻信息服务许可证:4612006002\n增值电信业务经营许可证:琼B2-2008008违法和不良信息举报电话:\n0898-66802310信息网络传播视听节目许可证:2108281广告经营许可证:460000100120",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "南海网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3213493824005127,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:182"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31985926628112793,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166"
+      },
+      {
+        "knowledge_id": 122,
+        "title": "2023年新风口:区块链行业最新动态与机遇解析_tp官方网站下载app",
+        "summary": "区块链为何被称为新风口?\n最近,区块链这个词总是在朋友圈、社交媒体上冒出来。听起来像是科技感满满的词,实际上它背后潜藏着的商机和挑战,比你想象的还要复杂。有时候,我想,是不是很多朋友也像我一样,有点摸不着头脑?可是,区块链真的是个很有潜力的领域,不少人已经开始行动了,有投资的、有创业的,也有在这方面学习新知识的。听起来刺激吧?\n区块链的基本概念是什么?\n简单来说,区块链是一种去中心化的数据库技术。想象一下,有个账本,每个人都能看到,任何人都不能随意修改。这样一来,数据安全性和透明度都提升了,特别适合涉及金融、物流等领域的交易。其实,我第一次听说这个概念时,也是被这个“不可篡改”的特性吸引住了。我记得朋友开玩笑说:“就像大家一起在一个群里,每个人都是记录员,谁都不能删掉聊天记录。”有趣吧?\n最近的行业动态\n最近,区块链行业的消息如雨后春笋般冒出来,有些甚至一夜之间就风靡开来。比如,某个大型企业宣布要将区块链技术应用于供应链管理。这让人到了一件事情––想象一下,你在超市买水果,能通过区块链追踪到这颗苹果从树上到你手里的每一步,哇,这是不是很炫呢?\n还有一个值得注意的动态,就是越来越多的国家开始重视区块链技术的发展。像美国、瑞士等国家,在政策上都在支持区块链的创新和应用。根据最新数据,2023年,全球投资区块链的资金量已经突破了2500亿美元,真的是个庞大的数字。这个行业的发展速度,让我常常觉得有些跟不上。你们觉得呢?\n区块链在各个行业的应用\n别以为区块链只跟金融有关,它的应用场景几乎涵盖了各行各业。比如在食品安全方面,某些企业已经将区块链技术应用于牛奶的追溯。如果你在超市看到标明区块链追踪的产品,直接扫一扫,就能知道这份牛奶是从哪间农场来的,甚至是它喂过什么。这事儿我觉得超酷的,想象一下,一边喝牛奶一边看它的成长历程!\n再有,比如在版权保护方面,音乐、电影等作品的版权通过区块",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "m.czsfy.org",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31956326961517334,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:122"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31590795516967773,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 239,
+        "title": "美国共和党政治倾向",
+        "summary": "近年来美国共和党通常在社会与经济政策上偏保守。证据不支持其整体偏开放，也不能将“数学证明”作为社会政策立场。",
+        "category": "政治",
+        "truth_label": "待核查",
+        "source_name": "共和党_(美国)",
+        "risk_level": "",
+        "similarity_score": 0.8728049993515015,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:239",
+        "relevance_score": 100.0,
+        "quality_score": 100.0,
+        "stance": "support",
+        "arbitration_reason": "直接对应新闻主题，总结‘近年来美国共和党通常在社会与经济政策上偏保守’，完全支持新闻说法。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 93,
+        "title": "今日千岛湖-金莎拉的真偽人生:多维数据与公众形象交叉研判",
+        "summary": "今日千岛湖-金莎拉的真偽人生:多维数据与公众形象交叉研判",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "千岛湖新闻网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3238798975944519,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:93",
+        "rejection_reason": "娱乐类，与金莎拉有关，不相关。"
+      },
+      {
+        "knowledge_id": 122,
+        "title": "2023年新风口:区块链行业最新动态与机遇解析_tp官方网站下载app",
+        "summary": "区块链为何被称为新风口?\n最近,区块链这个词总是在朋友圈、社交媒体上冒出来。听起来像是科技感满满的词,实际上它背后潜藏着的商机和挑战,比你想象的还要复杂。有时候,我想,是不是很多朋友也像我一样,有点摸不着头脑?可是,区块链真的是个很有潜力的领域,不少人已经开始行动了,有投资的、有创业的,也有在这方面学习新知识的。听起来刺激吧?\n区块链的基本概念是什么?\n简单来说,区块链是一种去中心化的数据库技术。想象一下,有个账本,每个人都能看到,任何人都不能随意修改。这样一来,数据安全性和透明度都提升了,特别适合涉及金融、物流等领域的交易。其实,我第一次听说这个概念时,也是被这个“不可篡改”的特性吸引住了。我记得朋友开玩笑说:“就像大家一起在一个群里,每个人都是记录员,谁都不能删掉聊天记录。”有趣吧?\n最近的行业动态\n最近,区块链行业的消息如雨后春笋般冒出来,有些甚至一夜之间就风靡开来。比如,某个大型企业宣布要将区块链技术应用于供应链管理。这让人到了一件事情––想象一下,你在超市买水果,能通过区块链追踪到这颗苹果从树上到你手里的每一步,哇,这是不是很炫呢?\n还有一个值得注意的动态,就是越来越多的国家开始重视区块链技术的发展。像美国、瑞士等国家,在政策上都在支持区块链的创新和应用。根据最新数据,2023年,全球投资区块链的资金量已经突破了2500亿美元,真的是个庞大的数字。这个行业的发展速度,让我常常觉得有些跟不上。你们觉得呢?\n区块链在各个行业的应用\n别以为区块链只跟金融有关,它的应用场景几乎涵盖了各行各业。比如在食品安全方面,某些企业已经将区块链技术应用于牛奶的追溯。如果你在超市看到标明区块链追踪的产品,直接扫一扫,就能知道这份牛奶是从哪间农场来的,甚至是它喂过什么。这事儿我觉得超酷的,想象一下,一边喝牛奶一边看它的成长历程!\n再有,比如在版权保护方面,音乐、电影等作品的版权通过区块",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "m.czsfy.org",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31956326961517334,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:122",
+        "rejection_reason": "区块链科技新闻，不相关。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31590795516967773,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "科普辟谣文章，不相关。"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3379398584365845,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "综合新闻摘要，不相关。"
+      },
+      {
+        "knowledge_id": 166,
+        "title": "第五章演示：银行存款利率统一上调群消息",
+        "summary": "金融产品信息不能只依赖聊天群和个人二维码。",
+        "category": "财经",
+        "truth_label": "存疑信息",
+        "source_name": "金融风险核查样例",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.31985926628112793,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:166",
+        "rejection_reason": "金融风险样例，不相关。"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.33157551288604736,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146",
+        "rejection_reason": "虎扑社区关于詹姆斯的真假新闻讨论，不相关。"
+      },
+      {
+        "knowledge_id": 236,
+        "title": "蔡元培与自由主义",
+        "summary": "自由主义以自由作为重要政治价值。CFEVER证据支持蔡元培在中国近代提倡自由主义，不支持其反对自由主义或将其描述为广告。",
+        "category": "人文与社会科学",
+        "truth_label": "待核查",
+        "source_name": "蔡元培|自由主义",
+        "risk_level": "",
+        "similarity_score": 0.3360370397567749,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:236",
+        "rejection_reason": "蔡元培与自由主义，不相关。"
+      },
+      {
+        "knowledge_id": 182,
+        "title": "风险提示|新就业群体 守护个人信息-南海网",
+        "summary": "风险提示|新就业群体\n守护个人信息\n来源:泰康人寿保险时间:\n2026-06-23\n12:47:48扫码下载新海南客户端扫码关注南海网微信公众号海南南海网传媒股份有限公司\n版权所有\n1999-2026\n地址:海南省海口市金盘路30号新闻大厦9楼\n电话:(86)0898-66810806\n传真:0898-66810545违法和不良信息举报邮箱:nhwwljb@163.com\n互联网新闻信息服务许可证:4612006002\n增值电信业务经营许可证:琼B2-2008008违法和不良信息举报电话:\n0898-66802310信息网络传播视听节目许可证:2108281广告经营许可证:460000100120",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "南海网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3213493824005127,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:182",
+        "rejection_reason": "个人信息风险提示，不相关。"
+      },
+      {
+        "knowledge_id": 145,
+        "title": "Misinformation, Identity, and the Basis of Belief._Ann Intern Med_期刊文献_医脉通",
+        "summary": "Misinformation,\nIdentity,\nand\nthe\nBasis\nof\nBelief.\nAnn\nIntern\nMed\n2025\nMar;178(3):436-438\nPMID:39745497\n查看当期期刊\nKhullar\nD,Young\nDG\nDepartment\nof\nCommunication\nand\nDepartment\nof\nPolitical\nScience\nand\nInternational\nRelations,\nand\nCenter\nfor\nPolitical\nCommunication,\nUniversity\nof\nDelaware,\nNewark,\nDelaware\n(D.G.Y.).",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "医脉通期刊文献频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3670769929885864,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:145",
+        "rejection_reason": "学术文献关于错误信息，不相关。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "该样本为测试系统的可信场景，结果可信。如需更全面评估，应补充更权威来源和时效性信息。建议系统在真实应用中结合多渠道验证并注意证据的时效性。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 95.0,
+      "consistency": 100.0,
+      "score": 97.0,
+      "assessment": "检索证据中kb:239与新闻完全匹配，覆盖了新闻核心主张；其他证据均不相关，未提供矛盾信息。证据一致性强，质量高。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

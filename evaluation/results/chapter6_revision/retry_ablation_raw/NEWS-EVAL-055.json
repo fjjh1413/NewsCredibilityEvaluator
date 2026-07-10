@@ -1,0 +1,455 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-055",
+    "topic_id": "T14",
+    "gold_label": "疑似谣言",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 72.9,
+    "full_predicted_label": "存疑信息",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 72.9,
+    "no_retry_predicted_label": "存疑信息",
+    "total_ms": 28462.11,
+    "started_at_utc": "2026-07-01T15:29:14.128359+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 85.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻明确揭示这是一则疑似谣言样本，指出其将真实角色信息与错误料理概念拼接的误导手法，且基于知识库证据证实达斯汀·霍夫曼以电影角色闻名而非料理，因此新闻本身可信。",
+    "risk_points": [
+      "将真实角色信息与错误料理概念拼接",
+      "无原始出处和完整上下文",
+      "利用前半段真实信息增加误导可信度"
+    ],
+    "keywords": [
+      "达斯汀·霍夫曼",
+      "谣言样本",
+      "经典角色",
+      "经典料理",
+      "信息拼接"
+    ],
+    "suggestion": "建议发布者提供原始帖子链接，以便进一步核实。读者应警惕断章取义和概念偷换的误导手法，多方查证信息。",
+    "evidence_quality": {
+      "coverage": 20.0,
+      "consistency": 90.0,
+      "score": 48.0,
+      "assessment": "仅有一条相关知识库证据直接涉及达斯汀·霍夫曼，覆盖范围有限，但该证据与新闻判断一致。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:237",
+          "relevance_score": 100,
+          "quality_score": 90,
+          "stance": "support",
+          "reason": "直接提供达斯汀·霍夫曼的职业背景，证实其以电影角色闻名，不支持料理相关说法，支持新闻的辟谣立场。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:36",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:69",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:210",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:136",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:135",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:146",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:35",
+          "reason": "与达斯汀·霍夫曼无关"
+        },
+        {
+          "candidate_id": "kb:72",
+          "reason": "与达斯汀·霍夫曼无关"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 34,
+    "created_at": "2026-07-01 15:29:14.126808+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E8%BE%BE%E6%96%AF%E6%B1%80%C2%B7%E9%9C%8D%E5%A4%AB%E6%9B%BC",
+    "final_score": 72.9,
+    "evidence_score": 80.86,
+    "llm_score": 85.0,
+    "rule_score": 80.0,
+    "risk_level": "存疑信息",
+    "judgement_result": "该新闻存在一定疑点，建议进一步核查",
+    "reason": "新闻明确揭示这是一则疑似谣言样本，指出其将真实角色信息与错误料理概念拼接的误导手法，且基于知识库证据证实达斯汀·霍夫曼以电影角色闻名而非料理，因此新闻本身可信。",
+    "risk_points": [
+      "将真实角色信息与错误料理概念拼接",
+      "无原始出处和完整上下文",
+      "利用前半段真实信息增加误导可信度",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "谣言",
+      "达斯汀",
+      "霍夫曼",
+      "疑似谣言样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "达斯汀·霍夫曼",
+      "谣言样本",
+      "经典角色",
+      "经典料理"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 237,
+        "title": "达斯汀·霍夫曼",
+        "summary": "达斯汀·霍夫曼塑造了大量经典电影角色并给影迷留下深刻印象。证据不支持其以经典料理闻名或影迷普遍印象稀薄。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "达斯汀·霍夫曼",
+        "risk_level": "",
+        "similarity_score": 0.8086304068565369,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:237"
+      },
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.43716633319854736,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.42729341983795166,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 69,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”",
+        "summary": "01:38言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41673415899276733,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:69"
+      },
+      {
+        "knowledge_id": 136,
+        "title": "辟谣!这些食品安全谣言别轻信!_中安在线_中安在线客户端_中安在线",
+        "summary": "辟谣!这些食品安全谣言别轻信!\n{\"link\":\"http:\\/\\/api.app.anhuinews.com\\/content\\/9335045.html\",\"shareimg\":\"http:\\/\\/resource.anhuiyun.anhuinews.com\\/ahtt\\/P0202606\\/P020260617\\/P020260617554396518979.png\"}\n健康安徽\n阅读\n文字来源:食安中国、科学辟谣\n图片设计:徽喜鹊工作室",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "api.app.anhuinews.com",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40158456563949585,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:136"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.39883697032928467,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210"
+      },
+      {
+        "knowledge_id": 36,
+        "title": "公安部网安局公布10起网络谣言违法犯罪典型案例",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "credit.zg.gov.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3955038785934448,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:36"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.39035844802856445,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38957762718200684,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35"
+      },
+      {
+        "knowledge_id": 135,
+        "title": "辟谣!这些食品安全谣言别轻信! - 今日头条",
+        "summary": "辟谣!这些食品安全谣言别轻信! - 今日头条",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "今日头条",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3891417384147644,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:135"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 237,
+        "title": "达斯汀·霍夫曼",
+        "summary": "达斯汀·霍夫曼塑造了大量经典电影角色并给影迷留下深刻印象。证据不支持其以经典料理闻名或影迷普遍印象稀薄。",
+        "category": "人物",
+        "truth_label": "待核查",
+        "source_name": "达斯汀·霍夫曼",
+        "risk_level": "",
+        "similarity_score": 0.8086304068565369,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:237",
+        "relevance_score": 100.0,
+        "quality_score": 90.0,
+        "stance": "support",
+        "arbitration_reason": "直接提供达斯汀·霍夫曼的职业背景，证实其以电影角色闻名，不支持料理相关说法，支持新闻的辟谣立场。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 36,
+        "title": "公安部网安局公布10起网络谣言违法犯罪典型案例",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "credit.zg.gov.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3955038785934448,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:36",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.42729341983795166,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 69,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”",
+        "summary": "01:38言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41673415899276733,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:69",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 210,
+        "title": "三个套路细节 逐步瓦解被害人戒备心",
+        "summary": "发布时间:2026-06-23\n19:45\n来自:6月\n标签:地市,全省,2026,新闻60分\n简介:明星周边、免费福利,瞄准的是粉丝们急于接近偶像的渴望;假冒警察、诱骗转账,利用的是当事人恐慌的心理;骗术“收割”的前提是被害人戒备心的逐步瓦解,那么骗子们的“套路”藏在哪里呢?来看三个细节。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "tv.hoolo.tv",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.39883697032928467,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:210",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 136,
+        "title": "辟谣!这些食品安全谣言别轻信!_中安在线_中安在线客户端_中安在线",
+        "summary": "辟谣!这些食品安全谣言别轻信!\n{\"link\":\"http:\\/\\/api.app.anhuinews.com\\/content\\/9335045.html\",\"shareimg\":\"http:\\/\\/resource.anhuiyun.anhuinews.com\\/ahtt\\/P0202606\\/P020260617\\/P020260617554396518979.png\"}\n健康安徽\n阅读\n文字来源:食安中国、科学辟谣\n图片设计:徽喜鹊工作室",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "api.app.anhuinews.com",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.40158456563949585,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:136",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 135,
+        "title": "辟谣!这些食品安全谣言别轻信! - 今日头条",
+        "summary": "辟谣!这些食品安全谣言别轻信! - 今日头条",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "今日头条",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.3891417384147644,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:135",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 146,
+        "title": "这些新闻这么多年,居然是假的?-NBA-湖人专区-虎扑社区",
+        "summary": "新闻你得看人吹老詹的新闻都是假的,即便是人民日报也都是假的。骂老詹的新闻都是真的,即便是JR发帖也都是真的。判断新闻真假就是这么简单。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "虎扑",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.39035844802856445,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:146",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.38957762718200684,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      },
+      {
+        "knowledge_id": 72,
+        "title": "言短意长|不能让患者自证一个人是不是“名医”_时政湃_澎湃新闻-The Paper",
+        "summary": "言短意长|不能让患者自证一个人是不是“名医”四川省肿瘤医院日前发文,直指该院退休职工王建在开展“科普”时捏造、夸大其职称职务,涉嫌虚假宣传。互联网上,各类“名医”“大师”头衔繁多、真假难辨。医院能主动打假,体现出负责任的态度。文案:钟煜豪\n口播:吴怡\n视频剪辑:胡宝秀\n部分素材来源:四川省肿瘤医院、新华社等",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "澎湃新闻",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.43716633319854736,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:72",
+        "rejection_reason": "与达斯汀·霍夫曼无关"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "建议发布者提供原始帖子链接，以便进一步核实。读者应警惕断章取义和概念偷换的误导手法，多方查证信息。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 20.0,
+      "consistency": 90.0,
+      "score": 48.0,
+      "assessment": "仅有一条相关知识库证据直接涉及达斯汀·霍夫曼，覆盖范围有限，但该证据与新闻判断一致。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

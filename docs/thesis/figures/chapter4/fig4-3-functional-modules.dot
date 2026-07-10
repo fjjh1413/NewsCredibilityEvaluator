@@ -1,0 +1,21 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=TB; splines=ortho;
+  system [label="智闻辨真\n新闻可信度评估系统", shape=ellipse, fillcolor="#EAF2F8", color="#5B7C99", penwidth=1.2];
+  userdomain [label="用户业务域\n①用户认证与个人中心\n②检测记录与报告"];
+  coredomain [label="核心评估域\n③新闻可信度评估\n④知识库与新闻采集", fillcolor="#EAF2F8", color="#5B7C99"];
+  admindomain [label="管理治理域\n⑤管理员业务管理\n⑥数据统计与系统日志"];
+
+  {rank=same; userdomain; coredomain; admindomain;}
+  system -> userdomain;
+  system -> coredomain;
+  system -> admindomain;
+}

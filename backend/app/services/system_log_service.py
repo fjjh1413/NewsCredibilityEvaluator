@@ -5,6 +5,7 @@ from fastapi import Request
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.core.client_ip import get_client_ip
 from app.crud.system_log_crud import create_system_log
 from app.models.system_log import SystemLog
 from app.schemas.system_log import SystemLogCreate
@@ -56,19 +57,7 @@ def get_request_ip(request: Request | None) -> str | None:
     if request is None:
         return None
 
-    forwarded_for = request.headers.get("x-forwarded-for", "")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",", 1)[0].strip()
-        if client_ip:
-            return client_ip
-
-    real_ip = request.headers.get("x-real-ip", "").strip()
-    if real_ip:
-        return real_ip
-
-    if request.client and request.client.host:
-        return request.client.host
-    return None
+    return get_client_ip(request)
 
 
 def _clean_required(value: str | None, max_length: int) -> str:

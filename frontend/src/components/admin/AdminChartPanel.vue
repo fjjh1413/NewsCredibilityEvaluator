@@ -39,15 +39,24 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import * as echarts from 'echarts/core'
-import { BarChart, LineChart, PieChart } from 'echarts/charts'
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
-import { CanvasRenderer } from 'echarts/renderers'
 import { Refresh } from '@element-plus/icons-vue'
 import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
 
-echarts.use([BarChart, LineChart, PieChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer])
+let echartsRuntimePromise = null
+
+function loadEchartsRuntime() {
+  if (!echartsRuntimePromise) {
+    echartsRuntimePromise = import('@/utils/echartsRuntime')
+      .then(({ getEchartsRuntime }) => getEchartsRuntime())
+      .catch((error) => {
+        echartsRuntimePromise = null
+        throw error
+      })
+  }
+
+  return echartsRuntimePromise
+}
 
 const props = defineProps({
   title: {
@@ -97,8 +106,11 @@ const hasOption = computed(
 
 let chart = null
 let resizeObserver = null
+let echartsRuntime = null
+let syncVersion = 0
 
 async function syncChart() {
+  const version = ++syncVersion
   await nextTick()
 
   if (props.loading || props.error || !hasOption.value || !chartRef.value) {
@@ -106,9 +118,21 @@ async function syncChart() {
     return
   }
 
+  try {
+    echartsRuntime = echartsRuntime || (await loadEchartsRuntime())
+  } catch (error) {
+    console.error('Failed to load chart runtime', error)
+    disposeChart()
+    return
+  }
+
+  if (version !== syncVersion || props.loading || props.error || !hasOption.value || !chartRef.value) {
+    return
+  }
+
   if (!chart || chart.getDom() !== chartRef.value) {
     disposeChart()
-    chart = echarts.init(chartRef.value)
+    chart = echartsRuntime.init(chartRef.value)
   }
 
   chart.setOption(props.option, true)

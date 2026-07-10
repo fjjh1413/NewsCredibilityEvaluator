@@ -3,7 +3,10 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
+from app.core.cache import cache_service
+from app.core.config import get_settings
 from app.core.deps import get_current_admin
 from app.db.session import get_db
 from app.models.user import User
@@ -32,15 +35,19 @@ router = APIRouter(prefix="/admin/statistics", tags=["admin-statistics"])
 
 
 @router.get("/overview", response_model=StatisticsOverviewApiResponse)
-def read_statistics_overview(
+async def read_statistics_overview(
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict:
-    return success_response(data=get_statistics_overview(db))
+    data = await _cached_statistics(
+        "overview",
+        lambda: run_in_threadpool(get_statistics_overview, db),
+    )
+    return success_response(data=data)
 
 
 @router.get("/trend", response_model=DetectionTrendApiResponse)
-def read_detection_trend(
+async def read_detection_trend(
     days: int = Query(default=7, ge=1, le=366),
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
@@ -48,7 +55,19 @@ def read_detection_trend(
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
     try:
-        data = get_detection_trend(db, days, start_date, end_date)
+        data = await _cached_statistics(
+            "trend",
+            lambda: run_in_threadpool(
+                get_detection_trend,
+                db,
+                days,
+                start_date,
+                end_date,
+            ),
+            days,
+            _date_key(start_date),
+            _date_key(end_date),
+        )
     except StatisticsRangeError as exc:
         return _unprocessable(exc)
     return success_response(data=data)
@@ -58,14 +77,19 @@ def read_detection_trend(
     "/risk-distribution",
     response_model=StatisticsDistributionApiResponse,
 )
-def read_risk_distribution(
+async def read_risk_distribution(
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
     try:
-        data = get_risk_distribution(db, start_date, end_date)
+        data = await _cached_statistics(
+            "risk-distribution",
+            lambda: run_in_threadpool(get_risk_distribution, db, start_date, end_date),
+            _date_key(start_date),
+            _date_key(end_date),
+        )
     except StatisticsRangeError as exc:
         return _unprocessable(exc)
     return success_response(data=data)
@@ -75,21 +99,31 @@ def read_risk_distribution(
     "/category-distribution",
     response_model=StatisticsDistributionApiResponse,
 )
-def read_category_distribution(
+async def read_category_distribution(
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
     try:
-        data = get_category_distribution(db, start_date, end_date)
+        data = await _cached_statistics(
+            "category-distribution",
+            lambda: run_in_threadpool(
+                get_category_distribution,
+                db,
+                start_date,
+                end_date,
+            ),
+            _date_key(start_date),
+            _date_key(end_date),
+        )
     except StatisticsRangeError as exc:
         return _unprocessable(exc)
     return success_response(data=data)
 
 
 @router.get("/keywords", response_model=StatisticsKeywordsApiResponse)
-def read_keyword_statistics(
+async def read_keyword_statistics(
     limit: int = Query(default=20, ge=1, le=100),
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
@@ -97,14 +131,26 @@ def read_keyword_statistics(
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
     try:
-        data = get_keyword_statistics(db, limit, start_date, end_date)
+        data = await _cached_statistics(
+            "keywords",
+            lambda: run_in_threadpool(
+                get_keyword_statistics,
+                db,
+                limit,
+                start_date,
+                end_date,
+            ),
+            limit,
+            _date_key(start_date),
+            _date_key(end_date),
+        )
     except StatisticsRangeError as exc:
         return _unprocessable(exc)
     return success_response(data=data)
 
 
 @router.get("/user-activity", response_model=UserActivityApiResponse)
-def read_user_activity(
+async def read_user_activity(
     days: int = Query(default=30, ge=1, le=366),
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
@@ -112,18 +158,34 @@ def read_user_activity(
     current_admin: User = Depends(get_current_admin),
 ) -> dict | JSONResponse:
     try:
-        data = get_user_activity(db, days, start_date, end_date)
+        data = await _cached_statistics(
+            "user-activity",
+            lambda: run_in_threadpool(
+                get_user_activity,
+                db,
+                days,
+                start_date,
+                end_date,
+            ),
+            days,
+            _date_key(start_date),
+            _date_key(end_date),
+        )
     except StatisticsRangeError as exc:
         return _unprocessable(exc)
     return success_response(data=data)
 
 
 @router.get("/knowledge-overview", response_model=KnowledgeOverviewApiResponse)
-def read_knowledge_overview(
+async def read_knowledge_overview(
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict:
-    return success_response(data=get_knowledge_overview(db))
+    data = await _cached_statistics(
+        "knowledge-overview",
+        lambda: run_in_threadpool(get_knowledge_overview, db),
+    )
+    return success_response(data=data)
 
 
 @router.get(
@@ -131,11 +193,15 @@ def read_knowledge_overview(
     response_model=StatisticsDistributionApiResponse,
     include_in_schema=False,
 )
-def read_knowledge_vector_status(
+async def read_knowledge_vector_status(
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> dict:
-    data = get_knowledge_overview(db)["vector_status_distribution"]
+    overview = await _cached_statistics(
+        "knowledge-overview",
+        lambda: run_in_threadpool(get_knowledge_overview, db),
+    )
+    data = overview["vector_status_distribution"]
     return success_response(data=data)
 
 
@@ -144,3 +210,24 @@ def _unprocessable(exc: Exception) -> JSONResponse:
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=error_response(str(exc), code=422),
     )
+
+
+async def _cached_statistics(
+    name: str,
+    producer,
+    *parts: object,
+):
+    settings = get_settings()
+    key = ":".join(
+        ["admin:statistics:v1", name, *(str(part) for part in parts)]
+    ).rstrip(":")
+    return await cache_service.get_or_set(
+        key,
+        producer,
+        ttl_seconds=settings.admin_statistics_cache_ttl_seconds,
+        settings=settings,
+    )
+
+
+def _date_key(value: date | None) -> str:
+    return value.isoformat() if value else "none"

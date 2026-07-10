@@ -1,0 +1,2 @@
+﻿policy,samples,web_allowed,web_triggered,trigger_rate,accuracy,macro_f1,mean_latency_ms,interpretation
+Local+Web按需策略,80,80,0,0.0,0.4,0.3458,24271.59,全部样本走本地路径，不能据此估计联网增益

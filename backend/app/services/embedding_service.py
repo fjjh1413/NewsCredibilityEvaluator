@@ -10,6 +10,7 @@ import urllib.request
 from typing import Any
 
 from app.core.config import get_settings
+from app.core.result_cache import cache_key_from_payload, sync_json_cache
 from app.utils.text_cleaner import clean_text
 
 
@@ -439,6 +440,101 @@ def _raise_reserved_provider_error(provider: str) -> None:
     )
 
 
+def _embed_real_provider_batch(
+    provider: str,
+    texts: list[str],
+    dimension: int | None,
+) -> list[list[float]]:
+    if provider == DEEPSEEK_EMBEDDING_PROVIDER:
+        return _deepseek_embed_batch(texts)
+    if provider == DASHSCOPE_EMBEDDING_PROVIDER:
+        return _dashscope_embed_batch(texts, dimension=dimension)
+    raise EmbeddingProviderNotConfiguredError(
+        f"Embedding provider '{provider}' is not supported or not configured. "
+        "Supported values are hash, dashscope, deepseek, and local."
+    )
+
+
+def _embed_real_provider_batch_with_cache(
+    provider: str,
+    texts: list[str],
+    dimension: int | None,
+) -> list[list[float]]:
+    if not texts:
+        return []
+
+    settings = get_settings()
+    if (
+        not getattr(settings, "embedding_cache_enabled", True)
+        or not getattr(settings, "redis_enabled", False)
+    ):
+        return _embed_real_provider_batch(provider, texts, dimension)
+
+    keys = [
+        _embedding_cache_key(
+            provider=provider,
+            text=text,
+            dimension=dimension,
+            settings=settings,
+        )
+        for text in texts
+    ]
+    vectors: list[list[float] | None] = [None] * len(texts)
+    missing_indices: list[int] = []
+    missing_texts: list[str] = []
+
+    for index, key in enumerate(keys):
+        cached = sync_json_cache.get_json(
+            namespace="embedding",
+            key=key,
+            settings=settings,
+        )
+        if isinstance(cached, list):
+            vectors[index] = [float(value) for value in cached]
+        else:
+            missing_indices.append(index)
+            missing_texts.append(texts[index])
+
+    if missing_texts:
+        fresh_vectors = _embed_real_provider_batch(provider, missing_texts, dimension)
+        for index, vector in zip(missing_indices, fresh_vectors):
+            normalized_vector = [float(value) for value in vector]
+            vectors[index] = normalized_vector
+            sync_json_cache.set_json(
+                namespace="embedding",
+                key=keys[index],
+                value=normalized_vector,
+                ttl_seconds=getattr(settings, "embedding_cache_ttl_seconds", 86400),
+                settings=settings,
+            )
+
+    return [vector for vector in vectors if vector is not None]
+
+
+def _embedding_cache_key(
+    *,
+    provider: str,
+    text: str,
+    dimension: int | None,
+    settings: Any,
+) -> str:
+    model = (
+        settings.deepseek_embedding_model
+        if provider == DEEPSEEK_EMBEDDING_PROVIDER
+        else settings.dashscope_embedding_model
+    )
+    return cache_key_from_payload(
+        namespace="embedding",
+        version="1",
+        payload={
+            "provider": provider,
+            "model": model,
+            "dimension": _resolve_dimension(dimension),
+            "text": text,
+        },
+    )
+
+
 # ---------------------------------------------------------------------------
 # public API
 # ---------------------------------------------------------------------------
@@ -458,11 +554,8 @@ def embed_text(text: str, dimension: int | None = None) -> list[float]:
         resolved_dimension = _resolve_dimension(dimension)
         return _hash_embed_text(text, dimension=resolved_dimension)
 
-    if provider == DEEPSEEK_EMBEDDING_PROVIDER:
-        return _deepseek_embed_batch([text])[0]
-
-    if provider == DASHSCOPE_EMBEDDING_PROVIDER:
-        return _dashscope_embed_batch([text], dimension=dimension)[0]
+    if provider in {DEEPSEEK_EMBEDDING_PROVIDER, DASHSCOPE_EMBEDDING_PROVIDER}:
+        return _embed_real_provider_batch_with_cache(provider, [text], dimension)[0]
 
     if provider in RESERVED_EMBEDDING_PROVIDERS:
         _raise_reserved_provider_error(provider)
@@ -486,11 +579,8 @@ def embed_texts(texts: list[str], dimension: int | None = None) -> list[list[flo
         resolved_dimension = _resolve_dimension(dimension)
         return [_hash_embed_text(text, dimension=resolved_dimension) for text in texts]
 
-    if provider == DEEPSEEK_EMBEDDING_PROVIDER:
-        return _deepseek_embed_batch(texts)
-
-    if provider == DASHSCOPE_EMBEDDING_PROVIDER:
-        return _dashscope_embed_batch(texts, dimension=dimension)
+    if provider in {DEEPSEEK_EMBEDDING_PROVIDER, DASHSCOPE_EMBEDDING_PROVIDER}:
+        return _embed_real_provider_batch_with_cache(provider, texts, dimension)
 
     if provider in RESERVED_EMBEDDING_PROVIDERS:
         _raise_reserved_provider_error(provider)

@@ -8,22 +8,14 @@ from app.models.report import Report
 from app.models.user import User
 
 
-def get_report_by_id(db: Session, report_id: int) -> Report | None:
-    return db.query(Report).filter(Report.id == report_id).first()
-
-
-def get_report_by_detection_id(db: Session, detection_id: int) -> Report | None:
-    return db.query(Report).filter(Report.detection_id == detection_id).first()
-
-
-def get_admin_report_candidates(
+def _admin_report_query(
     db: Session,
     keyword: str | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
     user_id: int | None = None,
     detection_id: int | None = None,
-) -> list[Report]:
+):
     query = (
         db.query(Report)
         .options(joinedload(Report.detection))
@@ -50,7 +42,106 @@ def get_admin_report_candidates(
     if detection_id is not None:
         query = query.filter(Report.detection_id == detection_id)
 
-    return query.order_by(Report.created_at.desc(), Report.id.desc()).all()
+    return query
+
+
+def get_report_by_id(db: Session, report_id: int) -> Report | None:
+    return db.query(Report).filter(Report.id == report_id).first()
+
+
+def get_report_by_detection_id(db: Session, detection_id: int) -> Report | None:
+    return db.query(Report).filter(Report.detection_id == detection_id).first()
+
+
+def get_admin_report_candidates(
+    db: Session,
+    keyword: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: int | None = None,
+    detection_id: int | None = None,
+) -> list[Report]:
+    return (
+        _admin_report_query(
+            db,
+            keyword=keyword,
+            start_date=start_date,
+            end_date=end_date,
+            user_id=user_id,
+            detection_id=detection_id,
+        )
+        .order_by(Report.created_at.desc(), Report.id.desc())
+        .all()
+    )
+
+
+def count_admin_reports(
+    db: Session,
+    keyword: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: int | None = None,
+    detection_id: int | None = None,
+) -> int:
+    return _admin_report_query(
+        db,
+        keyword=keyword,
+        start_date=start_date,
+        end_date=end_date,
+        user_id=user_id,
+        detection_id=detection_id,
+    ).count()
+
+
+def get_admin_report_page(
+    db: Session,
+    *,
+    offset: int,
+    limit: int,
+    keyword: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: int | None = None,
+    detection_id: int | None = None,
+) -> list[Report]:
+    return (
+        _admin_report_query(
+            db,
+            keyword=keyword,
+            start_date=start_date,
+            end_date=end_date,
+            user_id=user_id,
+            detection_id=detection_id,
+        )
+        .order_by(Report.created_at.desc(), Report.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+
+def iter_admin_report_candidates(
+    db: Session,
+    *,
+    keyword: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: int | None = None,
+    detection_id: int | None = None,
+    chunk_size: int = 200,
+):
+    return (
+        _admin_report_query(
+            db,
+            keyword=keyword,
+            start_date=start_date,
+            end_date=end_date,
+            user_id=user_id,
+            detection_id=detection_id,
+        )
+        .order_by(Report.created_at.desc(), Report.id.desc())
+        .yield_per(chunk_size)
+    )
 
 
 def save_generated_report(

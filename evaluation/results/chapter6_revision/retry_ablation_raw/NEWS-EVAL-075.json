@@ -1,0 +1,454 @@
+{
+  "summary": {
+    "sample_id": "NEWS-EVAL-075",
+    "topic_id": "T19",
+    "gold_label": "疑似谣言",
+    "success": true,
+    "candidate_count": 10,
+    "initial_contract_valid": true,
+    "initial_contract_errors": "",
+    "retry_triggered": false,
+    "full_arbitration_status": "ok",
+    "full_final_score": 83.8,
+    "full_predicted_label": "可信新闻",
+    "no_retry_status": "initial_contract_ok",
+    "no_retry_final_score": 83.8,
+    "no_retry_predicted_label": "可信新闻",
+    "total_ms": 26999.04,
+    "started_at_utc": "2026-07-01T15:21:26.850136+00:00",
+    "error": ""
+  },
+  "initial_llm_result": {
+    "llm_score": 90.0,
+    "risk_level": "可信新闻",
+    "reason": "新闻标题与正文明确指出相关内容为疑似谣言样本，并对关键说法进行了核验。经检索，证据kb:242（太平岛实际控制）支持该岛由中华民国政府实际控制，且并非无人管理，与新闻分析一致，未发现不实或误导性陈述。新闻本身作为辟谣或测试说明，整体可信。",
+    "risk_points": [
+      "标题使用“疑似谣言样本”可能被误解为新闻本身是谣言，但正文澄清为测试说明，存在反讽或误导风险。",
+      "文中引用的帖子说法‘无人管理’明显错误，但若仅截取片段可能被二次传播利用。"
+    ],
+    "keywords": [
+      "太平岛",
+      "实际控制",
+      "疑似谣言",
+      "主权争议",
+      "中华民国",
+      "无人管理"
+    ],
+    "suggestion": "新闻本身为可信的测试说明或辟谣分析，建议读者完整阅读正文，避免因标题或片段产生误解。遇到类似地理主权信息时，应查阅权威来源如政府公告或国际组织声明。",
+    "evidence_quality": {
+      "coverage": 60.0,
+      "consistency": 100.0,
+      "score": 76.0,
+      "assessment": "检索证据中仅一条（kb:242）直接相关，覆盖主题；证据与新闻结论高度一致，无矛盾。"
+    },
+    "evidence_arbitration": {
+      "ranked_evidence": [
+        {
+          "candidate_id": "kb:242",
+          "relevance_score": 100,
+          "quality_score": 90,
+          "stance": "support",
+          "reason": "证据直接说明太平岛由中华民国政府实际控制，不支持无人管理，与新闻对谣言的驳斥完全一致。"
+        }
+      ],
+      "rejected_evidence": [
+        {
+          "candidate_id": "kb:20",
+          "reason": "与太平岛话题无关，涉及停水谣言。"
+        },
+        {
+          "candidate_id": "kb:87",
+          "reason": "与太平岛话题无关，涉及中俄训练指控。"
+        },
+        {
+          "candidate_id": "kb:35",
+          "reason": "与太平岛话题无关，为网络谣言打击案例通报。"
+        },
+        {
+          "candidate_id": "kb:84",
+          "reason": "与太平岛话题无关，为综合新闻摘要。"
+        },
+        {
+          "candidate_id": "kb:101",
+          "reason": "与太平岛话题无关，涉及体育界绯闻。"
+        },
+        {
+          "candidate_id": "kb:212",
+          "reason": "与太平岛话题无关，涉及娱乐八卦造谣。"
+        },
+        {
+          "candidate_id": "kb:182",
+          "reason": "与太平岛话题无关，为个人信息保护提示。"
+        },
+        {
+          "candidate_id": "kb:148",
+          "reason": "与太平岛话题无关，为AI虚假视频处罚案例。"
+        },
+        {
+          "candidate_id": "kb:64",
+          "reason": "与太平岛话题无关，为食品辟谣文章。"
+        }
+      ]
+    },
+    "similar_news": []
+  },
+  "focused_retry_result": null,
+  "full_result": {
+    "detection_id": 19,
+    "created_at": "2026-07-01 15:21:26.849547+00:00",
+    "publish_time": null,
+    "source_name": null,
+    "source_url": "https://zh.wikipedia.org/wiki/%E5%A4%AA%E5%B9%B3%E5%B3%B6",
+    "final_score": 83.8,
+    "evidence_score": 84.43,
+    "llm_score": 90.0,
+    "rule_score": 80.0,
+    "risk_level": "可信新闻",
+    "judgement_result": "该新闻整体可信度较高",
+    "reason": "新闻标题与正文明确指出相关内容为疑似谣言样本，并对关键说法进行了核验。经检索，证据kb:242（太平岛实际控制）支持该岛由中华民国政府实际控制，且并非无人管理，与新闻分析一致，未发现不实或误导性陈述。新闻本身作为辟谣或测试说明，整体可信。",
+    "risk_points": [
+      "标题使用“疑似谣言样本”可能被误解为新闻本身是谣言，但正文澄清为测试说明，存在反讽或误导风险。",
+      "文中引用的帖子说法‘无人管理’明显错误，但若仅截取片段可能被二次传播利用。",
+      "缺少明确来源"
+    ],
+    "keywords": [
+      "谣言",
+      "太平岛实际控",
+      "疑似谣言样本",
+      "围绕",
+      "近期社交平台",
+      "出现多种版本",
+      "的文章和转述",
+      "相关内容涉及",
+      "太平岛",
+      "实际控制",
+      "疑似谣言",
+      "主权争议"
+    ],
+    "candidate_evidence_list": [
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.844330906867981,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242"
+      },
+      {
+        "knowledge_id": 148,
+        "title": "AI生成虚假视频扰乱公共秩序 发布者被行政拘留七日_新闻频道_央视网(cctv.com)",
+        "summary": "AI生成虚假视频扰乱公共秩序\n发布者被行政拘留七日\n来源:央视网\n|\n2026年06月19日\n02:19:34\n央视网\n|\n2026年06月19日\n02:19:34\n原标题:",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.45238494873046875,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:148"
+      },
+      {
+        "knowledge_id": 182,
+        "title": "风险提示|新就业群体 守护个人信息-南海网",
+        "summary": "风险提示|新就业群体\n守护个人信息\n来源:泰康人寿保险时间:\n2026-06-23\n12:47:48扫码下载新海南客户端扫码关注南海网微信公众号海南南海网传媒股份有限公司\n版权所有\n1999-2026\n地址:海南省海口市金盘路30号新闻大厦9楼\n电话:(86)0898-66810806\n传真:0898-66810545违法和不良信息举报邮箱:nhwwljb@163.com\n互联网新闻信息服务许可证:4612006002\n增值电信业务经营许可证:琼B2-2008008违法和不良信息举报电话:\n0898-66802310信息网络传播视听节目许可证:2108281广告经营许可证:460000100120",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "南海网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4343305230140686,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:182"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4333394765853882,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.42159318923950195,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4196341633796692,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41588133573532104,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87"
+      },
+      {
+        "knowledge_id": 212,
+        "title": "律师解读朱志鑫苏新皓被造谣 恶意捏造将追责_新闻频道_中华网",
+        "summary": "律师解读朱志鑫苏新皓被造谣\n恶意捏造将追责。6月22日,时代峰峻发布声明辟谣关于TOP登陆少年朱志鑫和苏新皓的恋情传闻。声明指出,有关两人与某位工作人员存在恋爱关系的内容纯属恶意捏造,与事实不符。公司已第一时间取证,并将依法追责,要求相关用户及账号立即删除所有不实内容。上海理振律师事务所律师李振武表示,在网络上随意编造、散布他人不实内容已经涉嫌违法。如果情节严重,严重扰乱网络秩序,更可能构成《刑法》中的“诽谤罪”,面临牢狱之灾。言论自由不等于造谣自由,网络并非法外之地,任何言论都不能逾越底线,造谣诋毁必被追责。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41553062200546265,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:212"
+      },
+      {
+        "knowledge_id": 20,
+        "title": "某市将连续停水一周聊天记录",
+        "summary": "停水停电等民生信息应以主管部门和运营企业公告为准。",
+        "category": "社会民生",
+        "truth_label": "疑似谣言",
+        "source_name": "城市运行核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.41514861583709717,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:20"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41477513313293457,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84"
+      }
+    ],
+    "evidence_list": [
+      {
+        "knowledge_id": 242,
+        "title": "太平岛实际控制",
+        "summary": "CFEVER证据支持太平岛由中华民国政府实际控制，同时多个国家或地区提出主权声索。证据不支持其处于无人管制状态。",
+        "category": "世界地理",
+        "truth_label": "待核查",
+        "source_name": "太平岛",
+        "risk_level": "",
+        "similarity_score": 0.844330906867981,
+        "rank_order": 1,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:242",
+        "relevance_score": 100.0,
+        "quality_score": 90.0,
+        "stance": "support",
+        "arbitration_reason": "证据直接说明太平岛由中华民国政府实际控制，不支持无人管理，与新闻对谣言的驳斥完全一致。"
+      }
+    ],
+    "excluded_evidence": [
+      {
+        "knowledge_id": 20,
+        "title": "某市将连续停水一周聊天记录",
+        "summary": "停水停电等民生信息应以主管部门和运营企业公告为准。",
+        "category": "社会民生",
+        "truth_label": "疑似谣言",
+        "source_name": "城市运行核查样例",
+        "risk_level": "疑似谣言",
+        "similarity_score": 0.41514861583709717,
+        "rank_order": 9,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:20",
+        "rejection_reason": "与太平岛话题无关，涉及停水谣言。"
+      },
+      {
+        "knowledge_id": 87,
+        "title": "中方驳斥欧盟指中方训练俄军在乌作战 坚决反击无端指控_新闻频道_中华网",
+        "summary": "欧盟此次贸然发布“核实”结论,暴露出其内部决策机制的轻率与偏听偏信。一个在国际舞台上有重要影响力的政治体,在没有确凿证据的情况下仅凭某些情报部门的单方面说辞和媒体炒作就给另一个大国安上如此严重的罪名,这是极其危险的行为。中方对此的强硬表态是对这种信息霸凌的有力反击,要求欧方必须讲清楚所谓的核实是基于真实还是基于对中国的固有偏见。将中国与俄罗斯的正常交往与合作用军事化的滤镜去看待本身就是一种扭曲。中俄作为两个主权国家,在相互尊重的基础上保持着正常的经贸往来和战略协作。中国从未向冲突地区输送武器,严格管控军民两用物项,这一事实已经得到多次确认。把正常的国家关系涂抹上军事色彩甚至杜撰出“训练军队”的剧本,其用心险恶显而易见。这不仅仅是在造中国的谣,更是在制造一种虚假叙事,为北约扩军、升级对抗寻找借口。中方的强势回应体现在多个维度。外交上,不仅发言人在公开场合直接痛斥,中方还通过驻欧盟使团等渠道向欧方提出严正交涉。交涉的核心意思是:这种捏造事实的行为是对中国内政的粗暴干涉,是对中国军队的莫大侮辱,欧方必须立即停止散布虚假信息,消除由此造成的恶劣影响。如果欧方还想维护中欧关系大局,就必须拿出诚意纠正错误。否则,中欧之间的战略互信将遭到难以修复的严重创伤。从法理和道义层面看,这起事件暴露了某些西方国家在“基于规则的国际秩序”幌子下的双标。他们可以无底线地相互分享情报,甚至对盟友搞窃听监控,如今却凭空捏造出中国军方训练俄军的剧本,并以此为荣。当中国要求他们拿出证据时,他们却用一句“涉及情报机密”来搪塞。这种傲慢与虚伪与公平公正的国际法治精神完全背道而驰。中国作为负责任的大国,有权利也有义务对这样的谎言说不。外交部的强硬回击不仅仅是在捍卫国家荣誉,也是在为广大不受西方待见的发展中国家仗义执言。",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41588133573532104,
+        "rank_order": 7,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:87",
+        "rejection_reason": "与太平岛话题无关，涉及中俄训练指控。"
+      },
+      {
+        "knowledge_id": 35,
+        "title": "信用中国(内蒙古)",
+        "summary": "公安部网安局6月15日公布10起打击整治网络谣言违法犯罪典型案例。这10起典型案例反映出一些不法分子随意编造、传播涉人身伤亡、不实政策、食品安全等虚假信息,严重扰乱社会秩序,触碰法律红线。\n在张某虚构事实案中,网络博主张某为博取关注,吸粉引流,发布山东某高中校门口发生车祸等不实信息,引发大量网民议论。经查,网传信息均为虚构,属地公安机关已对张某作出行政处罚。\n在付某、邓某某、黄某某等6人虚构事实案中,6人为安徽宿州当地驾校培训行业从业人员,为博取流量关注、诱导学员报名,散布所谓“驾考解读”视频,引发“安徽宿州2026年驾考新增项目”等谣言扩散,干扰驾校正常经营和考试安排,损害了交管部门的公信力,浪费了社会公共资源。\n对这类散布网络谣言违法犯罪行为,全国公安网安部门将持续加大打击整治力度,全力维护清朗网络空间与社会秩序。\n网警提示,广大网民要恪守网络言行底线,坚持不信谣、不传谣、不造谣,切勿为博取流量虚构事实,共同维护清朗有序的网络环境。",
+        "category": "社会",
+        "truth_label": "待核查",
+        "source_name": "内蒙古自治区发展和改革委员会",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4196341633796692,
+        "rank_order": 6,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:35",
+        "rejection_reason": "与太平岛话题无关，为网络谣言打击案例通报。"
+      },
+      {
+        "knowledge_id": 84,
+        "title": "电子报刊",
+        "summary": "社会\n★工信部:核查处置涉诈高风险电话卡近2亿张\n★水利部会商部署强降雨防范应对工作\n体育\n★中国队将派23名运动员参加2026年亚运会电竞项目\n国际\n★研究显示全球变暖主因是人类活动\n★燃料涨价显著推高韩国海鲜价格",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "黑龙江日报",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41477513313293457,
+        "rank_order": 10,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:84",
+        "rejection_reason": "与太平岛话题无关，为综合新闻摘要。"
+      },
+      {
+        "knowledge_id": 101,
+        "title": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "summary": "墨西哥记者:日本队来了位轮奸犯 - 热门头条 - 大陇网",
+        "category": "体育",
+        "truth_label": "待核查",
+        "source_name": "wenchuang.dalw.com.cn",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.42159318923950195,
+        "rank_order": 5,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:101",
+        "rejection_reason": "与太平岛话题无关，涉及体育界绯闻。"
+      },
+      {
+        "knowledge_id": 212,
+        "title": "律师解读朱志鑫苏新皓被造谣 恶意捏造将追责_新闻频道_中华网",
+        "summary": "律师解读朱志鑫苏新皓被造谣\n恶意捏造将追责。6月22日,时代峰峻发布声明辟谣关于TOP登陆少年朱志鑫和苏新皓的恋情传闻。声明指出,有关两人与某位工作人员存在恋爱关系的内容纯属恶意捏造,与事实不符。公司已第一时间取证,并将依法追责,要求相关用户及账号立即删除所有不实内容。上海理振律师事务所律师李振武表示,在网络上随意编造、散布他人不实内容已经涉嫌违法。如果情节严重,严重扰乱网络秩序,更可能构成《刑法》中的“诽谤罪”,面临牢狱之灾。言论自由不等于造谣自由,网络并非法外之地,任何言论都不能逾越底线,造谣诋毁必被追责。",
+        "category": "娱乐",
+        "truth_label": "待核查",
+        "source_name": "中华网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.41553062200546265,
+        "rank_order": 8,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:212",
+        "rejection_reason": "与太平岛话题无关，涉及娱乐八卦造谣。"
+      },
+      {
+        "knowledge_id": 182,
+        "title": "风险提示|新就业群体 守护个人信息-南海网",
+        "summary": "风险提示|新就业群体\n守护个人信息\n来源:泰康人寿保险时间:\n2026-06-23\n12:47:48扫码下载新海南客户端扫码关注南海网微信公众号海南南海网传媒股份有限公司\n版权所有\n1999-2026\n地址:海南省海口市金盘路30号新闻大厦9楼\n电话:(86)0898-66810806\n传真:0898-66810545违法和不良信息举报邮箱:nhwwljb@163.com\n互联网新闻信息服务许可证:4612006002\n增值电信业务经营许可证:琼B2-2008008违法和不良信息举报电话:\n0898-66802310信息网络传播视听节目许可证:2108281广告经营许可证:460000100120",
+        "category": "科技",
+        "truth_label": "待核查",
+        "source_name": "南海网",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4343305230140686,
+        "rank_order": 3,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:182",
+        "rejection_reason": "与太平岛话题无关，为个人信息保护提示。"
+      },
+      {
+        "knowledge_id": 148,
+        "title": "AI生成虚假视频扰乱公共秩序 发布者被行政拘留七日_新闻频道_央视网(cctv.com)",
+        "summary": "AI生成虚假视频扰乱公共秩序\n发布者被行政拘留七日\n来源:央视网\n|\n2026年06月19日\n02:19:34\n央视网\n|\n2026年06月19日\n02:19:34\n原标题:",
+        "category": "国际",
+        "truth_label": "待核查",
+        "source_name": "央视网新闻频道",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.45238494873046875,
+        "rank_order": 2,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:148",
+        "rejection_reason": "与太平岛话题无关，为AI虚假视频处罚案例。"
+      },
+      {
+        "knowledge_id": 64,
+        "title": "科普中国-辟谣文章",
+        "summary": "策划制作出品丨科学辟谣\nX\n食安中国\n审核丨阮光锋\n科信食品与健康信息交流中心副主任\n中华预防医学会健康传播分会委员责编丨丁崝本文由“科学辟谣平台”(ID:Science_Facts)出品,转载请注明出处。文中所使用图片为版权图库,不授权转载。",
+        "category": "健康",
+        "truth_label": "待核查",
+        "source_name": "科普中国",
+        "risk_level": "存疑信息",
+        "similarity_score": 0.4333394765853882,
+        "rank_order": 4,
+        "source_type": "knowledge_base",
+        "source_label": "📚 知识库",
+        "candidate_id": "kb:64",
+        "rejection_reason": "与太平岛话题无关，为食品辟谣文章。"
+      }
+    ],
+    "similar_news": [],
+    "suggestion": "新闻本身为可信的测试说明或辟谣分析，建议读者完整阅读正文，避免因标题或片段产生误解。遇到类似地理主权信息时，应查阅权威来源如政府公告或国际组织声明。",
+    "agent_steps": [
+      "关键词提取完成",
+      "知识库证据检索完成",
+      "大模型可信度分析完成",
+      "风险规则评分完成",
+      "检测结果生成完成"
+    ],
+    "disclaimer": "本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、权威媒体报道或官方通报。",
+    "web_search_triggered": false,
+    "web_search_sources": 0,
+    "evidence_quality": {
+      "coverage": 60.0,
+      "consistency": 100.0,
+      "score": 76.0,
+      "assessment": "检索证据中仅一条（kb:242）直接相关，覆盖主题；证据与新闻结论高度一致，无矛盾。"
+    },
+    "arbitration_status": "ok",
+    "quality_status": "ok",
+    "arbitration_error": null,
+    "arbitration_attempts": 1,
+    "analysis_contract_version": "2.0",
+    "knowledge_has_relevant_match": true,
+    "web_has_relevant_match": false
+  },
+  "isolation": "读取正式MySQL/Chroma；关闭联网；保存函数替换为内存对象；生产数据零写入"
+}

@@ -2,18 +2,23 @@ import json
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from app.core.client_ip import get_client_ip
 from app.core.config import get_settings
 from app.core.deps import get_current_user, get_optional_current_user
-from app.core.rate_limit import InMemoryRateLimiter
+from app.core.profiling import profile_block
+from app.core.redis_client import RedisUnavailableError
+from app.core.rate_limit import RedisBackedRateLimiter
 from app.crud.detection_crud import get_detection_detail, get_detection_history
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.detection import (
     DetectNewsApiResponse,
     DetectNewsRequest,
+    DetectionTaskApiResponse,
     DetectionDetailApiResponse,
     DetectionDetailOut,
     DetectionHistoryApiResponse,
@@ -27,7 +32,14 @@ from app.services.detection_service import (
     KnowledgeRetrievalFailedError,
     detect_news_credibility,
 )
+from app.services.detection_task_service import (
+    attach_celery_task_id,
+    create_detection_task,
+    get_detection_task,
+    serialize_detection_task,
+)
 from app.services.system_log_service import get_request_ip, record_system_log
+from app.services.task_queue import TaskQueueUnavailable, enqueue_detection_task
 from app.services.web.web_content_fetcher import (
     SSRFBlockedError,
     WebContentFetchError,
@@ -37,7 +49,7 @@ from app.utils.response import error_response, success_response
 
 
 router = APIRouter(prefix="/detect", tags=["detect"])
-detector_rate_limiter = InMemoryRateLimiter()
+detector_rate_limiter = RedisBackedRateLimiter("detect:news")
 
 
 def _read_analysis_payload(record: object) -> dict:
@@ -53,30 +65,21 @@ def _read_analysis_payload(record: object) -> dict:
     return {}
 
 
-def _get_client_ip(request: Request) -> str:
-    forwarded_for = request.headers.get("x-forwarded-for", "")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",", 1)[0].strip()
-        if client_ip:
-            return client_ip
-
-    real_ip = request.headers.get("x-real-ip", "").strip()
-    if real_ip:
-        return real_ip
-
-    if request.client and request.client.host:
-        return request.client.host
-    return "unknown"
-
-
-def enforce_detect_news_rate_limit(request: Request) -> None:
+async def enforce_detect_news_rate_limit(request: Request) -> None:
     settings = get_settings()
-    client_ip = _get_client_ip(request)
-    is_allowed = detector_rate_limiter.allow_request(
-        key=client_ip,
-        limit=settings.detect_rate_limit_count,
-        window_seconds=settings.detect_rate_limit_window_seconds,
-    )
+    client_ip = get_client_ip(request)
+    try:
+        is_allowed = await detector_rate_limiter.allow_request(
+            key=client_ip,
+            limit=settings.detect_rate_limit_count,
+            window_seconds=settings.detect_rate_limit_window_seconds,
+            settings=settings,
+        )
+    except RedisUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="妫€娴嬮檺娴佹湇鍔℃殏涓嶅彲鐢?",
+        ) from exc
     if not is_allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -86,7 +89,7 @@ def enforce_detect_news_rate_limit(request: Request) -> None:
 
 @router.post(
     "/news",
-    response_model=DetectNewsApiResponse,
+    response_model=DetectNewsApiResponse | DetectionTaskApiResponse,
     dependencies=[Depends(enforce_detect_news_rate_limit)],
 )
 def detect_news(
@@ -95,6 +98,49 @@ def detect_news(
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
 ) -> dict:
+    settings = get_settings()
+    if getattr(settings, "async_detection_enabled", False):
+        task = create_detection_task(
+            db=db,
+            payload=payload,
+            current_user=current_user,
+        )
+        try:
+            celery_task_id = enqueue_detection_task(task.id)
+            task = attach_celery_task_id(
+                db=db,
+                task=task,
+                celery_task_id=celery_task_id,
+            )
+            db.refresh(task)
+        except TaskQueueUnavailable as exc:
+            task.status = "failed"
+            task.error_message = str(exc)
+            db.add(task)
+            db.commit()
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content=error_response(message=str(exc), code=503),
+            )
+
+        record_system_log(
+            db,
+            user_id=getattr(current_user, "id", None),
+            module="detection",
+            action="enqueue_detect_news",
+            description=f"提交异步新闻检测任务 task_id={task.id}",
+            ip_address=get_request_ip(request),
+        )
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content=jsonable_encoder(
+                success_response(
+                    message="检测任务已提交",
+                    data=serialize_detection_task(task),
+                )
+            ),
+        )
+
     try:
         result = detect_news_credibility(
             db=db,
@@ -139,9 +185,10 @@ def extract_preview(
 ) -> dict:
     """Fetch + extract a news article from a URL for review before detection.
 
-    Returns ``{title, content, source_name, source_url}`` so the frontend can
-    back-fill the existing detect form (preview-then-edit). Shares the detect
-    rate limiter to prevent fetch abuse. Does not touch the detection core.
+    Returns article fields plus a normalized publication time and its precision
+    so the frontend can back-fill the existing detect form (preview-then-edit).
+    Shares the detect rate limiter to prevent fetch abuse. Does not touch the
+    detection core.
     """
     settings = get_settings()
     fetcher = WebContentFetcher(allow_private_hosts=settings.article_fetch_allow_private_hosts)
@@ -189,6 +236,21 @@ def read_detection_history(
         items=[DetectionHistoryItem.model_validate(item) for item in items],
     ).model_dump(mode="json")
     return success_response(data=data)
+
+
+@router.get("/tasks/{task_id}", response_model=DetectionTaskApiResponse)
+def read_detection_task(
+    task_id: str = Path(..., min_length=1, max_length=36),
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
+) -> dict:
+    task = get_detection_task(db=db, task_id=task_id, current_user=current_user)
+    if task is None:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=error_response("Detection task not found", code=404),
+        )
+    return success_response(data=serialize_detection_task(task))
 
 
 @router.post(
@@ -241,11 +303,12 @@ def re_evaluate_detection(
             ),
         )
     try:
-        result = detect_news_credibility(
-            db=db,
-            payload=payload,
-            current_user=current_user,
-        )
+        with profile_block({"operation": "detect_news_sync"}):
+            result = detect_news_credibility(
+                db=db,
+                payload=payload,
+                current_user=current_user,
+            )
     except KnowledgeRetrievalFailedError as exc:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

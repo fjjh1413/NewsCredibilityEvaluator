@@ -1,0 +1,30 @@
+digraph G {
+
+  graph [bgcolor="white", pad="0.16", margin="0", nodesep="0.34", ranksep="0.46",
+         fontname="SimSun", fontsize=10, color="#7B8794", penwidth=1.0];
+  node [shape=box, style="rounded,filled", fillcolor="#F7F8FA", color="#465563",
+        fontname="SimSun", fontsize=9, fontcolor="#17202A", penwidth=1.0,
+        margin="0.14,0.08"];
+  edge [color="#53616E", fontname="SimSun", fontsize=8, fontcolor="#37434F",
+        arrowsize=0.68, penwidth=0.9];
+
+  rankdir=LR; splines=ortho;
+  layout [label="AdminLayout管理员后台\n前端路由守卫＋后端管理员依赖双重校验", fillcolor="#EAF2F8", color="#5B7C99"];
+  overview [label="运行概览与分析", shape=tab, fillcolor="#F2F5F7"];
+  business [label="核心业务管理", shape=tab, fillcolor="#F2F5F7"];
+  governance [label="配置与审计", shape=tab, fillcolor="#F2F5F7"];
+  dash [label="后台首页  /admin/dashboard"];
+  stats [label="数据统计  /admin/statistics"];
+  users [label="用户管理  /admin/users"];
+  detections [label="检测记录  /admin/detections"];
+  knowledge [label="知识库管理  /admin/knowledge\n条目维护｜单条向量化｜全量重建"];
+  high [label="高风险管理  /admin/high-risk\n复核｜公开状态｜备注"];
+  reports [label="报告管理  /admin/reports"];
+  prompts [label="Prompt模板  /admin/prompts"];
+  logs [label="系统日志  /admin/logs"];
+
+  layout -> overview; layout -> business; layout -> governance;
+  overview -> dash; overview -> stats;
+  business -> users; business -> detections; business -> knowledge; business -> high; business -> reports;
+  governance -> prompts; governance -> logs;
+}

@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import re
+import time
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -12,6 +13,7 @@ from app.core.constants import (
     RISK_LEVEL_SUSPICIOUS,
     RISK_LEVEL_TRUSTED,
 )
+from app.core.tracing import add_span_attributes, trace_span
 from app.crud.detection_crud import save_detection_record
 from app.schemas.detection import DetectionCreate, DetectNewsRequest
 from app.services.knowledge_service import (
@@ -42,6 +44,14 @@ logger = logging.getLogger(__name__)
 
 RAG_TOP_K = 10
 PROMPT_EVIDENCE_LIMIT = 10
+
+
+def _record_stage_latency(
+    stage_latency_ms: dict[str, float],
+    stage_name: str,
+    started_at: float,
+) -> None:
+    stage_latency_ms[stage_name] = round((time.perf_counter() - started_at) * 1000, 2)
 
 
 def build_agent_steps(web_triggered: bool, is_llm_degraded: bool) -> list[str]:
@@ -295,39 +305,65 @@ def detect_news_credibility(
     if not title or not content:
         raise DetectionServiceError("新闻标题和正文不能为空")
 
-    keywords = extract_keywords(title=title, content=content)
-    evidence_results = _search_top10_evidence(db=db, title=title, content=content)
-    evidence_list = _format_evidence_list(evidence_results)
+    stage_latency_ms: dict[str, float] = {}
+    stage_started = time.perf_counter()
+    with trace_span(
+        "detection.extract_keywords",
+        {"news.category": payload.category or ""},
+    ) as span:
+        keywords = extract_keywords(title=title, content=content)
+        add_span_attributes(span, {"keyword.count": len(keywords)})
+    _record_stage_latency(stage_latency_ms, "extract_keywords", stage_started)
+
+    stage_started = time.perf_counter()
+    with trace_span("detection.rag_search", {"rag.top_k": RAG_TOP_K}) as span:
+        evidence_results = _search_top10_evidence(db=db, title=title, content=content)
+        evidence_list = _format_evidence_list(evidence_results)
+        add_span_attributes(span, {"rag.match_count": len(evidence_list)})
+    _record_stage_latency(stage_latency_ms, "rag_search", stage_started)
 
     # ── web search (conditional) ──
     web_triggered = False
     web_sources_count = 0
     settings = get_settings()
     web_search_enabled = getattr(settings, "web_search_enabled", True)
-    if web_search_enabled and should_trigger_web_search(
-        evidence_list,
-        payload.enable_web_search,
-    ):
-        try:
-            bocha_client = BochaClient(
-                api_key=settings.bocha_api_key,
-                timeout=settings.web_search_timeout_seconds,
-            )
-            web_items = search_evidence(
-                client=bocha_client,
-                title=title,
-                keywords=keywords,
-                count=settings.web_search_count,
-                freshness=settings.web_search_freshness,
-            )
-            if web_items:
-                evidence_list = merge_evidence(evidence_list, web_items)
-                web_triggered = True
-                web_sources_count = sum(
-                    1 for e in evidence_list if e.get("source_type") == "web_search"
+    stage_started = time.perf_counter()
+    with trace_span(
+        "detection.web_search",
+        {
+            "web_search.enabled": web_search_enabled,
+            "web_search.requested": bool(payload.enable_web_search),
+        },
+    ) as span:
+        should_search_web = web_search_enabled and should_trigger_web_search(
+            evidence_list,
+            payload.enable_web_search,
+        )
+        add_span_attributes(span, {"web_search.triggered": should_search_web})
+        if should_search_web:
+            try:
+                bocha_client = BochaClient(
+                    api_key=settings.bocha_api_key,
+                    timeout=settings.web_search_timeout_seconds,
                 )
-        except BochaServiceError:
-            logger.warning("Bocha web search failed, continuing with RAG-only evidence")
+                web_items = search_evidence(
+                    client=bocha_client,
+                    title=title,
+                    keywords=keywords,
+                    count=settings.web_search_count,
+                    freshness=settings.web_search_freshness,
+                )
+                add_span_attributes(span, {"web_search.result_count": len(web_items)})
+                if web_items:
+                    evidence_list = merge_evidence(evidence_list, web_items)
+                    web_triggered = True
+                    web_sources_count = sum(
+                        1 for e in evidence_list if e.get("source_type") == "web_search"
+                    )
+            except BochaServiceError:
+                add_span_attributes(span, {"web_search.failed": True})
+                logger.warning("Bocha web search failed, continuing with RAG-only evidence")
+    _record_stage_latency(stage_latency_ms, "web_search", stage_started)
 
     # ── ensure every candidate has a candidate_id ──────────────────────
     _ensure_candidate_ids(evidence_list)
@@ -337,14 +373,25 @@ def detect_news_credibility(
     neutral_evidence = build_neutral_candidate_order(evidence_list, seed)
     prompt_evidence = neutral_evidence[:PROMPT_EVIDENCE_LIMIT]
 
-    prompt_template = get_default_prompt_content(db)
+    stage_started = time.perf_counter()
+    with trace_span("detection.prompt_template") as span:
+        prompt_template = get_default_prompt_content(db)
+        add_span_attributes(span, {"prompt_template.loaded": bool(prompt_template)})
+    _record_stage_latency(stage_latency_ms, "prompt_template", stage_started)
 
-    llm_result = analyze_news_credibility(
-        title=title,
-        content=content,
-        evidence_list=prompt_evidence,
-        prompt_template=prompt_template,
-    )
+    stage_started = time.perf_counter()
+    with trace_span(
+        "detection.llm_analysis",
+        {"evidence.prompt_count": len(prompt_evidence)},
+    ) as span:
+        llm_result = analyze_news_credibility(
+            title=title,
+            content=content,
+            evidence_list=prompt_evidence,
+            prompt_template=prompt_template,
+        )
+        add_span_attributes(span, {"llm.degraded": _is_llm_failure(llm_result)})
+    _record_stage_latency(stage_latency_ms, "llm_analysis", stage_started)
 
     # ── evidence arbitration ─────────────────────────────────────────
     ranking_result: dict[str, Any] | None = None
@@ -380,10 +427,20 @@ def detect_news_credibility(
                 "; ".join(first_errors),
             )
             arbitration_attempts = 2
-            retry_result = analyze_evidence_arbitration(
-                title=title,
-                content=content,
-                evidence_list=prompt_evidence,
+            stage_started = time.perf_counter()
+            with trace_span(
+                "detection.evidence_arbitration_retry",
+                {"evidence.prompt_count": len(prompt_evidence)},
+            ):
+                retry_result = analyze_evidence_arbitration(
+                    title=title,
+                    content=content,
+                    evidence_list=prompt_evidence,
+                )
+            _record_stage_latency(
+                stage_latency_ms,
+                "evidence_arbitration_retry",
+                stage_started,
             )
             retry_arbitration = retry_result.get("evidence_arbitration")
             retry_ranking = (
@@ -450,12 +507,22 @@ def detect_news_credibility(
         for evidence in effective_evidence
     )
 
-    rule_result = calculate_rule_score(
-        title=title,
-        content=content,
-        source_name=payload.source_name,
-        evidence_list=effective_evidence,
-    )
+    stage_started = time.perf_counter()
+    with trace_span(
+        "detection.rule_score",
+        {"evidence.effective_count": len(effective_evidence)},
+    ) as span:
+        rule_result = calculate_rule_score(
+            title=title,
+            content=content,
+            source_name=payload.source_name,
+            evidence_list=effective_evidence,
+        )
+        add_span_attributes(
+            span,
+            {"rule_score": _normalize_score(rule_result.get("rule_score"))},
+        )
+    _record_stage_latency(stage_latency_ms, "rule_score", stage_started)
 
     evidence_score = calculate_evidence_score(effective_evidence)
     llm_score = _normalize_score(llm_result.get("llm_score"))
@@ -498,11 +565,31 @@ def detect_news_credibility(
         effective_evidence=effective_evidence,
         llm_similar_news=llm_result.get("similar_news"),
     )
+    retrieval_index_version = (
+        "v2"
+        if any(evidence.get("index_version") == "v2" for evidence in evidence_list)
+        else "v1"
+    )
+    candidate_chunk_count = sum(
+        len(evidence.get("chunks") or []) for evidence in evidence_list
+    )
+    candidate_parent_count = len(
+        {
+            evidence.get("knowledge_id")
+            for evidence in evidence_list
+            if evidence.get("knowledge_id") is not None
+        }
+    )
     analysis_payload = {
         "publish_time": payload.publish_time,
         "source_name": payload.source_name,
         "source_url": payload.source_url,
         "web_search_enabled": payload.enable_web_search,
+        "retrieval_version": getattr(settings, "rag_index_version", "v1"),
+        "index_version": retrieval_index_version,
+        "candidate_chunk_count": candidate_chunk_count,
+        "candidate_parent_count": candidate_parent_count,
+        "stage_latency_ms": dict(stage_latency_ms),
         "candidate_evidence_list": evidence_list,
         "excluded_evidence": excluded_evidence,
         "similar_news": similar_news,
@@ -516,7 +603,8 @@ def detect_news_credibility(
         "web_has_relevant_match": web_has_relevant_match,
     }
 
-    detection_record = save_detection_record(
+    stage_started = time.perf_counter()
+    detection_record = _save_detection_record_with_tracing(
         db,
         DetectionCreate(
             user_id=getattr(current_user, "id", None),
@@ -548,7 +636,9 @@ def detect_news_credibility(
                 for index, evidence in enumerate(effective_evidence, start=1)
             ],
         ),
+        effective_evidence_count=len(effective_evidence),
     )
+    _record_stage_latency(stage_latency_ms, "db_save", stage_started)
 
     return {
         "detection_id": int(detection_record.id),
@@ -574,6 +664,11 @@ def detect_news_credibility(
         "disclaimer": DISCLAIMER,
         "web_search_triggered": web_triggered,
         "web_search_sources": web_sources_count,
+        "retrieval_version": getattr(settings, "rag_index_version", "v1"),
+        "index_version": retrieval_index_version,
+        "candidate_chunk_count": candidate_chunk_count,
+        "candidate_parent_count": candidate_parent_count,
+        "stage_latency_ms": stage_latency_ms,
         "evidence_quality": evidence_quality,
         "arbitration_status": arbitration_status,
         "quality_status": quality_status,
@@ -583,6 +678,21 @@ def detect_news_credibility(
         "knowledge_has_relevant_match": knowledge_has_relevant_match,
         "web_has_relevant_match": web_has_relevant_match,
     }
+
+
+def _save_detection_record_with_tracing(
+    db: Session,
+    payload: DetectionCreate,
+    *,
+    effective_evidence_count: int,
+) -> Any:
+    with trace_span(
+        "detection.db_save",
+        {"evidence.effective_count": effective_evidence_count},
+    ) as span:
+        record = save_detection_record(db, payload)
+        add_span_attributes(span, {"detection.id": int(record.id)})
+        return record
 
 
 def _validate_evidence_quality(value: Any) -> list[str]:
@@ -684,8 +794,17 @@ def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]
                 "category": clean_text(metadata.get("category"), max_length=50),
                 "truth_label": clean_text(metadata.get("truth_label"), max_length=30),
                 "source_name": clean_text(metadata.get("source_name"), max_length=100),
+                "source_url": metadata.get("source_url"),
+                "publish_time": metadata.get("publish_time"),
                 "risk_level": clean_text(metadata.get("risk_level"), max_length=30),
                 "similarity_score": result.get("similarity_score"),
+                "index_version": (
+                    result.get("index_version")
+                    or metadata.get("index_version")
+                    or "v1"
+                ),
+                "chunks": result.get("chunks") or [],
+                "score_components": result.get("score_components") or {},
                 "rank_order": index,
                 "source_type": "knowledge_base",
                 "source_label": "📚 知识库",

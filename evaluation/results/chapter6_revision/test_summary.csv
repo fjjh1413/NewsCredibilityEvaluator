@@ -1,0 +1,7 @@
+﻿test_group,command,passed,failed,subtests_passed,status,evidence
+后端自动化测试,python -m pytest tests -q,392,0,71,通过,logs/backend_pytest_20260701.log
+评测模块测试,python -m pytest evaluation/tests -q,112,0,0,通过,logs/evaluation_tests_final_sensitivity_20260702.log
+前端测试,npm test,14,0,0,通过,logs/frontend_tests_20260701.log
+前端生产构建,npm run build,1,0,0,通过（有chunk警告）,logs/frontend_build_20260701.log
+Alembic当前版本,python -m alembic current,1,0,0,0007=head,logs/alembic_current.log
+Alembic模型漂移,python -m alembic check,0,1,0,未通过,logs/alembic_check.log

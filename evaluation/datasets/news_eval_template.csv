@@ -1,0 +1,23 @@
+sample_id,title,content,url,gold_label,gold_label_source,local_kb_expected,relevant_knowledge_ids,allow_web_search,reviewer_1_label,reviewer_2_label,reviewer_notes
+# 字段说明（此行以 # 开头，为注释行，导入时请跳过）
+# ─────────────────────────────────────────────────────────────────────────────────
+# sample_id              字符串，唯一标识每条测试样本，禁止重复。示例：EVAL-001
+# title                  新闻标题（必填，至少4个字符）
+# content                新闻正文（必填，至少20个字符）
+# url                    新闻来源链接（可选，无则留空）
+# gold_label             真实标签，仅允许：可信新闻 | 存疑信息 | 疑似谣言 | 高风险谣言（无真实标注则留空）
+# gold_label_source      真实标签来源。示例：权威辟谣 | 事实核查平台 | 专家评审 | 官方通报（无则留空）
+# local_kb_expected      是否预期本地知识库中存在相关证据：yes | no | unknown
+# relevant_knowledge_ids  逗号分隔的人工标注相关证据 knowledge_id 列表，用于计算 Hit@K / Recall@K。示例：1,3,5（无标注则留空）
+# allow_web_search       是否允许该样本使用联网检索：true | false
+# reviewer_1_label       评审者1标注的风险标签（与 gold_label 格式相同；无则留空）
+# reviewer_2_label       评审者2标注的风险标签（与 gold_label 格式相同；无则留空）
+# reviewer_notes         评审备注或分歧说明（无则留空）
+# ─────────────────────────────────────────────────────────────────────────────────
+# 填写要求：
+# 1. 真实标签 gold_label 必须由人工确认后填写，不得自动伪造或从 LLM 输出推断；
+# 2. 正式评测时必须排除标注为 DEMO 的样本（可通过 sample_id 前缀 DEMO- 或单独文件区分）；
+# 3. 如某字段没有数据（如 gold_label 未标注），保持空值，不得填入推测值；
+# 4. 所有样本的 sample_id 必须唯一，重复 ID 会在加载时报告并跳过。
+# ─────────────────────────────────────────────────────────────────────────────────
+# 正式评测样本请在下方按格式添加（去掉本注释行及上方所有 # 行后即为有效 CSV）：

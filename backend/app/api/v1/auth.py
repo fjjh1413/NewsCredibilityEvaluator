@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.core.client_ip import get_client_ip
 from app.core.deps import get_current_user
-from app.core.rate_limit import InMemoryRateLimiter
+from app.core.redis_client import RedisUnavailableError
+from app.core.rate_limit import RedisBackedRateLimiter
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models.user import User
@@ -27,37 +29,27 @@ from app.utils.response import error_response, success_response
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-login_rate_limiter = InMemoryRateLimiter()
-register_rate_limiter = InMemoryRateLimiter()
+login_rate_limiter = RedisBackedRateLimiter("auth:login")
+register_rate_limiter = RedisBackedRateLimiter("auth:register")
 
 LOGIN_RATE_LIMIT_COUNT = 5
 REGISTER_RATE_LIMIT_COUNT = 2
 AUTH_RATE_LIMIT_WINDOW_SECONDS = 60
 
 
-def _get_client_ip(request: Request) -> str:
-    forwarded_for = request.headers.get("x-forwarded-for", "")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",", 1)[0].strip()
-        if client_ip:
-            return client_ip
-
-    real_ip = request.headers.get("x-real-ip", "").strip()
-    if real_ip:
-        return real_ip
-
-    if request.client and request.client.host:
-        return request.client.host
-    return "unknown"
-
-
-def enforce_register_rate_limit(request: Request) -> None:
-    client_ip = _get_client_ip(request)
-    is_allowed = register_rate_limiter.allow_request(
-        key=client_ip,
-        limit=REGISTER_RATE_LIMIT_COUNT,
-        window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
-    )
+async def enforce_register_rate_limit(request: Request) -> None:
+    client_ip = get_client_ip(request)
+    try:
+        is_allowed = await register_rate_limiter.allow_request(
+            key=client_ip,
+            limit=REGISTER_RATE_LIMIT_COUNT,
+            window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
+        )
+    except RedisUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="娉ㄥ唽闄愭祦鏈嶅姟鏆備笉鍙敤",
+        ) from exc
     if not is_allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -65,13 +57,19 @@ def enforce_register_rate_limit(request: Request) -> None:
         )
 
 
-def enforce_login_rate_limit(request: Request) -> None:
-    client_ip = _get_client_ip(request)
-    is_allowed = login_rate_limiter.allow_request(
-        key=client_ip,
-        limit=LOGIN_RATE_LIMIT_COUNT,
-        window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
-    )
+async def enforce_login_rate_limit(request: Request) -> None:
+    client_ip = get_client_ip(request)
+    try:
+        is_allowed = await login_rate_limiter.allow_request(
+            key=client_ip,
+            limit=LOGIN_RATE_LIMIT_COUNT,
+            window_seconds=AUTH_RATE_LIMIT_WINDOW_SECONDS,
+        )
+    except RedisUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="鐧诲綍闄愭祦鏈嶅姟鏆備笉鍙敤",
+        ) from exc
     if not is_allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
