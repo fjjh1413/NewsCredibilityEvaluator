@@ -21,6 +21,13 @@ from app.services.knowledge_service import (
     build_rag_search_text,
     search_similar_knowledge,
 )
+from app.services.rag.contextual_compression import add_supporting_spans_to_results
+from app.services.rag.fusion import fuse_ranked_parent_results
+from app.services.rag.query_planner import build_claim_aware_queries
+from app.services.evidence_arbitration_quality import (
+    apply_arbitration_quality_controls,
+    extract_core_claims,
+)
 from app.services.llm_service import (
     ANALYSIS_CONTRACT_VERSION,
     LLM_FAILURE_ERROR,
@@ -218,11 +225,14 @@ def validate_and_apply_llm_ranking(
             errors.append(f"ranked_evidence [{cid}]: reason is empty")
             continue
 
+        claim_ids = _normalize_arbitration_claim_ids(entry.get("claim_ids"))
+
         ranked.append({
             "cid": cid,
             "relevance_score": round(rel, 2),
             "quality_score": round(qual, 2),
             "stance": stance,
+            "claim_ids": claim_ids,
             "reason": reason[:1000],
         })
 
@@ -280,6 +290,7 @@ def validate_and_apply_llm_ranking(
         candidate["relevance_score"] = decision["relevance_score"]
         candidate["quality_score"] = decision["quality_score"]
         candidate["stance"] = decision["stance"]
+        candidate["claim_ids"] = decision["claim_ids"]
         candidate["arbitration_reason"] = decision["reason"]
         ranked_candidates.append(candidate)
 
@@ -312,14 +323,39 @@ def detect_news_credibility(
         {"news.category": payload.category or ""},
     ) as span:
         keywords = extract_keywords(title=title, content=content)
-        add_span_attributes(span, {"keyword.count": len(keywords)})
+        core_claims = extract_core_claims(title, content)
+        add_span_attributes(
+            span,
+            {
+                "keyword.count": len(keywords),
+                "claim.count": len(core_claims),
+            },
+        )
     _record_stage_latency(stage_latency_ms, "extract_keywords", stage_started)
 
     stage_started = time.perf_counter()
     with trace_span("detection.rag_search", {"rag.top_k": RAG_TOP_K}) as span:
-        evidence_results = _search_top10_evidence(db=db, title=title, content=content)
+        evidence_results = _search_top10_evidence(
+            db=db,
+            title=title,
+            content=content,
+            claims=core_claims,
+        )
         evidence_list = _format_evidence_list(evidence_results)
-        add_span_attributes(span, {"rag.match_count": len(evidence_list)})
+        rag_query_count = max(
+            [
+                int(evidence.get("retrieval_query_count") or 0)
+                for evidence in evidence_list
+            ]
+            or [1]
+        )
+        add_span_attributes(
+            span,
+            {
+                "rag.match_count": len(evidence_list),
+                "rag.query_count": rag_query_count,
+            },
+        )
     _record_stage_latency(stage_latency_ms, "rag_search", stage_started)
 
     # ── web search (conditional) ──
@@ -389,6 +425,7 @@ def detect_news_credibility(
             content=content,
             evidence_list=prompt_evidence,
             prompt_template=prompt_template,
+            claims=core_claims,
         )
         add_span_attributes(span, {"llm.degraded": _is_llm_failure(llm_result)})
     _record_stage_latency(stage_latency_ms, "llm_analysis", stage_started)
@@ -399,6 +436,7 @@ def detect_news_credibility(
     quality_status = "unavailable"
     arbitration_attempts = 0
     arbitration_error: str | None = None
+    arbitration_quality_summary: dict[str, Any] = {}
 
     if not evidence_list:
         ranking_result = {"ranked": [], "rejected": [], "errors": []}
@@ -436,6 +474,7 @@ def detect_news_credibility(
                     title=title,
                     content=content,
                     evidence_list=prompt_evidence,
+                    claims=core_claims,
                 )
             _record_stage_latency(
                 stage_latency_ms,
@@ -485,6 +524,21 @@ def detect_news_credibility(
             arbitration_status = "ok"
             quality_status = "ok"
 
+    if ranking_result is not None and not ranking_result["errors"]:
+        quality_control = apply_arbitration_quality_controls(
+            ranked=ranking_result["ranked"],
+            rejected=ranking_result["rejected"],
+            claims=core_claims,
+            source_url=payload.source_url,
+        )
+        ranking_result = {
+            **ranking_result,
+            "ranked": quality_control["ranked"],
+            "rejected": quality_control["rejected"],
+            "quality": quality_control["quality"],
+        }
+        arbitration_quality_summary = quality_control["quality"]
+
     is_llm_degraded = _is_llm_failure(llm_result)
     if is_llm_degraded:
         llm_result = _build_degraded_llm_result(llm_result)
@@ -531,6 +585,11 @@ def detect_news_credibility(
     # ── evidence quality (LLM-evaluated) ──
     raw_evidence_quality = llm_result.get("evidence_quality") or {}
     evidence_quality = raw_evidence_quality if quality_status == "ok" else None
+    if isinstance(evidence_quality, dict) and arbitration_quality_summary:
+        evidence_quality = {
+            **evidence_quality,
+            "backend_arbitration_quality": arbitration_quality_summary,
+        }
     eq_score = (
         _normalize_score(raw_evidence_quality.get("score"))
         if quality_status == "ok"
@@ -580,6 +639,23 @@ def detect_news_credibility(
             if evidence.get("knowledge_id") is not None
         }
     )
+    rag_query_count = max(
+        [int(evidence.get("retrieval_query_count") or 0) for evidence in evidence_list]
+        or [1]
+    )
+    rag_query_strategy = next(
+        (
+            evidence.get("retrieval_query_strategy")
+            for evidence in evidence_list
+            if evidence.get("retrieval_query_strategy")
+        ),
+        "single_query",
+    )
+    rag_supporting_span_count = sum(
+        len(chunk.get("supporting_spans") or [])
+        for evidence in evidence_list
+        for chunk in evidence.get("chunks") or []
+    )
     analysis_payload = {
         "publish_time": payload.publish_time,
         "source_name": payload.source_name,
@@ -589,11 +665,16 @@ def detect_news_credibility(
         "index_version": retrieval_index_version,
         "candidate_chunk_count": candidate_chunk_count,
         "candidate_parent_count": candidate_parent_count,
+        "rag_query_count": rag_query_count,
+        "rag_query_strategy": rag_query_strategy,
+        "rag_supporting_span_count": rag_supporting_span_count,
         "stage_latency_ms": dict(stage_latency_ms),
+        "core_claims": core_claims,
         "candidate_evidence_list": evidence_list,
         "excluded_evidence": excluded_evidence,
         "similar_news": similar_news,
         "evidence_quality": evidence_quality,
+        "arbitration_quality": arbitration_quality_summary,
         "arbitration_status": arbitration_status,
         "quality_status": quality_status,
         "arbitration_error": arbitration_error,
@@ -668,8 +749,13 @@ def detect_news_credibility(
         "index_version": retrieval_index_version,
         "candidate_chunk_count": candidate_chunk_count,
         "candidate_parent_count": candidate_parent_count,
+        "rag_query_count": rag_query_count,
+        "rag_query_strategy": rag_query_strategy,
+        "rag_supporting_span_count": rag_supporting_span_count,
         "stage_latency_ms": stage_latency_ms,
+        "core_claims": core_claims,
         "evidence_quality": evidence_quality,
+        "arbitration_quality": arbitration_quality_summary,
         "arbitration_status": arbitration_status,
         "quality_status": quality_status,
         "arbitration_error": arbitration_error,
@@ -770,16 +856,59 @@ def _search_top10_evidence(
     db: Session,
     title: str,
     content: str,
+    claims: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    settings = get_settings()
     query_text = build_rag_search_text(title=title, content=content)
-    try:
-        return search_similar_knowledge(
-            db,
-            query_text=query_text,
-            top_k=RAG_TOP_K,
+    query_texts = [query_text] if query_text else []
+    if getattr(settings, "rag_claim_aware_enabled", True):
+        query_texts = build_claim_aware_queries(
+            title=title,
+            content=content,
+            claims=claims,
+            max_queries=getattr(settings, "rag_claim_query_count", 4),
         )
+    if not query_texts:
+        return []
+
+    try:
+        if len(query_texts) == 1:
+            results = search_similar_knowledge(
+                db,
+                query_text=query_texts[0],
+                top_k=RAG_TOP_K,
+            )
+        else:
+            ranked_result_sets = [
+                search_similar_knowledge(db, query_text=query, top_k=RAG_TOP_K)
+                for query in query_texts
+            ]
+            results = fuse_ranked_parent_results(
+                ranked_result_sets,
+                top_k=RAG_TOP_K,
+                rank_constant=getattr(settings, "rag_rrf_rank_constant", 60),
+                query_texts=query_texts,
+            )
     except KnowledgeVectorSyncError as exc:
         raise KnowledgeRetrievalFailedError("知识库证据检索失败") from exc
+
+
+    if getattr(settings, "rag_supporting_spans_enabled", True):
+        results = add_supporting_spans_to_results(
+            results,
+            query_texts=query_texts,
+            max_spans_per_result=getattr(settings, "rag_supporting_span_count", 2),
+        )
+
+    strategy = "claim_aware_multi_query" if len(query_texts) > 1 else "single_query"
+    for result in results:
+        result["retrieval_query_count"] = len(query_texts)
+        result["retrieval_query_strategy"] = strategy
+        result.setdefault(
+            "retrieval_queries",
+            [clean_text(query, max_length=300) for query in query_texts],
+        )
+    return results
 
 
 def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -804,7 +933,22 @@ def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]
                     or "v1"
                 ),
                 "chunks": result.get("chunks") or [],
+                "supporting_spans": result.get("supporting_spans") or [],
                 "score_components": result.get("score_components") or {},
+                "query_match_count": result.get("query_match_count"),
+                "query_hits": result.get("query_hits") or [],
+                "retrieval_queries": result.get("retrieval_queries") or [],
+                "retrieval_query_count": result.get("retrieval_query_count"),
+                "retrieval_query_strategy": result.get("retrieval_query_strategy"),
+                "multi_query_rrf_score": result.get("multi_query_rrf_score"),
+                "rerank_original_rank": result.get("rerank_original_rank"),
+                "rule_rerank_score": result.get("rule_rerank_score"),
+                "model_rerank_score": result.get("model_rerank_score"),
+                "model_rerank_reason": result.get("model_rerank_reason"),
+                "rerank_score": result.get("rerank_score"),
+                "rerank_stage": result.get("rerank_stage"),
+                "diversity_adjusted_rerank_score": result.get("diversity_adjusted_rerank_score"),
+                "rerank_order": result.get("rerank_order"),
                 "rank_order": index,
                 "source_type": "knowledge_base",
                 "source_label": "📚 知识库",
@@ -957,6 +1101,24 @@ def _ensure_candidate_ids(evidence_list: list[dict[str, Any]]) -> None:
             suffix += 1
         candidate_ids.add(cid)
         item["candidate_id"] = cid
+
+
+def _normalize_arbitration_claim_ids(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        raw_items = re.split(r"[,，\s]+", value)
+    elif isinstance(value, list):
+        raw_items = value
+    else:
+        return []
+
+    claim_ids: list[str] = []
+    for item in raw_items:
+        claim_id = clean_text(item, max_length=20)
+        if claim_id and claim_id not in claim_ids:
+            claim_ids.append(claim_id)
+    return claim_ids[:10]
 
 
 def _build_similar_news_from_llm(

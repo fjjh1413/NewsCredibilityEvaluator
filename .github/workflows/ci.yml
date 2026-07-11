@@ -46,6 +46,12 @@ jobs:
           CRAWL_ENABLED: "false"
         run: python -m unittest discover -s tests -p "test_*.py"
 
+      - name: Run AI engineering eval gate
+        working-directory: .
+        run: |
+          python -m unittest evaluation.tests.test_ai_engineering_metrics evaluation.tests.test_ai_engineering_runner
+          python -m evaluation.ai_engineering.runner --cases evaluation/ai_engineering/sample_cases.jsonl --output .artifacts/ai_eval/summary.json
+
   frontend:
     name: Frontend Tests And Build
     runs-on: ubuntu-latest

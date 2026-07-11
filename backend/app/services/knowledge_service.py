@@ -7,6 +7,7 @@ from app.core.config import get_settings
 from app.crud import knowledge_crud
 from app.models.knowledge_item import KnowledgeItem
 from app.schemas.knowledge import KnowledgeCreate, KnowledgeUpdate, VectorSyncStatus
+from app.services.knowledge_index_jobs import enqueue_knowledge_index_job
 from app.services.chroma_service import (
     ChromaServiceError,
     delete_knowledge_item_vector,
@@ -226,7 +227,7 @@ def build_rag_search_text(
     return clean_text(query, max_length=max_length)
 
 
-def _sync_knowledge_vector(
+def sync_knowledge_vector(
     db: Session,
     item: KnowledgeItem,
     auto_commit: bool = True,
@@ -243,6 +244,20 @@ def _sync_knowledge_vector(
         return failed_item
 
     return _mark_vector_synced(db, item, vector_id, auto_commit=auto_commit)
+
+
+def _sync_knowledge_vector(
+    db: Session,
+    item: KnowledgeItem,
+    auto_commit: bool = True,
+    raise_on_failure: bool = False,
+) -> KnowledgeItem:
+    return sync_knowledge_vector(
+        db,
+        item,
+        auto_commit=auto_commit,
+        raise_on_failure=raise_on_failure,
+    )
 
 
 def list_knowledge_items(
@@ -279,8 +294,21 @@ def create_knowledge_item(
     db: Session,
     item_in: KnowledgeCreate,
 ) -> KnowledgeItem:
-    item = knowledge_crud.create_knowledge_item(db, item_in)
-    return _sync_knowledge_vector(db, item)
+    try:
+        item = knowledge_crud.create_knowledge_item(db, item_in, auto_commit=False)
+        enqueue_knowledge_index_job(
+            db,
+            item,
+            source="knowledge.create",
+            auto_commit=False,
+        )
+        db.commit()
+        db.refresh(item)
+        return item
+    except Exception:
+        db.rollback()
+        logger.exception("Knowledge create failed before index job was queued")
+        raise
 
 
 def update_knowledge_item(
@@ -296,27 +324,23 @@ def update_knowledge_item(
         auto_commit=False,
     )
     try:
-        synced_item = _sync_knowledge_vector(
+        enqueue_knowledge_index_job(
             db,
             updated_item,
+            source="knowledge.update",
             auto_commit=False,
-            raise_on_failure=True,
         )
-    except KnowledgeVectorSyncError:
+    except Exception:
         db.rollback()
         logger.exception(
-            "Knowledge update rolled back because vector sync failed for item id=%s",
+            "Knowledge update failed before index job was queued for item id=%s",
             item_id,
         )
         raise
-    except Exception:
-        db.rollback()
-        logger.exception("Knowledge update failed before commit for item id=%s", item_id)
-        raise
 
     db.commit()
-    db.refresh(synced_item)
-    return synced_item
+    db.refresh(updated_item)
+    return updated_item
 
 
 def delete_knowledge_item(db: Session, item_id: int) -> None:
@@ -474,8 +498,24 @@ def _restore_vector_after_mysql_delete_failure(
 
 def vectorize_knowledge_item(db: Session, item_id: int) -> KnowledgeItem:
     item = get_knowledge_item(db, item_id)
-    item = _mark_vector_pending(db, item)
-    return _sync_knowledge_vector(db, item)
+    try:
+        item = _mark_vector_pending(db, item, auto_commit=False)
+        enqueue_knowledge_index_job(
+            db,
+            item,
+            source="knowledge.vectorize",
+            auto_commit=False,
+        )
+        db.commit()
+        db.refresh(item)
+        return item
+    except Exception:
+        db.rollback()
+        logger.exception(
+            "Knowledge vectorize failed before index job was queued for item id=%s",
+            item_id,
+        )
+        raise
 
 
 def rebuild_knowledge_index(db: Session) -> dict[str, Any]:
@@ -495,18 +535,29 @@ def rebuild_knowledge_index(db: Session) -> dict[str, Any]:
             "failed_ids": failed_ids,
         }
 
-    success_count = 0
-    for item in items:
-        pending_item = _mark_vector_pending(db, item)
-        synced_item = _sync_knowledge_vector(db, pending_item)
-        if synced_item.vector_sync_status == "synced":
-            success_count += 1
-        else:
-            failed_ids.append(int(synced_item.id))
+    queued_count = 0
+    try:
+        for item in items:
+            pending_item = _mark_vector_pending(db, item, auto_commit=False)
+            enqueue_knowledge_index_job(
+                db,
+                pending_item,
+                source="knowledge.rebuild",
+                auto_commit=False,
+            )
+            queued_count += 1
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.exception("Knowledge rebuild failed while queueing index jobs")
+        for item in items:
+            _mark_vector_failed(db, item, exc)
+            failed_ids.append(int(item.id))
 
     return {
         "total": len(items),
-        "success": success_count,
+        "queued": queued_count,
+        "success": 0,
         "failed": len(failed_ids),
         "failed_ids": failed_ids,
     }

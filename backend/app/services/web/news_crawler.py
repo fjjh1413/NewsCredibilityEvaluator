@@ -18,11 +18,9 @@ from app.db.session import SessionLocal
 from app.models.crawl_task import CrawlTask
 from app.models.knowledge_item import KnowledgeItem
 from app.services.knowledge_service import (
-    build_knowledge_embedding_text,
     _mark_vector_failed,
-    _mark_vector_synced,
 )
-from app.services.chroma_service import upsert_knowledge_item_vector
+from app.services.knowledge_index_jobs import enqueue_knowledge_index_job
 from app.services.web.bocha_client import BochaClient, BochaServiceError
 from app.services.web.web_content_fetcher import WebContentFetcher, WebContentFetchError
 from app.utils.text_cleaner import clean_text
@@ -433,12 +431,15 @@ def _create_knowledge_from_crawl(
 
     if auto_sync_vector:
         try:
-            embedding_text = build_knowledge_embedding_text(db_item)
-            vector_id = upsert_knowledge_item_vector(db_item, embedding_text)
-            _mark_vector_synced(db, db_item, vector_id, auto_commit=False)
+            enqueue_knowledge_index_job(
+                db,
+                db_item,
+                source=f"crawl:{job.name}",
+                auto_commit=False,
+            )
         except Exception as exc:
             logger.warning(
-                "Crawl knowledge vector sync failed for id=%s: %s",
+                "Crawl knowledge index job enqueue failed for id=%s: %s",
                 db_item.id,
                 exc,
             )

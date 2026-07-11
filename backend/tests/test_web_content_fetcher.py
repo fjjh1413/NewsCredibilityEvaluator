@@ -3,6 +3,9 @@ import urllib.error
 from unittest.mock import patch
 
 from app.services.web.web_content_fetcher import (
+    AntiBotBlockedError,
+    DynamicRenderRequiredError,
+    LoginRequiredError,
     SSRFBlockedError,
     WebContentFetchError,
     WebContentFetcher,
@@ -59,6 +62,9 @@ class FetchArticleTestCase(unittest.TestCase):
         self.assertEqual(article["source_name"], "example.com")
         self.assertEqual(article["source_url"], "https://example.com/news/1")
         self.assertEqual(article["publish_time"], "2026-06-18T09:30:00+08:00")
+        self.assertEqual(article["page_type"], "static_article")
+        self.assertIn("semantic_article_container", article["recognition_signals"])
+        self.assertGreaterEqual(article["recognition_confidence"], 0.85)
 
     @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
     @patch("app.services.web.web_content_fetcher._open_without_redirects")
@@ -80,6 +86,40 @@ class FetchArticleTestCase(unittest.TestCase):
 
         self.assertEqual(article["publish_time"], "2026-06-17T18:20:00+08:00")
         self.assertEqual(article["publish_time_precision"], "datetime")
+
+    @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
+    @patch("app.services.web.web_content_fetcher._open_without_redirects")
+    def test_fetch_article_reads_structured_script_when_dom_is_empty(
+        self, mock_urlopen, _mock_private
+    ):
+        mock_urlopen.return_value = _FakeResponse(
+            """
+            <html><head>
+            <title>Client Rendered Shell</title>
+            <script id="__NEXT_DATA__" type="application/json">
+              {
+                "props": {
+                  "pageProps": {
+                    "article": {
+                      "headline": "Structured News Title",
+                      "articleBody": "Structured article body with enough detail to be used when the rendered DOM has no paragraphs."
+                    }
+                  }
+                }
+              }
+            </script>
+            </head><body><div id="__next"></div></body></html>
+            """
+        )
+
+        article = WebContentFetcher().fetch_article("https://example.com/rendered")
+
+        self.assertEqual(article["title"], "Structured News Title")
+        self.assertIn("Structured article body", article["content"])
+        self.assertEqual(article["extraction_method"], "structured_data")
+        self.assertIn("dom_content_empty", article["warnings"])
+        self.assertEqual(article["page_type"], "structured_article")
+        self.assertEqual(article["recommended_extraction_method"], "structured_data")
 
     @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
     @patch("app.services.web.web_content_fetcher._open_without_redirects")
@@ -332,6 +372,66 @@ class FetchArticleTestCase(unittest.TestCase):
     def test_fetch_article_rejects_non_http_scheme(self):
         with self.assertRaises(WebContentFetchError):
             WebContentFetcher().fetch_article("ftp://example.com/file")
+
+    @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
+    @patch("app.services.web.web_content_fetcher._open_without_redirects")
+    def test_fetch_article_detects_login_wall(self, mock_urlopen, _mock_private):
+        mock_urlopen.return_value = _FakeResponse(
+            """
+            <html><head><title>Please sign in</title></head><body>
+              <main>
+                <h1>Please sign in to continue</h1>
+                <form action="/login"><input type="password" name="password"></form>
+              </main>
+            </body></html>
+            """
+        )
+
+        with self.assertRaises(LoginRequiredError) as raised:
+            WebContentFetcher().fetch_article("https://example.com/news/private")
+
+        self.assertEqual(raised.exception.login_url, "https://example.com/login")
+
+    @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
+    @patch("app.services.web.web_content_fetcher._open_without_redirects")
+    def test_fetch_article_detects_antibot_wall(self, mock_urlopen, _mock_private):
+        mock_urlopen.return_value = _FakeResponse(
+            """
+            <html><head><title>Access denied</title></head><body>
+              <main>
+                <h1>Access denied</h1>
+                <p>Please verify you are human before continuing.</p>
+                <div class="cf-turnstile"></div>
+              </main>
+            </body></html>
+            """
+        )
+
+        with self.assertRaises(AntiBotBlockedError) as raised:
+            WebContentFetcher().fetch_article("https://example.com/protected")
+
+        self.assertEqual(raised.exception.status, "blocked_by_anti_bot")
+        self.assertEqual(raised.exception.recovery_action, "manual_input")
+
+    @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
+    @patch("app.services.web.web_content_fetcher._open_without_redirects")
+    def test_fetch_article_detects_client_rendered_shell(self, mock_urlopen, _mock_private):
+        mock_urlopen.return_value = _FakeResponse(
+            """
+            <html><head><title>Rendered News</title></head><body>
+              <noscript>You need to enable JavaScript to run this app.</noscript>
+              <div id="root"></div>
+              <script src="/static/runtime.js"></script>
+              <script src="/static/news.js"></script>
+            </body></html>
+            """
+        )
+
+        with self.assertRaises(DynamicRenderRequiredError) as raised:
+            WebContentFetcher().fetch_article("https://example.com/render-only")
+
+        self.assertEqual(raised.exception.status, "dynamic_render_required")
+        self.assertEqual(raised.exception.recovery_action, "manual_input")
 
     @patch("app.services.web.web_content_fetcher._is_private_host", return_value=False)
     @patch("app.services.web.web_content_fetcher._open_without_redirects")

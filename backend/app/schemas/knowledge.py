@@ -105,6 +105,7 @@ class KnowledgeDeleteApiResponse(BaseModel):
 
 class KnowledgeRebuildIndexData(BaseModel):
     total: int
+    queued: int = 0
     success: int
     failed: int
     failed_ids: list[int]

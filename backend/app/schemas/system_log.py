@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -11,6 +12,11 @@ class SystemLogCreate(BaseModel):
     action: str = Field(..., min_length=1, max_length=100)
     description: str | None = None
     ip_address: str | None = Field(default=None, max_length=50)
+    request_id: str | None = Field(default=None, max_length=128)
+    target_type: str | None = Field(default=None, max_length=100)
+    target_id: str | None = Field(default=None, max_length=100)
+    result_status: str | None = Field(default=None, max_length=20)
+    metadata_json: dict[str, Any] | None = None
 
     @field_validator("module", "action")
     @classmethod
@@ -20,7 +26,14 @@ class SystemLogCreate(BaseModel):
             raise ValueError("field cannot be blank")
         return cleaned
 
-    @field_validator("description", "ip_address")
+    @field_validator(
+        "description",
+        "ip_address",
+        "request_id",
+        "target_type",
+        "target_id",
+        "result_status",
+    )
     @classmethod
     def optional_text_must_be_clean(cls, value: str | None) -> str | None:
         if value is None:
@@ -39,6 +52,11 @@ class SystemLogOut(BaseModel):
     action: str
     description: str | None = None
     ip_address: str | None = None
+    request_id: str | None = None
+    target_type: str | None = None
+    target_id: str | None = None
+    result_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
     created_at: datetime
 
 

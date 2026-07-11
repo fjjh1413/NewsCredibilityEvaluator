@@ -103,6 +103,9 @@ def register(
         action="register",
         description=f"用户注册成功 username={user.username}",
         ip_address=get_request_ip(request),
+        target_type="user",
+        target_id=user.id,
+        result_status="success",
     )
     return success_response(message="注册成功", data=data)
 
@@ -126,6 +129,10 @@ def login(
             action="login_failed",
             description=f"登录失败 username={payload.username}",
             ip_address=get_request_ip(request),
+            target_type="auth_account",
+            target_id=payload.username,
+            result_status="failure",
+            metadata_json={"reason": "invalid_credentials"},
         )
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -138,6 +145,10 @@ def login(
             action="login_disabled",
             description=f"禁用账号登录被拒绝 username={payload.username}",
             ip_address=get_request_ip(request),
+            target_type="auth_account",
+            target_id=payload.username,
+            result_status="blocked",
+            metadata_json={"reason": "disabled_user"},
         )
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -161,6 +172,9 @@ def login(
         action="login",
         description=f"用户登录成功 username={user.username}",
         ip_address=get_request_ip(request),
+        target_type="user",
+        target_id=user.id,
+        result_status="success",
     )
     return success_response(message="登录成功", data=data)
 

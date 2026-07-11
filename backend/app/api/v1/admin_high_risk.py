@@ -107,6 +107,10 @@ def review_admin_high_risk(
             f"review_status={payload.review_status}"
         ),
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=record_id,
+        result_status="success",
+        metadata_json={"review_status": payload.review_status},
     )
     return success_response(data=data)
 
@@ -135,6 +139,10 @@ def update_admin_high_risk_public(
             f"is_public={payload.is_public}"
         ),
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=record_id,
+        result_status="success",
+        metadata_json={"is_public": payload.is_public},
     )
     return success_response(data=data)
 
@@ -158,6 +166,9 @@ def update_admin_high_risk_remark(
         action="update_remark",
         description=f"管理员更新高风险备注 record_id={record_id}",
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=record_id,
+        result_status="success",
     )
     return success_response(data=data)
 

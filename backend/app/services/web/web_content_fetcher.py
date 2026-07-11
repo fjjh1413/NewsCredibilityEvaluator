@@ -12,6 +12,7 @@ from typing import Any, Literal
 from urllib.parse import urljoin, urlparse
 
 from app.core.config import get_settings
+from app.services.web.page_recognizer import PageRecognition, PageRecognizer
 from app.utils.text_cleaner import clean_text
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,17 @@ TITLE_TAGS = {
     "meta[name='twitter:title']": "content",
     "title": "text",
     "h1": "text",
+}
+STRUCTURED_TITLE_KEYS = {"headline", "title", "name"}
+STRUCTURED_BODY_KEYS = {
+    "articlebody",
+    "articlecontent",
+    "body",
+    "content",
+    "contentbody",
+    "fullcontent",
+    "fulltext",
+    "text",
 }
 PUBLISH_META_SOURCE_RANKS = {
     "article:published_time": 550,
@@ -96,6 +108,102 @@ class WebContentFetchError(Exception):
 
 class SSRFBlockedError(WebContentFetchError):
     """Raised when the target IP is blocked by SSRF guard."""
+
+
+class RecoverableExtractionError(WebContentFetchError):
+    """Raised when extraction failed with a user-actionable recovery path."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: str,
+        recovery_action: str,
+        login_url: str | None = None,
+        page_type: str | None = None,
+        confidence: float | None = None,
+        signals: list[str] | tuple[str, ...] | None = None,
+        recommended_method: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status = status
+        self.recovery_action = recovery_action
+        self.login_url = login_url
+        self.page_type = page_type
+        self.confidence = confidence
+        self.signals = list(signals or [])
+        self.recommended_method = recommended_method
+
+
+class LoginRequiredError(RecoverableExtractionError):
+    """Raised when a page is reachable but hides article content behind login."""
+
+    def __init__(
+        self,
+        message: str,
+        login_url: str | None = None,
+        *,
+        page_type: str | None = None,
+        confidence: float | None = None,
+        signals: list[str] | tuple[str, ...] | None = None,
+        recommended_method: str | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            status="login_required",
+            recovery_action="open_login_then_retry",
+            login_url=login_url,
+            page_type=page_type,
+            confidence=confidence,
+            signals=signals,
+            recommended_method=recommended_method,
+        )
+
+
+class AntiBotBlockedError(RecoverableExtractionError):
+    """Raised when the target page is an anti-bot or access challenge."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        page_type: str | None = None,
+        confidence: float | None = None,
+        signals: list[str] | tuple[str, ...] | None = None,
+        recommended_method: str | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            status="blocked_by_anti_bot",
+            recovery_action="manual_input",
+            page_type=page_type,
+            confidence=confidence,
+            signals=signals,
+            recommended_method=recommended_method,
+        )
+
+
+class DynamicRenderRequiredError(RecoverableExtractionError):
+    """Raised when article text is only available after browser-side rendering."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        page_type: str | None = None,
+        confidence: float | None = None,
+        signals: list[str] | tuple[str, ...] | None = None,
+        recommended_method: str | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            status="dynamic_render_required",
+            recovery_action="manual_input",
+            page_type=page_type,
+            confidence=confidence,
+            signals=signals,
+            recommended_method=recommended_method,
+        )
 
 
 class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -196,6 +304,7 @@ class WebContentFetcher:
         self._timeout = timeout or FETCH_TIMEOUT
         self._max_bytes = max_bytes or MAX_FETCH_BYTES
         self._allow_private = allow_private_hosts
+        self._page_recognizer = PageRecognizer()
 
     # ------------------------------------------------------------------
     # public API
@@ -216,7 +325,7 @@ class WebContentFetcher:
             logger.exception("Unexpected error fetching %s", url)
             return ""
 
-    def fetch_article(self, url: str) -> dict[str, str | None]:
+    def fetch_article(self, url: str) -> dict[str, Any]:
         """Fetch *url* and return structured article fields.
 
         Returns title, content, source metadata, normalized ``publish_time``,
@@ -234,16 +343,36 @@ class WebContentFetcher:
         if not html_content:
             raise WebContentFetchError(f"页面内容为空：{safe_url}")
 
-        title, body = self._extract_article_parts(html_content)
+        title, body, extraction_method, warnings = self._extract_article_parts_with_metadata(
+            html_content
+        )
+        content = clean_text(body, max_length=8000)
+        recognition = self._page_recognizer.recognize(
+            html_content,
+            final_url=final_url,
+            title=title,
+            content=content,
+            extraction_method=extraction_method,
+        )
+        self._raise_for_page_recognition(recognition)
+
         publish_time = self._extract_publish_time(html_content)
         source_host = urlparse(final_url).hostname or hostname
         return {
+            "status": "ok",
             "title": title,
-            "content": clean_text(body, max_length=8000),
+            "content": content,
             "source_name": source_host,
             "source_url": final_url,
+            "final_url": final_url,
             "publish_time": publish_time.value if publish_time else None,
             "publish_time_precision": publish_time.precision if publish_time else None,
+            "extraction_method": extraction_method,
+            "confidence": self._score_extraction_confidence(
+                title, content, extraction_method, warnings
+            ),
+            "warnings": warnings,
+            **recognition.to_response_fields(),
         }
 
     # ------------------------------------------------------------------
@@ -304,6 +433,28 @@ class WebContentFetcher:
                     if new_url:
                         current_url = urljoin(current_url, new_url)
                         continue
+                if exc.code == 401:
+                    recognition = self._page_recognizer.recognize_http_error(
+                        "",
+                        final_url=current_url,
+                        status_code=exc.code,
+                    )
+                    try:
+                        self._raise_for_page_recognition(recognition)
+                    except RecoverableExtractionError as recoverable:
+                        raise recoverable from exc
+                if exc.code in (403, 429, 503):
+                    challenge_html = self._read_http_error_body(exc)
+                    recognition = self._page_recognizer.recognize_http_error(
+                        challenge_html,
+                        final_url=current_url,
+                        status_code=exc.code,
+                    )
+                    if recognition.status == "blocked_by_anti_bot":
+                        try:
+                            self._raise_for_page_recognition(recognition)
+                        except RecoverableExtractionError as recoverable:
+                            raise recoverable from exc
                 raise WebContentFetchError(f"HTTP {exc.code} fetching {current_url}") from exc
             except urllib.error.URLError as exc:
                 raise WebContentFetchError(f"网络错误 fetching {current_url}: {exc.reason}") from exc
@@ -312,6 +463,41 @@ class WebContentFetcher:
 
         raise WebContentFetchError(f"超过最大重定向次数 ({MAX_REDIRECTS})")
 
+    def _read_http_error_body(self, exc: urllib.error.HTTPError) -> str:
+        try:
+            content = exc.read(self._max_bytes)
+        except Exception:
+            return ""
+        try:
+            return content.decode("utf-8", errors="replace")
+        except Exception:
+            return ""
+
+    @staticmethod
+    def _raise_for_page_recognition(recognition: PageRecognition) -> None:
+        common = {
+            "page_type": recognition.page_type,
+            "confidence": recognition.confidence,
+            "signals": recognition.signals,
+            "recommended_method": recognition.recommended_method,
+        }
+        if recognition.status == "login_required":
+            raise LoginRequiredError(
+                "该链接需要登录后才能读取正文，请登录后重试或改用手动输入",
+                login_url=recognition.login_url,
+                **common,
+            )
+        if recognition.status == "blocked_by_anti_bot":
+            raise AntiBotBlockedError(
+                "该站点启用了访问校验或反爬限制，当前无法自动读取正文，请打开原文复制正文或改用手动输入",
+                **common,
+            )
+        if recognition.status == "dynamic_render_required":
+            raise DynamicRenderRequiredError(
+                "该新闻页正文由客户端动态生成，当前无法直接读取正文，请打开原文复制正文或改用手动输入",
+                **common,
+            )
+
     def _extract_article_parts(self, html: str) -> tuple[str, str]:
         """Extract ``(title, body_text)`` from HTML.
 
@@ -319,15 +505,24 @@ class WebContentFetcher:
         passed through :func:`clean_text`); callers decide whether to clean it.
         Falls back to a regex-based stripper when BeautifulSoup is unavailable.
         """
+        title, body, _method, _warnings = self._extract_article_parts_with_metadata(html)
+        return title, body
+
+    def _extract_article_parts_with_metadata(
+        self, html: str
+    ) -> tuple[str, str, str, list[str]]:
+        """Extract article fields and explain which extraction path succeeded."""
         try:
             from bs4 import BeautifulSoup as bs4_BeautifulSoup
         except ImportError:
-            return self._extract_article_parts_regex(html)
+            title, body = self._extract_article_parts_regex(html)
+            return title, body, "regex", ["beautifulsoup_unavailable"]
 
         try:
             soup = bs4_BeautifulSoup(html, "html.parser")
         except Exception:
-            return self._extract_article_parts_regex(html)
+            title, body = self._extract_article_parts_regex(html)
+            return title, body, "regex", ["beautifulsoup_parse_failed"]
 
         # title
         title = ""
@@ -341,11 +536,15 @@ class WebContentFetcher:
                 if title:
                     break
 
+        structured_title, structured_body = self._extract_structured_article_fields_from_soup(soup)
+
         # body
         body_parts: list[str] = []
         article = soup.find("article")
         main = soup.find("main")
         root = article or main or soup.body or soup
+        extraction_method = "html"
+        warnings: list[str] = []
 
         if root:
             for tag_name in NOISE_TAGS:
@@ -359,11 +558,122 @@ class WebContentFetcher:
                     paragraphs.append(text)
             body_parts = paragraphs
 
+        if not title and structured_title:
+            title = structured_title
+
+        if not body_parts and structured_body:
+            body_parts = [structured_body]
+            if structured_title:
+                title = structured_title
+            extraction_method = "structured_data"
+            warnings.append("dom_content_empty")
+
         if not body_parts:
             body = root.get_text(separator="\n", strip=True) if root else ""
             body_parts = [body] if body else []
 
-        return title.strip(), "\n\n".join(body_parts)
+        return title.strip(), "\n\n".join(body_parts), extraction_method, warnings
+
+    def _extract_structured_article_fields_from_soup(self, soup: Any) -> tuple[str, str]:
+        best_title = ""
+        best_body = ""
+
+        for node in soup.find_all("script"):
+            raw = node.string or node.get_text(strip=True)
+            if not raw:
+                continue
+            script_type = clean_text(node.get("type", ""), max_length=100).lower()
+            node_id = clean_text(node.get("id", ""), max_length=100).lower()
+            looks_like_json = raw.lstrip().startswith(("{", "["))
+            if (
+                script_type not in {"application/ld+json", "application/json"}
+                and node_id != "__next_data__"
+                and not looks_like_json
+            ):
+                continue
+            try:
+                payload = json.loads(raw)
+            except (json.JSONDecodeError, RecursionError, TypeError, ValueError):
+                continue
+            title, body = self._extract_structured_article_fields(payload)
+            if len(body) > len(best_body):
+                best_title = title or best_title
+                best_body = body
+
+        return best_title, best_body
+
+    def _extract_structured_article_fields(self, value: Any) -> tuple[str, str]:
+        best_title = ""
+        best_body = ""
+        stack: list[tuple[Any, int]] = [(value, 0)]
+        visited = 0
+
+        while stack and visited < 512:
+            current, depth = stack.pop()
+            visited += 1
+            if isinstance(current, dict):
+                local_title = ""
+                local_body = ""
+                for raw_key, raw_value in current.items():
+                    key = self._normalise_structured_key(raw_key)
+                    if isinstance(raw_value, str):
+                        text = self._normalise_structured_text(raw_value)
+                        if key in STRUCTURED_TITLE_KEYS and 4 <= len(text) <= 255:
+                            local_title = local_title or text
+                            if not best_title:
+                                best_title = text
+                        elif key in STRUCTURED_BODY_KEYS and len(text) >= 60:
+                            if len(text) > len(local_body):
+                                local_body = text
+                    if depth < 12 and isinstance(raw_value, (dict, list)):
+                        stack.append((raw_value, depth + 1))
+
+                if len(local_body) > len(best_body):
+                    best_title = local_title or best_title
+                    best_body = local_body
+
+            elif isinstance(current, list) and depth < 12:
+                stack.extend((item, depth + 1) for item in current)
+
+        return best_title, best_body
+
+    @staticmethod
+    def _normalise_structured_key(value: object) -> str:
+        return re.sub(r"[^a-z0-9]", "", str(value).lower())
+
+    @staticmethod
+    def _normalise_structured_text(value: str) -> str:
+        text = html_unescape(value)
+        if "<" in text and ">" in text:
+            text = re.sub(
+                r"<(?:script|style)[^>]*>.*?</(?:script|style)>",
+                " ",
+                text,
+                flags=re.DOTALL | re.IGNORECASE,
+            )
+            text = re.sub(r"<[^>]+>", " ", text)
+        return clean_text(text, max_length=8000)
+
+    @staticmethod
+    def _score_extraction_confidence(
+        title: str,
+        content: str,
+        extraction_method: str,
+        warnings: list[str],
+    ) -> float:
+        score = 0.95
+        if not title:
+            score -= 0.2
+        if len(content) < 200:
+            score -= 0.35
+        elif len(content) < 800:
+            score -= 0.1
+        if extraction_method == "structured_data":
+            score -= 0.08
+        if extraction_method == "regex":
+            score -= 0.2
+        score -= min(len(warnings) * 0.04, 0.2)
+        return round(max(0.0, min(1.0, score)), 2)
 
     def _extract_publish_time(self, html: str) -> ExtractedPublishTime | None:
         """Extract and normalize the most precise credible publication time."""

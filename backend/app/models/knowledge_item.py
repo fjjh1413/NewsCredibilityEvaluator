@@ -1,12 +1,15 @@
-from sqlalchemy import BigInteger, Column, DateTime, Index, String, Text, func
+from sqlalchemy import BigInteger, Column, DateTime, Index, Integer, String, Text, func
 
 from app.db.base_class import Base
+
+
+BigIntId = BigInteger().with_variant(Integer, "sqlite")
 
 
 class KnowledgeItem(Base):
     __tablename__ = "knowledge_items"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigIntId, primary_key=True, autoincrement=True)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     category = Column(String(50), nullable=True)

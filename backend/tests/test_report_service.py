@@ -21,6 +21,7 @@ from app.services.report_service import (
     _convert_html_to_pdf,
     _resolve_stored_path,
     build_news_summary,
+    delete_admin_report_record,
     generate_detection_report,
     get_admin_report_detail,
     get_report_pdf_for_download,
@@ -339,6 +340,30 @@ class ReportServiceTestCase(unittest.TestCase):
 
         self.assertNotIn("\n", summary)
         self.assertLessEqual(len(summary), 243)
+
+    def test_delete_admin_report_removes_record_files_and_clears_report_url(self) -> None:
+        report_root = Path(get_settings().report_path)
+        report_dir = report_root / f"detection_{self.detection.id}"
+        report_dir.mkdir(parents=True, exist_ok=True)
+        html_path = f"detection_{self.detection.id}/report_{'a' * 32}.html"
+        pdf_path = f"detection_{self.detection.id}/report_{'b' * 32}.pdf"
+        (report_root / html_path).write_text("<html>report</html>", encoding="utf-8")
+        (report_root / pdf_path).write_bytes(b"%PDF-1.4\nreport")
+        report = self._add_report(self.detection, pdf_path=pdf_path)
+        report.html_path = html_path
+        self.detection.report_url = f"/api/report/download/{report.id}"
+        self.db.add(report)
+        self.db.add(self.detection)
+        self.db.commit()
+
+        deleted_id = delete_admin_report_record(self.db, report.id)
+
+        self.assertEqual(deleted_id, report.id)
+        self.assertIsNone(self.db.query(Report).filter(Report.id == report.id).first())
+        self.db.refresh(self.detection)
+        self.assertIsNone(self.detection.report_url)
+        self.assertFalse((report_root / html_path).exists())
+        self.assertFalse((report_root / pdf_path).exists())
 
     def _add_user(self, user_id: int, username: str, role: str = "user") -> User:
         now = datetime(2026, 1, 1, 8, 0, 0)

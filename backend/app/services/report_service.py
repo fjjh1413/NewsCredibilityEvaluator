@@ -167,6 +167,29 @@ def get_admin_report_detail(db: Session, report_id: int) -> dict[str, Any]:
     return data
 
 
+def delete_admin_report_record(db: Session, report_id: int) -> int:
+    report = get_report_by_id(db, report_id)
+    if report is None:
+        raise ReportNotFoundError("Report not found")
+
+    stored_paths = (report.html_path, report.pdf_path)
+    report_root = Path(get_settings().report_path)
+    detection = _get_report_detection(db, report)
+
+    try:
+        if detection is not None:
+            detection.report_url = None
+            db.add(detection)
+        db.delete(report)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+    _remove_stored_files(report_root, stored_paths)
+    return report_id
+
+
 def generate_detection_report(
     db: Session,
     detection_id: int,

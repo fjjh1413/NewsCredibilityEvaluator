@@ -111,6 +111,9 @@ class RagApiTestCase(unittest.TestCase):
                     "exact_score": 0.0,
                     "final_score": 0.687,
                 },
+                "rerank_stage": "rule",
+                "rule_rerank_score": 0.82,
+                "rerank_order": 1,
             }
         ]
 
@@ -125,6 +128,8 @@ class RagApiTestCase(unittest.TestCase):
         self.assertEqual(result["index_version"], "v2")
         self.assertEqual(result["chunks"][0]["chunk_id"], "knowledge:2:chunk:0")
         self.assertEqual(result["score_components"]["dense_score"], 0.91)
+        self.assertEqual(result["rerank_stage"], "rule")
+        self.assertEqual(result["rule_rerank_score"], 0.82)
 
     @patch("app.api.v1.rag.search_similar_knowledge")
     def test_title_content_takes_priority_over_query(self, mocked_search) -> None:
@@ -157,6 +162,36 @@ class RagApiTestCase(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+    @patch("app.api.v1.rag.audit_rag_v2_index")
+    def test_audit_endpoint_returns_index_health_summary(self, mocked_audit) -> None:
+        mocked_audit.return_value = {
+            "status": "ok",
+            "total_items": 2,
+            "checked_items": 2,
+            "items_with_issues": 0,
+            "issue_count": 0,
+            "issues_by_type": {},
+            "items": [],
+        }
+
+        response = self.client.get("/api/rag/audit")
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["data"]
+        self.assertEqual(data["status"], "ok")
+        self.assertEqual(data["checked_items"], 2)
+        mocked_audit.assert_called_once()
+
+    @patch("app.api.v1.rag.audit_rag_v2_index")
+    def test_audit_endpoint_returns_503_when_chroma_fails(self, mocked_audit) -> None:
+        from app.services.chroma_service import ChromaServiceError
+
+        mocked_audit.side_effect = ChromaServiceError("chroma down")
+
+        response = self.client.get("/api/rag/audit")
+
+        self.assertEqual(response.status_code, 503)
 
 
 if __name__ == "__main__":

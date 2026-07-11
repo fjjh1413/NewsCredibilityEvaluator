@@ -16,6 +16,10 @@ export function disableAdminUser(id) {
   return request.post(`/admin/users/${id}/disable`)
 }
 
+export function updateAdminUserRole(id, role) {
+  return request.post(`/admin/users/${id}/role`, { role })
+}
+
 export function getAdminUserDetections(id, params) {
   return request.get(`/admin/users/${id}/detections`, { params })
 }

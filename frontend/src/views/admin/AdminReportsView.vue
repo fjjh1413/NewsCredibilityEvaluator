@@ -112,7 +112,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="170" fixed="right">
+        <el-table-column label="操作" width="240" fixed="right">
           <template #default="{ row }">
             <div class="table-actions">
               <button class="text-button" type="button" @click="openDetail(row)">
@@ -127,6 +127,15 @@
               >
                 <Download aria-hidden="true" />
                 <span>下载</span>
+              </button>
+              <button
+                class="text-button text-button--danger"
+                type="button"
+                :disabled="deletingReportId === row.report_id"
+                @click="confirmDeleteReport(row)"
+              >
+                <Delete aria-hidden="true" />
+                <span>删除</span>
               </button>
             </div>
           </template>
@@ -212,8 +221,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
-import { Download, Refresh, Search, View } from '@element-plus/icons-vue'
-import { downloadAdminReport, getAdminReportDetail, getAdminReports } from '@/api/adminReports'
+import { ElMessageBox } from 'element-plus/es/components/message-box/index.mjs'
+import { Delete, Download, Refresh, Search, View } from '@element-plus/icons-vue'
+import { deleteAdminReport, downloadAdminReport, getAdminReportDetail, getAdminReports } from '@/api/adminReports'
 import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -229,6 +239,7 @@ const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detailData = ref(null)
 const detailError = ref('')
+const deletingReportId = ref(null)
 
 const filters = reactive({
   keyword: '',
@@ -332,6 +343,46 @@ async function downloadReport(row) {
     URL.revokeObjectURL(objectUrl)
   } catch (error) {
     ElMessage.error(await getErrorMessage(error, '报告下载失败，请稍后重试'))
+  }
+}
+
+async function confirmDeleteReport(row) {
+  const reportId = row?.report_id
+  if (!reportId) {
+    ElMessage.warning('当前报告缺少 ID，无法删除')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确认删除报告 #${reportId} 吗？该操作会移除报告记录并清理已生成文件。`,
+      '删除报告',
+      {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+
+  deletingReportId.value = reportId
+
+  try {
+    await deleteAdminReport(reportId)
+    ElMessage.success('报告记录已删除')
+
+    if (String(detailData.value?.report_id) === String(reportId)) {
+      detailVisible.value = false
+      detailData.value = null
+    }
+
+    await fetchReports()
+  } catch (error) {
+    ElMessage.error(await getErrorMessage(error, '报告删除失败，请稍后重试'))
+  } finally {
+    deletingReportId.value = null
   }
 }
 
@@ -513,6 +564,14 @@ onMounted(fetchReports)
 
 .text-button:hover {
   background: var(--color-primary-soft);
+}
+
+.text-button--danger {
+  color: var(--color-danger);
+}
+
+.text-button--danger:hover {
+  background: var(--risk-high-bg);
 }
 
 .text-button:disabled {

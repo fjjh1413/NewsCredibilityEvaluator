@@ -26,6 +26,10 @@ def read_admin_logs(
     action: str | None = Query(default=None),
     user_id: int | None = Query(default=None, ge=1),
     keyword: str | None = Query(default=None),
+    request_id: str | None = Query(default=None, max_length=128),
+    target_type: str | None = Query(default=None, max_length=100),
+    target_id: str | None = Query(default=None, max_length=100),
+    result_status: str | None = Query(default=None, max_length=20),
     date_from: datetime | None = Query(default=None),
     date_to: datetime | None = Query(default=None),
     db: Session = Depends(get_db),
@@ -39,6 +43,10 @@ def read_admin_logs(
         action=action,
         user_id=user_id,
         keyword=keyword,
+        request_id=request_id,
+        target_type=target_type,
+        target_id=target_id,
+        result_status=result_status,
         date_from=date_from,
         date_to=date_to,
     )
@@ -55,6 +63,11 @@ def read_admin_logs(
                 action=log.action,
                 description=log.description,
                 ip_address=log.ip_address,
+                request_id=log.request_id,
+                target_type=log.target_type,
+                target_id=log.target_id,
+                result_status=log.result_status,
+                metadata_json=log.metadata_json,
                 created_at=log.created_at,
             )
             for log, username in rows

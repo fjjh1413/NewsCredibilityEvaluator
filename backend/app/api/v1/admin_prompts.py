@@ -95,6 +95,10 @@ def create_prompt(
         action="create",
         description=f"管理员新增 Prompt template_id={template.id} type={template.type}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=template.id,
+        result_status="success",
+        metadata_json={"type": template.type},
     )
     return _item_response(template, message="created", code=201)
 
@@ -122,6 +126,10 @@ def update_prompt(
         action="update",
         description=f"管理员更新 Prompt template_id={id} type={template.type}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=id,
+        result_status="success",
+        metadata_json={"type": template.type},
     )
     return _item_response(template, message="updated")
 
@@ -146,6 +154,9 @@ def delete_prompt(
         action="delete",
         description=f"管理员删除 Prompt template_id={id}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=id,
+        result_status="success",
     )
     return success_response(message="deleted", data={"id": id})
 
@@ -170,6 +181,10 @@ def enable_prompt(
         action="enable",
         description=f"管理员启用 Prompt template_id={id} type={template.type}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=id,
+        result_status="success",
+        metadata_json={"type": template.type},
     )
     return _item_response(template, message="enabled")
 
@@ -192,6 +207,10 @@ def disable_prompt(
         action="disable",
         description=f"管理员禁用 Prompt template_id={id} type={template.type}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=id,
+        result_status="success",
+        metadata_json={"type": template.type},
     )
     return _item_response(template, message="disabled")
 
@@ -218,6 +237,10 @@ def set_default_prompt(
         action="set_default",
         description=f"管理员设置默认 Prompt template_id={id} type={template.type}",
         ip_address=get_request_ip(request),
+        target_type="prompt_template",
+        target_id=id,
+        result_status="success",
+        metadata_json={"type": template.type},
     )
     return _item_response(template, message="default updated")
 

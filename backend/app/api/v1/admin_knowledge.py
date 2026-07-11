@@ -80,14 +80,21 @@ def rebuild_knowledge_vectors(
         action="rebuild_index",
         description=(
             f"管理员重建知识库索引 total={result['total']} "
-            f"success={result['success']} failed={result['failed']}"
+            f"queued={result.get('queued', 0)} failed={result['failed']}"
         ),
         ip_address=get_request_ip(request),
+        target_type="knowledge_index",
+        result_status="success",
+        metadata_json={
+            "total": result["total"],
+            "queued": result.get("queued", 0),
+            "failed": result["failed"],
+        },
     )
     data = KnowledgeRebuildIndexData(**result).model_dump()
-    message = "rebuild completed"
+    message = "rebuild queued"
     if result["failed"]:
-        message = "rebuild completed with failures"
+        message = "rebuild queued with failures"
     return success_response(data=data, message=message)
 
 
@@ -133,6 +140,10 @@ def vectorize_knowledge(
             f"vector_sync_status={item.vector_sync_status}"
         ),
         ip_address=get_request_ip(request),
+        target_type="knowledge_item",
+        target_id=id,
+        result_status="success",
+        metadata_json={"vector_sync_status": item.vector_sync_status},
     )
 
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
@@ -157,6 +168,10 @@ def create_knowledge(
         action="create",
         description=f"管理员新增知识库 item_id={item.id}",
         ip_address=get_request_ip(request),
+        target_type="knowledge_item",
+        target_id=item.id,
+        result_status="success",
+        metadata_json={"vector_sync_status": item.vector_sync_status},
     )
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
     message = "created"
@@ -192,6 +207,10 @@ def update_knowledge(
         action="update",
         description=f"管理员更新知识库 item_id={id}",
         ip_address=get_request_ip(request),
+        target_type="knowledge_item",
+        target_id=id,
+        result_status="success",
+        metadata_json={"vector_sync_status": item.vector_sync_status},
     )
 
     data = KnowledgeOut.model_validate(item).model_dump(mode="json")
@@ -227,6 +246,9 @@ def delete_knowledge(
         action="delete",
         description=f"管理员删除知识库 item_id={id}",
         ip_address=get_request_ip(request),
+        target_type="knowledge_item",
+        target_id=id,
+        result_status="success",
     )
 
     return success_response(message="deleted", data={"id": id})

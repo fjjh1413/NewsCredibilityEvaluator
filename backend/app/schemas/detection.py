@@ -142,7 +142,9 @@ class DetectionDetailOut(DetectionRecordOut):
     candidate_evidence_list: list["DetectEvidenceItem"] = Field(default_factory=list)
     excluded_evidence: list["DetectEvidenceItem"] = Field(default_factory=list)
     similar_news: list["SimilarNewsItem"] = Field(default_factory=list)
+    core_claims: list[dict[str, str]] = Field(default_factory=list)
     evidence_quality: "EvidenceQualityOut | None" = None
+    arbitration_quality: dict[str, Any] = Field(default_factory=dict)
     arbitration_status: str = "unavailable"
     quality_status: str | None = None
     arbitration_error: str | None = None
@@ -150,6 +152,9 @@ class DetectionDetailOut(DetectionRecordOut):
     analysis_contract_version: str | None = None
     knowledge_has_relevant_match: bool = False
     web_has_relevant_match: bool = False
+    rag_query_count: int = 1
+    rag_query_strategy: str = "single_query"
+    rag_supporting_span_count: int = 0
     publish_time: str | None = None
     source_name: str | None = None
     source_url: str | None = None
@@ -237,10 +242,37 @@ class DetectEvidenceItem(BaseModel):
     source_label: str | None = None
     risk_level: str | None = None
     similarity_score: float | None = None
+    index_version: str | None = None
+    chunks: list[dict[str, Any]] = Field(default_factory=list)
+    supporting_spans: list[dict[str, Any]] = Field(default_factory=list)
+    score_components: dict[str, Any] = Field(default_factory=dict)
+    query_match_count: int | None = None
+    query_hits: list[dict[str, Any]] = Field(default_factory=list)
+    retrieval_queries: list[str] = Field(default_factory=list)
+    retrieval_query_count: int | None = None
+    retrieval_query_strategy: str | None = None
+    multi_query_rrf_score: float | None = None
+    rerank_original_rank: int | None = None
+    rule_rerank_score: float | None = None
+    model_rerank_score: float | None = None
+    model_rerank_reason: str | None = None
+    rerank_score: float | None = None
+    rerank_stage: str | None = None
+    diversity_adjusted_rerank_score: float | None = None
+    rerank_order: int | None = None
     rank_order: int | None = None
     # ── LLM arbitration fields ──
     relevance_score: float | None = None
     quality_score: float | None = None
+    calibrated_quality_score: float | None = None
+    calibrated_evidence_score: float | None = None
+    source_reliability_score: float | None = None
+    freshness_score: float | None = None
+    extraction_confidence_score: float | None = None
+    diversity_penalty: float | None = None
+    is_near_duplicate: bool | None = None
+    canonical_source: str | None = None
+    claim_ids: list[str] = Field(default_factory=list)
     stance: str | None = None
     arbitration_reason: str | None = None
     rejection_reason: str | None = None
@@ -271,6 +303,7 @@ class EvidenceQualityOut(BaseModel):
     consistency: float | None = None
     score: float | None = None
     assessment: str | None = None
+    backend_arbitration_quality: dict[str, Any] = Field(default_factory=dict)
 
 
 class DetectNewsResult(BaseModel):
@@ -292,12 +325,14 @@ class DetectNewsResult(BaseModel):
     candidate_evidence_list: list[DetectEvidenceItem] = Field(default_factory=list)
     excluded_evidence: list[DetectEvidenceItem] = Field(default_factory=list)
     similar_news: list[SimilarNewsItem]
+    core_claims: list[dict[str, str]] = Field(default_factory=list)
     suggestion: str
     agent_steps: list[str]
     disclaimer: str
     web_search_triggered: bool = False
     web_search_sources: int = 0
     evidence_quality: EvidenceQualityOut | None = None
+    arbitration_quality: dict[str, Any] = Field(default_factory=dict)
     arbitration_status: str = "unavailable"
     quality_status: str = "unavailable"
     arbitration_error: str | None = None
@@ -305,6 +340,9 @@ class DetectNewsResult(BaseModel):
     analysis_contract_version: str | None = None
     knowledge_has_relevant_match: bool = False
     web_has_relevant_match: bool = False
+    rag_query_count: int = 1
+    rag_query_strategy: str = "single_query"
+    rag_supporting_span_count: int = 0
 
 
 class DetectNewsApiResponse(BaseModel):
@@ -356,12 +394,21 @@ class ExtractPreviewRequest(BaseModel):
 class ExtractPreviewData(BaseModel):
     """Auto-extracted article fields used to back-fill the detect form."""
 
+    status: Literal["ok"] = "ok"
     title: str
     content: str
     source_name: str | None = None
     source_url: str | None = None
+    final_url: str | None = None
     publish_time: str | None = None
     publish_time_precision: Literal["date", "datetime"] | None = None
+    extraction_method: str | None = None
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    warnings: list[str] = Field(default_factory=list)
+    page_type: str | None = None
+    recognition_confidence: float | None = Field(default=None, ge=0, le=1)
+    recognition_signals: list[str] = Field(default_factory=list)
+    recommended_extraction_method: str | None = None
 
     @model_validator(mode="after")
     def publish_time_must_match_precision(self) -> "ExtractPreviewData":

@@ -9,6 +9,9 @@ from app.core.config import get_settings
 from app.crud import knowledge_crud
 from app.models.knowledge_item import KnowledgeItem
 from app.services.rag.contracts import RAG_INDEX_VERSION_V2, RagParentCandidate
+from app.services.rag.contextual_compression import add_supporting_spans_to_results
+from app.services.rag.fusion import normalized_rrf_score
+from app.services.rag.reranker import rerank_parent_results
 from app.services.rag.vector_index import search_knowledge_chunk_vectors
 from app.utils.text_cleaner import clean_text
 
@@ -159,13 +162,15 @@ def _add_dense_results(
     candidates: dict[int, RagParentCandidate],
     dense_results: list[dict[str, Any]],
 ) -> None:
-    for result in dense_results:
+    for rank, result in enumerate(dense_results, start=1):
         metadata = _metadata_from_chunk_result(result)
         candidate = _candidate_for_metadata(candidates, metadata)
         if candidate is None:
             continue
         score = _safe_float(result.get("similarity_score"))
         candidate.dense_score = max(candidate.dense_score, score)
+        if candidate.dense_rank is None or rank < candidate.dense_rank:
+            candidate.dense_rank = rank
         candidate.chunks.append(
             {
                 "chunk_id": result.get("chunk_id") or metadata.get("chunk_id"),
@@ -181,11 +186,13 @@ def _add_lexical_results(
     candidates: dict[int, RagParentCandidate],
     lexical_results: list[dict[str, Any]],
 ) -> None:
-    for result in lexical_results:
+    for rank, result in enumerate(lexical_results, start=1):
         metadata = dict(result.get("metadata") or {})
         candidate = _candidate_for_metadata(candidates, metadata)
         if candidate is None:
             continue
+        if candidate.lexical_rank is None or rank < candidate.lexical_rank:
+            candidate.lexical_rank = rank
         candidate.lexical_score = max(
             candidate.lexical_score,
             _safe_float(result.get("lexical_score")),
@@ -199,6 +206,8 @@ def _add_lexical_results(
 def _finalize_candidates(
     candidates: dict[int, RagParentCandidate],
     chunks_per_parent: int,
+    fusion_strategy: str,
+    rrf_rank_constant: int,
 ) -> list[RagParentCandidate]:
     finalized: list[RagParentCandidate] = []
     for candidate in candidates.values():
@@ -210,15 +219,28 @@ def _finalize_candidates(
             reverse=True,
         )
         candidate.chunks = candidate.chunks[: max(1, chunks_per_parent)]
-        candidate.final_score = round(
-            min(
-                1.0,
-                candidate.dense_score * 0.70
-                + candidate.lexical_score * 0.25
-                + candidate.exact_score * 0.05,
-            ),
-            6,
-        )
+        candidate.fusion_strategy = fusion_strategy
+        if fusion_strategy == "rrf":
+            candidate.rrf_score = normalized_rrf_score(
+                {
+                    "dense": candidate.dense_rank,
+                    "lexical": candidate.lexical_rank,
+                },
+                rank_constant=rrf_rank_constant,
+                exact_score=candidate.exact_score,
+            )
+            candidate.final_score = candidate.rrf_score
+        else:
+            candidate.final_score = round(
+                min(
+                    1.0,
+                    candidate.dense_score * 0.70
+                    + candidate.lexical_score * 0.25
+                    + candidate.exact_score * 0.05,
+                ),
+                6,
+            )
+            candidate.rrf_score = 0.0
         if candidate.final_score > 0:
             finalized.append(candidate)
     return finalized
@@ -289,6 +311,30 @@ def search_similar_knowledge_v2(
     candidates: dict[int, RagParentCandidate] = {}
     _add_dense_results(candidates, dense_results)
     _add_lexical_results(candidates, lexical_results)
-    finalized = _finalize_candidates(candidates, settings.rag_chunks_per_parent)
-    selected = _apply_mmr(finalized, min(top_k, settings.rag_parent_top_k), settings.rag_mmr_enabled)
-    return [candidate.to_result() for candidate in selected]
+    finalized = _finalize_candidates(
+        candidates,
+        settings.rag_chunks_per_parent,
+        getattr(settings, "rag_fusion_strategy", "rrf"),
+        getattr(settings, "rag_rrf_rank_constant", 60),
+    )
+    final_limit = min(top_k, settings.rag_parent_top_k)
+    rerank_pool_size = min(
+        max(final_limit, getattr(settings, "rag_rerank_pool_size", 30)),
+        settings.rag_parent_top_k,
+    )
+    selected = _apply_mmr(finalized, rerank_pool_size, settings.rag_mmr_enabled)
+    results = [candidate.to_result() for candidate in selected]
+    if getattr(settings, "rag_supporting_spans_enabled", True):
+        results = add_supporting_spans_to_results(
+            results,
+            query_texts=[cleaned_query],
+            max_spans_per_result=getattr(settings, "rag_supporting_span_count", 2),
+        )
+    if getattr(settings, "rag_rule_rerank_enabled", True):
+        return rerank_parent_results(
+            results,
+            query_text=cleaned_query,
+            top_k=final_limit,
+            model_enabled=getattr(settings, "rag_model_rerank_enabled", False),
+        )
+    return results[:final_limit]

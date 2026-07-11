@@ -39,7 +39,7 @@ DEFAULT_DEEPSEEK_MODEL = "deepseek-chat"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 DEFAULT_EVIDENCE_LIMIT = 10
 LLM_FAILURE_ERROR = "模型调用失败"
-ANALYSIS_CONTRACT_VERSION = "2.0"
+ANALYSIS_CONTRACT_VERSION = "2.1"
 
 # Sentinel used to distinguish "field absent" from "field is None" in
 # LLM response dicts (data.get(key, sentinel)).
@@ -222,6 +222,7 @@ def analyze_news_credibility(
     content: str,
     evidence_list: list[Any] | None,
     prompt_template: str,
+    claims: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     """Analyze news credibility with DeepSeek and return a stable dict shape."""
 
@@ -242,6 +243,7 @@ def analyze_news_credibility(
             content=content,
             evidence_list=evidence_list,
             prompt_template=prompt_template,
+            claims=claims,
         )
         response_data = _post_chat_completion(config=config, prompt=prompt)
         assistant_content = _extract_assistant_content(response_data)
@@ -268,6 +270,7 @@ def analyze_evidence_arbitration(
     title: str,
     content: str,
     evidence_list: list[Any] | None,
+    claims: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     """Retry only the evidence-dependent part of the analysis contract.
 
@@ -288,6 +291,7 @@ def analyze_evidence_arbitration(
             title=title,
             content=content,
             evidence_list=evidence_list,
+            claims=claims,
         )
         response_data = _post_chat_completion(config=config, prompt=prompt)
         assistant_content = _extract_assistant_content(response_data)
@@ -314,6 +318,7 @@ def build_evidence_arbitration_prompt(
     title: str,
     content: str,
     evidence_list: list[Any] | None,
+    claims: list[dict[str, str]] | None = None,
 ) -> str:
     """Build the immutable compact contract used by the targeted retry."""
 
@@ -326,7 +331,7 @@ def build_evidence_arbitration_prompt(
         _strip_retrieval_metadata(_limit_evidence_list(evidence_list)),
         indent=2,
     )
-    return clean_text(
+    prompt = clean_text(
         f"""{PROMPT_INPUT_BOUNDARY_PREFIX}
 
 你只负责证据仲裁与证据质量评估。只输出一个 JSON 对象，不得输出 Markdown 或解释文字。
@@ -351,6 +356,7 @@ rejected_evidence 每项必须包含 candidate_id、reason。
 """,
         max_length=None,
     )
+    return _ensure_claim_contract(prompt, claims=claims)
 
 
 def _build_arbitration_error_result(reason: str, error_type: str) -> dict[str, Any]:
@@ -368,6 +374,7 @@ def build_analysis_prompt(
     content: str,
     evidence_list: list[Any] | None,
     prompt_template: str,
+    claims: list[dict[str, str]] | None = None,
 ) -> str:
     title_text = clean_text(title, max_length=1000)
     content_text = clean_text(content, max_length=12000)
@@ -416,11 +423,45 @@ def build_analysis_prompt(
         ):
             raise DeepSeekServiceError("安全兜底Prompt渲染失败，已阻止发送无效Prompt")
 
-    return prompt
+    return _ensure_claim_contract(prompt, claims=claims)
 
 
 def get_default_prompt_template() -> str:
     return DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE
+
+
+def _ensure_claim_contract(
+    prompt: str,
+    claims: list[dict[str, str]] | None,
+) -> str:
+    claims_json = _format_claims_section(claims)
+    if claims_json == "[]":
+        return prompt
+    return clean_text(
+        prompt
+        + "\n\n"
+        + "Backend core claims for evidence arbitration:\n"
+        + claims_json
+        + "\n"
+        + "Arbitration contract extension: every ranked_evidence item should "
+        + "include claim_ids as an array of claim_id values from the list above. "
+        + "Use [] only when the evidence is relevant background but does not "
+        + "verify a specific claim.",
+        max_length=None,
+    )
+
+
+def _format_claims_section(claims: list[dict[str, str]] | None) -> str:
+    normalized: list[dict[str, str]] = []
+    if isinstance(claims, list):
+        for item in claims:
+            if not isinstance(item, dict):
+                continue
+            claim_id = clean_text(item.get("claim_id"), max_length=20)
+            text = clean_text(item.get("text"), max_length=300)
+            if claim_id and text:
+                normalized.append({"claim_id": claim_id, "text": text})
+    return _dump_json(normalized, indent=2)
 
 
 def _select_safe_prompt_template(prompt_template: str) -> str:
@@ -891,8 +932,27 @@ def _validate_ranked_entry(entry: Any) -> dict[str, Any] | None:
         )
         return None
     base["stance"] = stance
+    base["claim_ids"] = _normalize_claim_ids(entry.get("claim_ids"))
 
     return base
+
+
+def _normalize_claim_ids(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        raw_items = re.split(r"[,，\s]+", value)
+    elif isinstance(value, list):
+        raw_items = value
+    else:
+        return []
+
+    claim_ids: list[str] = []
+    for item in raw_items:
+        claim_id = clean_text(item, max_length=20)
+        if claim_id and claim_id not in claim_ids:
+            claim_ids.append(claim_id)
+    return claim_ids[:10]
 
 
 def _default_arbitration() -> dict[str, Any]:

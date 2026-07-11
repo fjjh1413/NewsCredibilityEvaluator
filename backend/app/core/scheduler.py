@@ -1,9 +1,4 @@
-"""APScheduler lifecycle management for the FastAPI application.
-
-Registers scheduled news-crawl jobs on startup and shuts down gracefully.
-If APScheduler is not installed or crawling is disabled, the module logs
-a warning and becomes a no-op — the app still starts normally.
-"""
+"""APScheduler lifecycle management for background jobs."""
 
 import logging
 from typing import Any
@@ -17,66 +12,72 @@ _scheduler: Any = None
 
 
 def init_scheduler() -> None:
-    """Register all enabled crawl jobs and start the background scheduler.
-
-    Called from the FastAPI ``lifespan`` startup handler.
-    """
+    """Register enabled background jobs and start the scheduler."""
     global _scheduler
 
     settings = get_settings()
-    if not settings.crawl_enabled:
-        logger.info("Scheduled crawling is disabled (CRAWL_ENABLED=false)")
+    if not settings.crawl_enabled and not settings.knowledge_index_job_enabled:
+        logger.info("Scheduler is disabled")
         return
 
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
+        from apscheduler.triggers.interval import IntervalTrigger
     except ImportError:
         logger.warning(
-            "APScheduler is not installed; scheduled crawling disabled. "
+            "APScheduler is not installed; scheduled jobs disabled. "
             "Install with: pip install APScheduler"
         )
         return
 
-    if not settings.bocha_api_key:
-        logger.warning(
-            "BOCHA_API_KEY is not configured; scheduled crawling disabled."
-        )
-        return
-
-    # Group jobs by frequency to assign appropriate cron triggers.
-    # We use the schedule from settings only; individual per-job frequencies
-    # are derived from the default job list's freshness / expected cadence.
+    scheduler = BackgroundScheduler(daemon=True)
     cron_expression = settings.crawl_schedule
 
-    scheduler = BackgroundScheduler(daemon=True)
+    if settings.crawl_enabled and settings.bocha_api_key:
+        scheduler.add_job(
+            func=_run_all_crawl_jobs,
+            trigger=CronTrigger.from_crontab(cron_expression),
+            id="crawl_all",
+            name="scheduled crawl: all categories",
+            replace_existing=True,
+            misfire_grace_time=900,
+        )
+    elif settings.crawl_enabled:
+        logger.warning(
+            "BOCHA_API_KEY is not configured; scheduled crawling disabled, "
+            "knowledge index jobs may still run."
+        )
 
-    # Single unified job that runs all individual crawl jobs sequentially.
-    # This is simpler than registering N separate APScheduler jobs and
-    # avoids storming Bocha / target sites when all fire simultaneously.
-    scheduler.add_job(
-        func=_run_all_crawl_jobs,
-        trigger=CronTrigger.from_crontab(cron_expression),
-        id="crawl_all",
-        name="定时抓取: 全部类别",
-        replace_existing=True,
-        misfire_grace_time=900,  # 15 min — tolerate brief downtime
-    )
+    if settings.knowledge_index_job_enabled:
+        scheduler.add_job(
+            func=_run_knowledge_index_jobs,
+            trigger=IntervalTrigger(
+                seconds=settings.knowledge_index_job_interval_seconds,
+            ),
+            id="knowledge_index_jobs",
+            name="knowledge index job worker",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+            misfire_grace_time=300,
+        )
+
+    if not scheduler.get_jobs():
+        logger.info("No scheduled jobs registered")
+        return
 
     scheduler.start()
     _scheduler = scheduler
     logger.info(
-        "Crawl scheduler started (schedule=%s, jobs=%d default categories).",
+        "Scheduler started (crawl_schedule=%s, registered_jobs=%d).",
         cron_expression,
-        9,  # the 9 built-in categories
+        len(scheduler.get_jobs()),
     )
 
 
 def shutdown_scheduler() -> None:
-    """Shut down the background scheduler gracefully.
-
-    Called from the FastAPI ``lifespan`` shutdown handler.
-    """
+    """Shut down the background scheduler gracefully."""
     global _scheduler
 
     if _scheduler is None:
@@ -85,13 +86,11 @@ def shutdown_scheduler() -> None:
     try:
         _scheduler.shutdown(wait=False)
     except Exception as exc:
-        logger.warning("Error shutting down crawl scheduler: %s", exc)
+        logger.warning("Error shutting down scheduler: %s", exc)
     finally:
         _scheduler = None
-        logger.info("Crawl scheduler shut down.")
+        logger.info("Scheduler shut down.")
 
-
-# ── internal ────────────────────────────────────────────────────────
 
 def _run_all_crawl_jobs() -> None:
     """Execute all enabled crawl jobs inside the scheduler thread."""
@@ -109,9 +108,9 @@ def _run_all_crawl_jobs() -> None:
             auto_sync_vector=settings.crawl_auto_sync_vector,
             concurrent_fetches=settings.crawl_concurrent_fetches,
         )
-        success_count = sum(1 for r in results if r.get("status") == "success")
+        success_count = sum(1 for result in results if result.get("status") == "success")
         total_count = len(results)
-        total_new = sum(r.get("new_added", 0) for r in results)
+        total_new = sum(result.get("new_added", 0) for result in results)
         logger.info(
             "Scheduled crawl completed: %d/%d jobs succeeded, %d new items added.",
             success_count,
@@ -120,3 +119,19 @@ def _run_all_crawl_jobs() -> None:
         )
     except Exception:
         logger.exception("Scheduled crawl execution failed with an unexpected error.")
+
+
+def _run_knowledge_index_jobs() -> None:
+    """Process queued knowledge index jobs inside the scheduler thread."""
+    from app.services.knowledge_index_jobs import process_pending_knowledge_index_jobs
+
+    settings = get_settings()
+
+    try:
+        summary = process_pending_knowledge_index_jobs(
+            batch_size=settings.knowledge_index_job_batch_size,
+        )
+        if summary["processed"]:
+            logger.info("Knowledge index jobs processed: %s", summary)
+    except Exception:
+        logger.exception("Knowledge index job worker failed with an unexpected error.")

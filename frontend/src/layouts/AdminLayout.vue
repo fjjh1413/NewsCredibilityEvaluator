@@ -69,6 +69,7 @@ import {
   Document,
   Files,
   HomeFilled,
+  Operation,
   Search,
   SwitchButton,
   Tickets,
@@ -83,6 +84,8 @@ const userStore = useUserStore()
 
 const menuItems = [
   { name: 'adminDashboard', label: '后台首页', icon: HomeFilled },
+  { name: 'adminAiEngineering', label: 'AI 工程质量', icon: DataAnalysis },
+  { name: 'adminOperationPolicies', label: '操作策略', icon: Operation },
   { name: 'adminUsers', label: '用户管理', icon: UserFilled },
   { name: 'adminDetections', label: '检测记录管理', icon: Search },
   { name: 'adminKnowledge', label: '知识库管理', icon: Files },

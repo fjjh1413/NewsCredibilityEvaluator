@@ -39,6 +39,14 @@ class RagSearchItem(BaseModel):
     index_version: str | None = None
     chunks: list[dict[str, Any]] = Field(default_factory=list)
     score_components: dict[str, Any] = Field(default_factory=dict)
+    rerank_original_rank: int | None = None
+    rule_rerank_score: float | None = None
+    model_rerank_score: float | None = None
+    model_rerank_reason: str | None = None
+    rerank_score: float | None = None
+    rerank_stage: str | None = None
+    diversity_adjusted_rerank_score: float | None = None
+    rerank_order: int | None = None
 
 
 class RagSearchData(BaseModel):
@@ -52,3 +60,30 @@ class RagSearchApiResponse(BaseModel):
     code: int
     message: str
     data: RagSearchData
+
+
+class RagAuditItem(BaseModel):
+    knowledge_id: int
+    title: str | None = None
+    expected_chunk_count: int
+    actual_chunk_count: int
+    issue_count: int
+    issues: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class RagAuditData(BaseModel):
+    status: str
+    index_version: str | None = None
+    total_items: int
+    checked_items: int
+    sample_limit: int | None = None
+    items_with_issues: int
+    issue_count: int
+    issues_by_type: dict[str, int] = Field(default_factory=dict)
+    items: list[RagAuditItem] = Field(default_factory=list)
+
+
+class RagAuditApiResponse(BaseModel):
+    code: int
+    message: str
+    data: RagAuditData

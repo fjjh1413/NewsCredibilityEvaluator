@@ -101,6 +101,29 @@ class AdminReportsApiTestCase(unittest.TestCase):
         self.assertEqual(response.headers["content-type"], "application/pdf")
         self.assertTrue(response.content.startswith(b"%PDF"))
 
+    @patch("app.api.v1.admin_reports.record_system_log")
+    @patch("app.api.v1.admin_reports.delete_admin_report_record")
+    def test_admin_can_delete_report(self, mocked_delete, mocked_log) -> None:
+        mocked_delete.return_value = 1
+
+        response = self.client.delete("/api/admin/reports/1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], {"id": 1})
+        mocked_delete.assert_called_once()
+        self.assertEqual(mocked_delete.call_args.args[1], 1)
+        self.assertEqual(mocked_log.call_args.kwargs["module"], "report")
+        self.assertEqual(mocked_log.call_args.kwargs["action"], "delete")
+
+    @patch("app.api.v1.admin_reports.delete_admin_report_record")
+    def test_missing_report_delete_returns_404(self, mocked_delete) -> None:
+        mocked_delete.side_effect = ReportNotFoundError("Report not found")
+
+        response = self.client.delete("/api/admin/reports/999")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Report not found", response.json()["message"])
+
     @patch("app.api.v1.admin_reports.get_report_pdf_for_download")
     def test_admin_download_missing_file_returns_clear_error(self, mocked_download) -> None:
         mocked_download.side_effect = ReportFileMissingError("PDF 报告文件不存在")

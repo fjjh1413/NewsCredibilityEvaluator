@@ -13,6 +13,10 @@ class RagRetrievalV2TestCase(unittest.TestCase):
             rag_chunks_per_parent=2,
             rag_lexical_enabled=True,
             rag_mmr_enabled=True,
+            rag_fusion_strategy="rrf",
+            rag_rrf_rank_constant=60,
+            rag_supporting_spans_enabled=True,
+            rag_supporting_span_count=2,
         )
 
     def _metadata(self, knowledge_id: int, title: str) -> dict:
@@ -111,6 +115,107 @@ class RagRetrievalV2TestCase(unittest.TestCase):
         self.assertEqual(results[0]["metadata"]["knowledge_id"], 2)
         self.assertEqual(results[0]["chunks"], [])
         self.assertEqual(results[0]["score_components"]["lexical_score"], 0.8)
+
+    @patch("app.services.rag.retrieval.get_settings")
+    @patch("app.services.rag.retrieval._search_lexical_candidates")
+    @patch("app.services.rag.retrieval.search_knowledge_chunk_vectors")
+    def test_rrf_fusion_prioritizes_cross_signal_consensus(
+        self,
+        mocked_dense,
+        mocked_lexical,
+        mocked_settings,
+    ) -> None:
+        mocked_settings.return_value = self._settings()
+        mocked_dense.return_value = [
+            {
+                "chunk_id": "knowledge:1:chunk:0",
+                "document": "dense only",
+                "metadata": {
+                    **self._metadata(1, "Dense"),
+                    "chunk_id": "knowledge:1:chunk:0",
+                    "chunk_index": 0,
+                    "chunk_type": "content",
+                },
+                "similarity_score": 0.95,
+            },
+            {
+                "chunk_id": "knowledge:2:chunk:0",
+                "document": "dense and lexical",
+                "metadata": {
+                    **self._metadata(2, "Hybrid"),
+                    "chunk_id": "knowledge:2:chunk:0",
+                    "chunk_index": 0,
+                    "chunk_type": "content",
+                },
+                "similarity_score": 0.30,
+            },
+        ]
+        mocked_lexical.return_value = [
+            {
+                "metadata": self._metadata(2, "Hybrid"),
+                "lexical_score": 0.9,
+                "exact_score": 0.0,
+            }
+        ]
+
+        results = search_similar_knowledge_v2(object(), "Hybrid query", top_k=10)
+
+        self.assertEqual(results[0]["metadata"]["knowledge_id"], 2)
+        self.assertEqual(results[0]["score_components"]["fusion_strategy"], "rrf")
+        self.assertEqual(results[0]["score_components"]["dense_rank"], 2)
+        self.assertEqual(results[0]["score_components"]["lexical_rank"], 1)
+
+    @patch("app.services.rag.retrieval.get_settings")
+    @patch("app.services.rag.retrieval._search_lexical_candidates")
+    @patch("app.services.rag.retrieval.search_knowledge_chunk_vectors")
+    def test_weighted_sum_strategy_keeps_score_blending_available(
+        self,
+        mocked_dense,
+        mocked_lexical,
+        mocked_settings,
+    ) -> None:
+        settings = self._settings()
+        settings.rag_fusion_strategy = "weighted_sum"
+        mocked_settings.return_value = settings
+        mocked_dense.return_value = [
+            {
+                "chunk_id": "knowledge:1:chunk:0",
+                "document": "dense only",
+                "metadata": {
+                    **self._metadata(1, "Dense"),
+                    "chunk_id": "knowledge:1:chunk:0",
+                    "chunk_index": 0,
+                    "chunk_type": "content",
+                },
+                "similarity_score": 0.95,
+            },
+            {
+                "chunk_id": "knowledge:2:chunk:0",
+                "document": "lexical too",
+                "metadata": {
+                    **self._metadata(2, "Hybrid"),
+                    "chunk_id": "knowledge:2:chunk:0",
+                    "chunk_index": 0,
+                    "chunk_type": "content",
+                },
+                "similarity_score": 0.30,
+            },
+        ]
+        mocked_lexical.return_value = [
+            {
+                "metadata": self._metadata(2, "Hybrid"),
+                "lexical_score": 0.9,
+                "exact_score": 0.0,
+            }
+        ]
+
+        results = search_similar_knowledge_v2(object(), "Hybrid query", top_k=10)
+
+        self.assertEqual(results[0]["metadata"]["knowledge_id"], 1)
+        self.assertEqual(
+            results[0]["score_components"]["fusion_strategy"],
+            "weighted_sum",
+        )
 
 
 if __name__ == "__main__":

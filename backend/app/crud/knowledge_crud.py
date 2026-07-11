@@ -53,6 +53,7 @@ def get_knowledge_items(
 def create_knowledge_item(
     db: Session,
     item_in: KnowledgeCreate,
+    auto_commit: bool = True,
 ) -> KnowledgeItem:
     db_item = KnowledgeItem(
         **item_in.model_dump(),
@@ -61,8 +62,11 @@ def create_knowledge_item(
         vector_sync_error=None,
     )
     db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
+    if auto_commit:
+        db.commit()
+        db.refresh(db_item)
+    else:
+        db.flush()
     return db_item
 
 

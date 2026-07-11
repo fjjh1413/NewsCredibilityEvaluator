@@ -14,3 +14,7 @@ export function downloadAdminReport(reportId) {
     timeout: 60000
   })
 }
+
+export function deleteAdminReport(reportId) {
+  return request.delete(`/admin/reports/${reportId}`)
+}

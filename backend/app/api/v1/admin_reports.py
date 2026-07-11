@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 
@@ -14,10 +14,12 @@ from app.schemas.report import (
 from app.services.report_service import (
     ReportFileMissingError,
     ReportNotFoundError,
+    delete_admin_report_record,
     get_admin_report_detail,
     get_report_pdf_for_download,
     list_admin_reports,
 )
+from app.services.system_log_service import get_request_ip, record_system_log
 from app.utils.response import error_response, success_response
 
 
@@ -62,6 +64,32 @@ def read_admin_report_detail(
     except ReportNotFoundError as exc:
         return _error(exc, status.HTTP_404_NOT_FOUND)
     return success_response(data=data)
+
+
+@router.delete("/{report_id}", response_model=None)
+def delete_admin_report(
+    request: Request,
+    report_id: int = Path(..., ge=1),
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
+) -> dict | JSONResponse:
+    try:
+        deleted_id = delete_admin_report_record(db, report_id)
+    except ReportNotFoundError as exc:
+        return _error(exc, status.HTTP_404_NOT_FOUND)
+
+    record_system_log(
+        db,
+        user_id=current_admin.id,
+        module="report",
+        action="delete",
+        description=f"Admin deleted report report_id={deleted_id}",
+        ip_address=get_request_ip(request),
+        target_type="report",
+        target_id=deleted_id,
+        result_status="success",
+    )
+    return success_response(message="deleted", data={"id": deleted_id})
 
 
 @router.get("/{report_id}/download", response_model=None)

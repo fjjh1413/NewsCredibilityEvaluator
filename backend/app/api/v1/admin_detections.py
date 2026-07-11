@@ -127,5 +127,8 @@ def delete_admin_detection(
         action="delete_detection",
         description=f"管理员删除检测记录 detection_id={id}",
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=id,
+        result_status="success",
     )
     return success_response(message="deleted", data={"id": id})

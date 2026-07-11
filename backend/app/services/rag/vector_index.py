@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from typing import Any
 
 from app.models.knowledge_item import KnowledgeItem
@@ -24,6 +25,10 @@ def build_knowledge_chunk_vector_id(knowledge_id: int, chunk_index: int) -> str:
 
 def build_knowledge_parent_vector_id(item: KnowledgeItem | object) -> str:
     return f"knowledge:{int(getattr(item, 'id'))}:v2"
+
+
+def content_hash(text: str) -> str:
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
 
 
 def _combine_where_filters(*filters: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -88,7 +93,13 @@ def upsert_knowledge_item_chunk_vectors(
         for chunk in chunks
     ]
     documents = [chunk.chunk_text for chunk in chunks]
-    metadatas = [chunk.to_metadata() for chunk in chunks]
+    metadatas = [
+        {
+            **chunk.to_metadata(),
+            "content_hash": content_hash(chunk.chunk_text),
+        }
+        for chunk in chunks
+    ]
 
     def _replace_parent_chunks(collection: Any) -> None:
         collection.delete(where=_parent_filter(int(getattr(item, "id"))))
@@ -166,3 +177,31 @@ def search_knowledge_chunk_vectors(
             }
         )
     return items
+
+
+def fetch_rag_v2_parent_chunks(knowledge_id: int) -> list[dict[str, Any]]:
+    """Fetch stored v2 chunks for one parent document without embedding/querying."""
+    results = _run_knowledge_collection_operation(
+        "Failed to fetch RAG v2 parent chunks",
+        lambda collection: collection.get(
+            where=_parent_filter(int(knowledge_id)),
+            include=["documents", "metadatas"],
+        ),
+    )
+
+    ids = results.get("ids", [])
+    documents = results.get("documents", [])
+    metadatas = results.get("metadatas", [])
+    chunks: list[dict[str, Any]] = []
+    for index, vector_id in enumerate(ids):
+        metadata = metadatas[index] if index < len(metadatas) else {}
+        document = documents[index] if index < len(documents) else ""
+        chunks.append(
+            {
+                "id": vector_id,
+                "chunk_id": metadata.get("chunk_id") or vector_id,
+                "document": document,
+                "metadata": metadata,
+            }
+        )
+    return chunks

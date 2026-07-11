@@ -12,6 +12,9 @@ from app.main import app
 from app.schemas.detection import DetectNewsRequest
 from app.services.detection_service import detect_news_credibility
 from app.services.web.web_content_fetcher import (
+    AntiBotBlockedError,
+    DynamicRenderRequiredError,
+    LoginRequiredError,
     SSRFBlockedError,
     WebContentFetchError,
 )
@@ -1285,6 +1288,84 @@ class ExtractPreviewApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertIn("超时", response.json()["message"])
+
+    @patch("app.api.v1.detect.WebContentFetcher")
+    def test_extract_preview_returns_login_required_status(
+        self, mocked_fetcher_cls
+    ) -> None:
+        mocked_fetcher_cls.return_value.fetch_article.side_effect = LoginRequiredError(
+            "该链接需要登录后才能读取正文",
+            login_url="https://example.com/login",
+            page_type="login_wall",
+            confidence=0.92,
+            signals=("password_form", "login_text_marker"),
+            recommended_method="authenticated_retry",
+        )
+
+        response = self.client.post(
+            "/api/detect/extract-preview",
+            json={"url": "https://example.com/member-only"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        body = response.json()
+        self.assertEqual(body["data"]["status"], "login_required")
+        self.assertEqual(body["data"]["login_url"], "https://example.com/login")
+        self.assertEqual(body["data"]["recovery_action"], "open_login_then_retry")
+        self.assertEqual(body["data"]["page_type"], "login_wall")
+        self.assertEqual(body["data"]["recognition_confidence"], 0.92)
+        self.assertIn("password_form", body["data"]["recognition_signals"])
+        self.assertEqual(
+            body["data"]["recommended_extraction_method"], "authenticated_retry"
+        )
+
+    @patch("app.api.v1.detect.WebContentFetcher")
+    def test_extract_preview_returns_dynamic_render_required_status(
+        self, mocked_fetcher_cls
+    ) -> None:
+        mocked_fetcher_cls.return_value.fetch_article.side_effect = DynamicRenderRequiredError(
+            "该新闻页正文由客户端动态生成，当前无法直接读取正文",
+            page_type="client_rendered_shell",
+            confidence=0.84,
+            signals=("client_render_marker",),
+            recommended_method="browser_render",
+        )
+
+        response = self.client.post(
+            "/api/detect/extract-preview",
+            json={"url": "https://example.com/render-only"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        body = response.json()
+        self.assertEqual(body["data"]["status"], "dynamic_render_required")
+        self.assertEqual(body["data"]["recovery_action"], "manual_input")
+        self.assertEqual(body["data"]["page_type"], "client_rendered_shell")
+        self.assertEqual(body["data"]["recommended_extraction_method"], "browser_render")
+
+    @patch("app.api.v1.detect.WebContentFetcher")
+    def test_extract_preview_returns_antibot_status(
+        self, mocked_fetcher_cls
+    ) -> None:
+        mocked_fetcher_cls.return_value.fetch_article.side_effect = AntiBotBlockedError(
+            "该站点启用了访问校验或反爬限制",
+            page_type="anti_bot_wall",
+            confidence=0.9,
+            signals=("anti_bot_marker",),
+            recommended_method="manual_input",
+        )
+
+        response = self.client.post(
+            "/api/detect/extract-preview",
+            json={"url": "https://example.com/protected"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        body = response.json()
+        self.assertEqual(body["data"]["status"], "blocked_by_anti_bot")
+        self.assertEqual(body["data"]["recovery_action"], "manual_input")
+        self.assertEqual(body["data"]["page_type"], "anti_bot_wall")
+        self.assertIn("anti_bot_marker", body["data"]["recognition_signals"])
 
     @patch("app.api.v1.detect.WebContentFetcher")
     def test_extract_preview_returns_422_when_title_or_content_empty(

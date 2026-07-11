@@ -41,6 +41,7 @@ from app.services.detection_task_service import (
 from app.services.system_log_service import get_request_ip, record_system_log
 from app.services.task_queue import TaskQueueUnavailable, enqueue_detection_task
 from app.services.web.web_content_fetcher import (
+    RecoverableExtractionError,
     SSRFBlockedError,
     WebContentFetchError,
     WebContentFetcher,
@@ -130,6 +131,10 @@ def detect_news(
             action="enqueue_detect_news",
             description=f"提交异步新闻检测任务 task_id={task.id}",
             ip_address=get_request_ip(request),
+            target_type="detection_task",
+            target_id=task.id,
+            result_status="success",
+            metadata_json={"status": task.status},
         )
         return JSONResponse(
             status_code=status.HTTP_202_ACCEPTED,
@@ -169,6 +174,13 @@ def detect_news(
             f"final_score={result.get('final_score')}"
         ),
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=result.get("detection_id"),
+        result_status="success",
+        metadata_json={
+            "risk_level": result.get("risk_level"),
+            "final_score": result.get("final_score"),
+        },
     )
     return success_response(message="检测完成", data=result)
 
@@ -194,6 +206,31 @@ def extract_preview(
     fetcher = WebContentFetcher(allow_private_hosts=settings.article_fetch_allow_private_hosts)
     try:
         article = fetcher.fetch_article(payload.url)
+    except RecoverableExtractionError as exc:
+        recovery_data = {
+            "status": exc.status,
+            "recovery_action": exc.recovery_action,
+        }
+        if exc.page_type:
+            recovery_data["page_type"] = exc.page_type
+        if exc.confidence is not None:
+            recovery_data["recognition_confidence"] = exc.confidence
+        if exc.signals:
+            recovery_data["recognition_signals"] = exc.signals
+        if exc.recommended_method:
+            recovery_data["recommended_extraction_method"] = exc.recommended_method
+        if exc.login_url:
+            recovery_data["login_url"] = exc.login_url
+        elif exc.status == "login_required":
+            recovery_data["login_url"] = payload.url
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=error_response(
+                message=str(exc),
+                code=422,
+                data=recovery_data,
+            ),
+        )
     except (SSRFBlockedError, WebContentFetchError) as exc:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -330,6 +367,13 @@ def re_evaluate_detection(
             f"new_detection_id={result.get('detection_id')}"
         ),
         ip_address=get_request_ip(request),
+        target_type="detection",
+        target_id=result.get("detection_id"),
+        result_status="success",
+        metadata_json={
+            "source_detection_id": id,
+            "new_detection_id": result.get("detection_id"),
+        },
     )
     return success_response(message="重新评估完成", data=result)
 
@@ -358,7 +402,9 @@ def read_detection_detail(
             "candidate_evidence_list",
             "excluded_evidence",
             "similar_news",
+            "core_claims",
             "evidence_quality",
+            "arbitration_quality",
             "arbitration_status",
             "quality_status",
             "arbitration_error",
@@ -366,6 +412,9 @@ def read_detection_detail(
             "analysis_contract_version",
             "knowledge_has_relevant_match",
             "web_has_relevant_match",
+            "rag_query_count",
+            "rag_query_strategy",
+            "rag_supporting_span_count",
         ):
             if field_name in analysis_payload:
                 data[field_name] = analysis_payload[field_name]

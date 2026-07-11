@@ -13,6 +13,8 @@ const HighRiskView = () => import('@/views/HighRiskView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
 const AdminLayout = () => import('@/layouts/AdminLayout.vue')
 const AdminDashboardView = () => import('@/views/admin/AdminDashboardView.vue')
+const AdminAiEngineeringView = () => import('@/views/admin/AdminAiEngineeringView.vue')
+const AdminOperationPoliciesView = () => import('@/views/admin/AdminOperationPoliciesView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
 const AdminDetectionsView = () => import('@/views/admin/AdminDetectionsView.vue')
 const AdminKnowledgeView = () => import('@/views/admin/AdminKnowledgeView.vue')
@@ -89,6 +91,18 @@ const routes = [
         name: 'adminDashboard',
         component: AdminDashboardView,
         meta: { title: '后台首页', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'ai-engineering',
+        name: 'adminAiEngineering',
+        component: AdminAiEngineeringView,
+        meta: { title: 'AI 工程质量', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'operation-policies',
+        name: 'adminOperationPolicies',
+        component: AdminOperationPoliciesView,
+        meta: { title: '操作策略', requiresAuth: true, requiresAdmin: true }
       },
       {
         path: 'users',

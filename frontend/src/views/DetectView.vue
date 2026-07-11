@@ -52,6 +52,28 @@
               {{ extracting ? '提取中' : '提取' }}
             </el-button>
           </div>
+          <div v-if="extractRecovery.status" class="detect-url-recovery" role="status">
+            <p>{{ extractRecovery.message }}</p>
+            <div class="detect-url-recovery__actions">
+              <el-button
+                v-if="extractRecovery.status === 'login_required' && extractRecovery.loginUrl"
+                type="primary"
+                plain
+                size="small"
+                @click="openLoginWall"
+              >
+                打开登录页
+              </el-button>
+              <el-button
+                v-if="extractRecovery.recoveryAction === 'open_login_then_retry'"
+                size="small"
+                @click="handleExtract"
+              >
+                登录后再获取
+              </el-button>
+              <el-button size="small" text @click="focusContentInput">手动输入正文</el-button>
+            </div>
+          </div>
         </section>
 
         <el-form
@@ -115,6 +137,7 @@
 
           <el-form-item label="新闻正文" prop="content">
             <el-input
+              ref="contentInputRef"
               v-model.trim="form.content"
               type="textarea"
               :rows="11"
@@ -186,12 +209,25 @@ import { unwrapApiResponse } from '@/utils/response'
 
 const router = useRouter()
 const formRef = ref(null)
+const contentInputRef = ref(null)
 const submitting = ref(false)
 const extracting = ref(false)
 const articleUrl = ref('')
 const errorMessage = ref('')
 const extractedPublishTimeRaw = ref('')
 const publishTimeEdited = ref(false)
+
+const extractRecovery = reactive({
+  status: '',
+  message: '',
+  loginUrl: '',
+  recoveryAction: ''
+})
+const recoverableExtractStatuses = new Set([
+  'login_required',
+  'dynamic_render_required',
+  'blocked_by_anti_bot'
+])
 
 const disclaimer =
   '本系统为新闻可信度辅助评估工具，检测结果仅供参考，不能替代人工事实核查、官方通报或权威媒体结论。'
@@ -252,11 +288,47 @@ function getErrorMessage(error) {
   )
 }
 
+function clearExtractRecovery() {
+  Object.assign(extractRecovery, {
+    status: '',
+    message: '',
+    loginUrl: '',
+    recoveryAction: ''
+  })
+}
+
+function applyExtractRecovery(error) {
+  const data = error?.response?.data?.data
+  if (!recoverableExtractStatuses.has(data?.status)) {
+    return false
+  }
+
+  Object.assign(extractRecovery, {
+    status: data.status,
+    message: getErrorMessage(error),
+    loginUrl: data.login_url || '',
+    recoveryAction: data.recovery_action || ''
+  })
+  return true
+}
+
+function openLoginWall() {
+  if (!/^https?:\/\//i.test(extractRecovery.loginUrl)) {
+    return
+  }
+  window.open(extractRecovery.loginUrl, '_blank', 'noopener,noreferrer')
+}
+
+function focusContentInput() {
+  contentInputRef.value?.focus?.()
+}
+
 function fillExample() {
   Object.assign(form, exampleNews)
   extractedPublishTimeRaw.value = ''
   publishTimeEdited.value = false
   errorMessage.value = ''
+  clearExtractRecovery()
 }
 
 function resetForm() {
@@ -275,6 +347,7 @@ function resetForm() {
   publishTimeEdited.value = false
   articleUrl.value = ''
   errorMessage.value = ''
+  clearExtractRecovery()
 }
 
 function handlePublishDateChange(value) {
@@ -317,6 +390,7 @@ async function handleExtract() {
 
   extracting.value = true
   errorMessage.value = ''
+  clearExtractRecovery()
   try {
     const response = await extractNewsPreview(url)
     const data = unwrapApiResponse(response, '链接提取失败，请稍后重试')
@@ -337,6 +411,14 @@ async function handleExtract() {
       ElMessage.success('提取成功，请核对内容后提交检测')
     }
   } catch (error) {
+    if (applyExtractRecovery(error)) {
+      ElMessage.warning(
+        extractRecovery.status === 'login_required'
+          ? '该链接需要登录后再获取对应信息'
+          : '该链接暂时无法自动提取，请改用手动输入正文'
+      )
+      return
+    }
     ElMessage.error(getErrorMessage(error))
   } finally {
     extracting.value = false
@@ -501,9 +583,36 @@ async function handleSubmit() {
   font-weight: 700;
 }
 
+.detect-url-recovery {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-sm);
+  background: #fffbeb;
+}
+
+.detect-url-recovery p {
+  margin: 0;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.detect-url-recovery__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 @media (max-width: 680px) {
   .detect-url-block__row {
     grid-template-columns: 1fr;
+  }
+
+  .detect-url-recovery__actions .el-button {
+    width: 100%;
+    margin-left: 0;
   }
 }
 

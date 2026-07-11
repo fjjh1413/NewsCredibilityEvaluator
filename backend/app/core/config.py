@@ -76,6 +76,11 @@ def _read_bool_env(name: str, default: bool = False) -> bool:
     return raw_value in {"1", "true", "yes", "on"}
 
 
+def _read_choice_env(name: str, default: str, allowed_values: set[str]) -> str:
+    value = os.getenv(name, default).strip().lower()
+    return value if value in allowed_values else default
+
+
 def _read_rag_index_version() -> str:
     value = os.getenv("RAG_INDEX_VERSION", "v1").strip().lower()
     return value if value in SUPPORTED_RAG_INDEX_VERSIONS else "v1"
@@ -260,6 +265,67 @@ class Settings:
         )
         self.rag_lexical_enabled = _read_bool_env("RAG_LEXICAL_ENABLED", True)
         self.rag_mmr_enabled = _read_bool_env("RAG_MMR_ENABLED", True)
+        self.rag_fusion_strategy = _read_choice_env(
+            "RAG_FUSION_STRATEGY",
+            "rrf",
+            {"rrf", "weighted_sum"},
+        )
+        self.rag_rrf_rank_constant = _read_positive_int_env(
+            "RAG_RRF_RANK_CONSTANT",
+            60,
+        )
+        self.rag_claim_aware_enabled = _read_bool_env(
+            "RAG_CLAIM_AWARE_ENABLED",
+            True,
+        )
+        self.rag_claim_query_count = _read_positive_int_env(
+            "RAG_CLAIM_QUERY_COUNT",
+            4,
+        )
+        self.rag_supporting_spans_enabled = _read_bool_env(
+            "RAG_SUPPORTING_SPANS_ENABLED",
+            True,
+        )
+        self.rag_supporting_span_count = _read_positive_int_env(
+            "RAG_SUPPORTING_SPAN_COUNT",
+            2,
+        )
+        self.rag_rule_rerank_enabled = _read_bool_env(
+            "RAG_RULE_RERANK_ENABLED",
+            True,
+        )
+        self.rag_rerank_pool_size = _read_positive_int_env(
+            "RAG_RERANK_POOL_SIZE",
+            30,
+        )
+        self.rag_model_rerank_enabled = _read_bool_env(
+            "RAG_MODEL_RERANK_ENABLED",
+            False,
+        )
+        self.rag_audit_sample_limit = _read_positive_int_env(
+            "RAG_AUDIT_SAMPLE_LIMIT",
+            200,
+        )
+        self.knowledge_index_job_enabled = _read_bool_env(
+            "KNOWLEDGE_INDEX_JOB_ENABLED",
+            True,
+        )
+        self.knowledge_index_job_interval_seconds = _read_positive_int_env(
+            "KNOWLEDGE_INDEX_JOB_INTERVAL_SECONDS",
+            60,
+        )
+        self.knowledge_index_job_batch_size = _read_positive_int_env(
+            "KNOWLEDGE_INDEX_JOB_BATCH_SIZE",
+            20,
+        )
+        self.knowledge_index_job_max_attempts = _read_positive_int_env(
+            "KNOWLEDGE_INDEX_JOB_MAX_ATTEMPTS",
+            3,
+        )
+        self.knowledge_index_job_retry_delay_seconds = _read_positive_int_env(
+            "KNOWLEDGE_INDEX_JOB_RETRY_DELAY_SECONDS",
+            60,
+        )
         self.report_generation_cache_enabled = _read_bool_env(
             "REPORT_GENERATION_CACHE_ENABLED",
             True,

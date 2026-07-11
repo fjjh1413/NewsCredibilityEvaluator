@@ -106,7 +106,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="220" fixed="right">
+          <el-table-column label="操作" width="320" fixed="right">
             <template #default="{ row }">
               <div class="table-actions">
                 <button class="text-button" type="button" @click="openUserPanel(row)">详情</button>
@@ -119,6 +119,15 @@
                   @click="confirmStatusChange(row)"
                 >
                   {{ row.status === 'active' ? '禁用' : '启用' }}
+                </button>
+                <button
+                  class="text-button"
+                  :class="{ 'text-button--danger': row.role !== 'admin' }"
+                  type="button"
+                  :disabled="roleUpdatingId === row.id"
+                  @click="confirmRoleChange(row)"
+                >
+                  {{ row.role === 'admin' ? '改为普通用户' : '设为管理员' }}
                 </button>
               </div>
             </template>
@@ -245,7 +254,8 @@ import {
   enableAdminUser,
   getAdminUserDetail,
   getAdminUserDetections,
-  getAdminUsers
+  getAdminUsers,
+  updateAdminUserRole
 } from '@/api/adminUsers'
 import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -261,6 +271,7 @@ const total = ref(0)
 const errorMessage = ref('')
 const interfacePending = ref(false)
 const statusUpdatingId = ref(null)
+const roleUpdatingId = ref(null)
 const panelVisible = ref(false)
 const detailLoading = ref(false)
 const detailError = ref('')
@@ -669,6 +680,51 @@ async function confirmStatusChange(row) {
     ElMessage.error(getErrorMessage(error))
   } finally {
     statusUpdatingId.value = null
+  }
+}
+
+async function confirmRoleChange(row) {
+  if (!row?.id) {
+    ElMessage.warning('当前用户缺少 ID，无法修改角色')
+    return
+  }
+
+  const nextRole = row.role === 'admin' ? 'user' : 'admin'
+
+  if (nextRole === 'user' && isSelfUser(row)) {
+    ElMessage.warning('不能在前端降低当前登录管理员的角色')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确认将用户「${row.username}」角色修改为「${roleText(nextRole)}」吗？`,
+      '修改用户角色',
+      {
+        confirmButtonText: '确认修改',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+
+  roleUpdatingId.value = row.id
+
+  try {
+    await updateAdminUserRole(row.id, nextRole)
+    ElMessage.success('用户角色已更新')
+
+    if (String(selectedUser.value?.id) === String(row.id)) {
+      selectedUser.value = { ...selectedUser.value, role: nextRole }
+    }
+
+    await fetchUsers()
+  } catch (error) {
+    ElMessage.error(getErrorMessage(error))
+  } finally {
+    roleUpdatingId.value = null
   }
 }
 

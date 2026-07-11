@@ -168,6 +168,19 @@ class AlembicSchemaCoverageTestCase(unittest.TestCase):
         self.assertIn('revision = "0005_add_evidence_web_source"', migration_text)
         self.assertIn('down_revision = "0005_add_evidence_web_source"', migration_text)
 
+    def test_knowledge_index_jobs_table_is_managed_by_alembic(self) -> None:
+        versions_dir = (
+            Path(__file__).resolve().parents[1] / "alembic" / "versions"
+        )
+        migration_text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in versions_dir.glob("*.py")
+        )
+
+        self.assertIn('"knowledge_index_jobs"', migration_text)
+        self.assertIn('revision = "0010_knowledge_index_jobs"', migration_text)
+        self.assertIn('down_revision = "0009_detection_tasks"', migration_text)
+
 
 if __name__ == "__main__":
     unittest.main()

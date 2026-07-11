@@ -3,9 +3,27 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 
+function stripInvalidVueusePureAnnotations() {
+  return {
+    name: 'strip-invalid-vueuse-pure-annotations',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!id.includes('@vueuse/core/dist/index.js')) {
+        return null
+      }
+
+      const cleaned = code
+        .replace(/\n\/\* #__PURE__ \*\/\nconst events =/g, '\nconst events =')
+        .replace(/const defaultState = \(\/\* #__PURE__ \*\/\s*\{/g, 'const defaultState = ({')
+
+      return cleaned === code ? null : { code: cleaned, map: null }
+    }
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const analyzeBundle = mode === 'analyze' || process.env.BUNDLE_ANALYZE === 'true'
-  const plugins = [vue()]
+  const plugins = [stripInvalidVueusePureAnnotations(), vue()]
 
   if (analyzeBundle) {
     plugins.push(
@@ -54,7 +72,11 @@ export default defineConfig(({ mode }) => {
               return 'element-plus'
             }
 
-            if (id.includes('echarts') || id.includes('zrender')) {
+            if (id.includes('zrender')) {
+              return 'zrender'
+            }
+
+            if (id.includes('echarts')) {
               return 'echarts'
             }
 

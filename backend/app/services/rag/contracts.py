@@ -63,6 +63,10 @@ class RagParentCandidate:
     lexical_score: float = 0.0
     exact_score: float = 0.0
     final_score: float = 0.0
+    dense_rank: int | None = None
+    lexical_rank: int | None = None
+    rrf_score: float = 0.0
+    fusion_strategy: str = "weighted_sum"
 
     def to_result(self) -> dict[str, Any]:
         return {
@@ -76,6 +80,10 @@ class RagParentCandidate:
                 "dense_score": round(self.dense_score, 6),
                 "lexical_score": round(self.lexical_score, 6),
                 "exact_score": round(self.exact_score, 6),
+                "dense_rank": self.dense_rank,
+                "lexical_rank": self.lexical_rank,
+                "rrf_score": round(self.rrf_score, 6),
+                "fusion_strategy": self.fusion_strategy,
                 "final_score": round(self.final_score, 6),
             },
         }

@@ -125,6 +125,9 @@ def enable_user(
         action="enable_user",
         description=f"管理员启用用户 target_user_id={user_id}",
         ip_address=get_request_ip(request),
+        target_type="user",
+        target_id=user_id,
+        result_status="success",
     )
     return _item_response(user, detection_count, message="用户已启用")
 
@@ -150,6 +153,9 @@ def disable_user(
         action="disable_user",
         description=f"管理员禁用用户 target_user_id={user_id}",
         ip_address=get_request_ip(request),
+        target_type="user",
+        target_id=user_id,
+        result_status="success",
     )
     return _item_response(user, detection_count, message="用户已禁用")
 
@@ -176,6 +182,10 @@ def update_user_role(
         action="update_user_role",
         description=f"管理员更新用户角色 target_user_id={user_id} role={payload.role}",
         ip_address=get_request_ip(request),
+        target_type="user",
+        target_id=user_id,
+        result_status="success",
+        metadata_json={"role": payload.role},
     )
     return _item_response(user, detection_count, message="用户角色已更新")
 

@@ -405,7 +405,7 @@ class LlmServiceTestCase(unittest.TestCase):
         self.assertIn("stance", prompt)
         self.assertIn("similar_news", prompt)
         self.assertIn("relevance_reason", prompt)
-        self.assertIn("输出契约版本：2.0", prompt)
+        self.assertIn("输出契约版本：2.1", prompt)
 
     def test_analyze_returns_readable_error_without_api_key(self) -> None:
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}, clear=False):

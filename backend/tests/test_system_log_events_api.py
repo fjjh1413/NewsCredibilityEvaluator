@@ -87,8 +87,34 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["module"], "auth")
         self.assertEqual(kwargs["action"], "login")
         self.assertEqual(kwargs["ip_address"], "testclient")
+        self.assertEqual(kwargs["target_type"], "user")
+        self.assertEqual(kwargs["target_id"], 1)
+        self.assertEqual(kwargs["result_status"], "success")
         self.assertNotIn("super-secret", kwargs["description"])
         mocked_create_token.assert_called_once()
+
+    @patch.object(auth_api, "authenticate_user")
+    def test_failed_login_records_failed_audit_event(self, mocked_authenticate) -> None:
+        mocked_authenticate.side_effect = auth_api.InvalidCredentialsError(
+            "Invalid username or password"
+        )
+
+        with patch("app.api.v1.auth.record_system_log", create=True) as mocked_log:
+            response = self.client.post(
+                "/api/auth/login",
+                json={"username": "alice", "password": "super-secret"},
+                headers={"X-Forwarded-For": "203.0.113.7"},
+            )
+
+        self.assertEqual(response.status_code, 401)
+        mocked_log.assert_called_once()
+        kwargs = mocked_log.call_args.kwargs
+        self.assertEqual(kwargs["module"], "auth")
+        self.assertEqual(kwargs["action"], "login_failed")
+        self.assertEqual(kwargs["target_type"], "auth_account")
+        self.assertEqual(kwargs["target_id"], "alice")
+        self.assertEqual(kwargs["result_status"], "failure")
+        self.assertNotIn("super-secret", kwargs["description"])
 
     @patch("app.api.v1.detect.detect_news_credibility")
     def test_successful_detection_records_audit_event(self, mocked_detect) -> None:
@@ -127,6 +153,10 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["module"], "detection")
         self.assertEqual(kwargs["action"], "detect_news")
         self.assertEqual(kwargs["ip_address"], "testclient")
+        self.assertEqual(kwargs["target_type"], "detection")
+        self.assertEqual(kwargs["target_id"], 12)
+        self.assertEqual(kwargs["result_status"], "success")
+        self.assertEqual(kwargs["metadata_json"]["final_score"], 76)
         self.assertIn("detection_id=12", kwargs["description"])
         self.assertIn("risk_level=存疑信息", kwargs["description"])
         self.assertNotIn(VALID_NEWS_CONTENT, kwargs["description"])
@@ -155,6 +185,9 @@ class SystemLogEventsApiTestCase(unittest.TestCase):
         self.assertEqual(kwargs["module"], "admin")
         self.assertEqual(kwargs["action"], "disable_user")
         self.assertEqual(kwargs["ip_address"], "testclient")
+        self.assertEqual(kwargs["target_type"], "user")
+        self.assertEqual(kwargs["target_id"], 1)
+        self.assertEqual(kwargs["result_status"], "success")
         self.assertIn("target_user_id=1", kwargs["description"])
 
 

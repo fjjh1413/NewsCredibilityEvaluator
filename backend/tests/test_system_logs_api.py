@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import datetime
 from types import SimpleNamespace
@@ -66,6 +67,11 @@ class SystemLogsApiTestCase(unittest.TestCase):
         self.assertEqual(item["action"], "login")
         self.assertEqual(item["description"], "用户登录成功")
         self.assertEqual(item["ip_address"], "203.0.113.7")
+        self.assertEqual(item["request_id"], "req-login-1")
+        self.assertEqual(item["target_type"], "user")
+        self.assertEqual(item["target_id"], "1")
+        self.assertEqual(item["result_status"], "success")
+        self.assertEqual(item["metadata_json"], {"method": "password"})
 
     def test_admin_logs_support_keyword_search(self) -> None:
         response = self.client.get("/api/admin/logs?keyword=高风险")
@@ -74,6 +80,23 @@ class SystemLogsApiTestCase(unittest.TestCase):
         data = response.json()["data"]
         self.assertEqual(data["total"], 1)
         self.assertEqual(data["items"][0]["module"], "admin")
+
+    def test_admin_logs_support_structured_audit_filters(self) -> None:
+        response = self.client.get(
+            "/api/admin/logs?request_id=req-review-1"
+            "&target_type=detection&target_id=5&result_status=success"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["data"]
+        self.assertEqual(data["total"], 1)
+        item = data["items"][0]
+        self.assertEqual(item["module"], "admin")
+        self.assertEqual(item["request_id"], "req-review-1")
+        self.assertEqual(item["target_type"], "detection")
+        self.assertEqual(item["target_id"], "5")
+        self.assertEqual(item["result_status"], "success")
+        self.assertEqual(item["metadata_json"], {"review_status": "approved"})
 
     def test_normal_user_cannot_access_admin_logs(self) -> None:
         def forbidden_admin():
@@ -104,6 +127,11 @@ class SystemLogsApiTestCase(unittest.TestCase):
                         module VARCHAR(100) NOT NULL,
                         description TEXT NULL,
                         ip_address VARCHAR(50) NULL,
+                        request_id VARCHAR(128) NULL,
+                        target_type VARCHAR(100) NULL,
+                        target_id VARCHAR(100) NULL,
+                        result_status VARCHAR(20) NULL,
+                        metadata_json JSON NULL,
                         created_at DATETIME NOT NULL
                     )
                     """
@@ -127,9 +155,17 @@ class SystemLogsApiTestCase(unittest.TestCase):
                 text(
                     """
                     INSERT INTO system_logs
-                        (user_id, action, module, description, ip_address, created_at)
+                        (
+                            user_id, action, module, description, ip_address,
+                            request_id, target_type, target_id, result_status,
+                            metadata_json, created_at
+                        )
                     VALUES
-                        (:user_id, :action, :module, :description, :ip_address, :created_at)
+                        (
+                            :user_id, :action, :module, :description, :ip_address,
+                            :request_id, :target_type, :target_id, :result_status,
+                            :metadata_json, :created_at
+                        )
                     """
                 ),
                 [
@@ -139,6 +175,11 @@ class SystemLogsApiTestCase(unittest.TestCase):
                         "module": "auth",
                         "description": "用户登录成功",
                         "ip_address": "203.0.113.7",
+                        "request_id": "req-login-1",
+                        "target_type": "user",
+                        "target_id": "1",
+                        "result_status": "success",
+                        "metadata_json": json.dumps({"method": "password"}),
                         "created_at": datetime(2026, 1, 1, 8, 0, 0),
                     },
                     {
@@ -147,6 +188,11 @@ class SystemLogsApiTestCase(unittest.TestCase):
                         "module": "admin",
                         "description": "管理员审核高风险记录 record_id=5",
                         "ip_address": "203.0.113.8",
+                        "request_id": "req-review-1",
+                        "target_type": "detection",
+                        "target_id": "5",
+                        "result_status": "success",
+                        "metadata_json": json.dumps({"review_status": "approved"}),
                         "created_at": datetime(2026, 1, 3, 8, 0, 0),
                     },
                 ],

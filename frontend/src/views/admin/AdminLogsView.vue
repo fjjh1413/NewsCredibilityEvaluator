@@ -37,6 +37,36 @@
       </label>
 
       <label class="filter-field">
+        <span>Request ID</span>
+        <el-input v-model.trim="filters.requestId" clearable placeholder="X-Request-ID" @keyup.enter="handleSearch" />
+      </label>
+
+      <label class="filter-field">
+        <span>目标类型</span>
+        <el-select v-model="filters.targetType" clearable placeholder="全部目标">
+          <el-option label="用户" value="user" />
+          <el-option label="检测记录" value="detection" />
+          <el-option label="报告" value="report" />
+          <el-option label="知识库条目" value="knowledge_item" />
+          <el-option label="Prompt 模板" value="prompt_template" />
+        </el-select>
+      </label>
+
+      <label class="filter-field">
+        <span>目标 ID</span>
+        <el-input v-model.trim="filters.targetId" clearable placeholder="目标对象 ID" @keyup.enter="handleSearch" />
+      </label>
+
+      <label class="filter-field">
+        <span>结果</span>
+        <el-select v-model="filters.resultStatus" clearable placeholder="全部结果">
+          <el-option label="成功" value="success" />
+          <el-option label="失败" value="failure" />
+          <el-option label="已阻断" value="blocked" />
+        </el-select>
+      </label>
+
+      <label class="filter-field">
         <span>开始时间</span>
         <input v-model="filters.dateFrom" class="native-input" type="datetime-local" />
       </label>
@@ -80,9 +110,35 @@
           </template>
         </el-table-column>
 
+        <el-table-column label="结果" width="110">
+          <template #default="{ row }">
+            <span class="result-pill" :class="resultStatusClass(row.resultStatus)">
+              {{ resultStatusText(row.resultStatus) }}
+            </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="目标对象" min-width="170">
+          <template #default="{ row }">
+            <span class="muted-text">{{ targetText(row) }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column label="描述" min-width="320">
           <template #default="{ row }">
             <span class="muted-text">{{ row.description || '--' }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="上下文" min-width="220">
+          <template #default="{ row }">
+            <span class="muted-text">{{ formatMetadata(row.metadataJson) }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Request ID" min-width="190">
+          <template #default="{ row }">
+            <span class="code-text">{{ row.requestId || '--' }}</span>
           </template>
         </el-table-column>
 
@@ -139,6 +195,10 @@ const filters = reactive({
   keyword: '',
   module: '',
   action: '',
+  requestId: '',
+  targetType: '',
+  targetId: '',
+  resultStatus: '',
   dateFrom: '',
   dateTo: ''
 })
@@ -164,6 +224,22 @@ const queryParams = computed(() => {
 
   if (filters.action) {
     params.action = filters.action
+  }
+
+  if (filters.requestId) {
+    params.request_id = filters.requestId
+  }
+
+  if (filters.targetType) {
+    params.target_type = filters.targetType
+  }
+
+  if (filters.targetId) {
+    params.target_id = filters.targetId
+  }
+
+  if (filters.resultStatus) {
+    params.result_status = filters.resultStatus
   }
 
   if (filters.dateFrom) {
@@ -265,6 +341,11 @@ function normalizeLog(item, index) {
     action: pick(item?.action, item?.operation, item?.event),
     description: pick(item?.description, item?.detail, item?.message),
     ipAddress: pick(item?.ip_address, item?.ipAddress, item?.ip),
+    requestId: pick(item?.request_id, item?.requestId),
+    targetType: pick(item?.target_type, item?.targetType),
+    targetId: pick(item?.target_id, item?.targetId),
+    resultStatus: pick(item?.result_status, item?.resultStatus),
+    metadataJson: pick(item?.metadata_json, item?.metadataJson),
     createdAt: pick(item?.created_at, item?.createdAt, item?.time, item?.created_time)
   }
 }
@@ -307,6 +388,63 @@ function moduleText(module) {
     high_risk: '高风险审核'
   }
   return mapping[module] || module || '--'
+}
+
+function resultStatusText(status) {
+  const mapping = {
+    success: '成功',
+    failure: '失败',
+    blocked: '已阻断'
+  }
+  return mapping[status] || status || '--'
+}
+
+function resultStatusClass(status) {
+  if (status === 'success') {
+    return 'result-pill--success'
+  }
+
+  if (status === 'failure') {
+    return 'result-pill--danger'
+  }
+
+  if (status === 'blocked') {
+    return 'result-pill--warning'
+  }
+
+  return 'result-pill--muted'
+}
+
+function targetText(row) {
+  if (!row.targetType && !row.targetId) {
+    return '--'
+  }
+  return [row.targetType, row.targetId ? `#${row.targetId}` : ''].filter(Boolean).join(' ')
+}
+
+function formatMetadata(value) {
+  if (!value || typeof value !== 'object') {
+    return '--'
+  }
+
+  const entries = Object.entries(value).slice(0, 3)
+  if (!entries.length) {
+    return '--'
+  }
+
+  return entries.map(([key, item]) => `${key}: ${compactMetadataValue(item)}`).join(' · ')
+}
+
+function compactMetadataValue(value) {
+  if (value === null || value === undefined || value === '') {
+    return '--'
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value)
+  }
+
+  return String(value)
 }
 
 function formatDateTime(value) {
@@ -362,6 +500,10 @@ function resetFilters() {
   filters.keyword = ''
   filters.module = ''
   filters.action = ''
+  filters.requestId = ''
+  filters.targetType = ''
+  filters.targetId = ''
+  filters.resultStatus = ''
   filters.dateFrom = ''
   filters.dateTo = ''
   pagination.page = 1
@@ -396,7 +538,7 @@ onMounted(fetchLogs)
 
 .module-filter {
   display: grid;
-  grid-template-columns: minmax(220px, 1.1fr) minmax(170px, 0.8fr) minmax(190px, 0.9fr) minmax(220px, 0.9fr) minmax(220px, 0.9fr) auto;
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
   gap: var(--space-4);
   align-items: end;
 }
@@ -462,12 +604,19 @@ onMounted(fetchLogs)
 }
 
 .log-user span,
-.muted-text {
+.muted-text,
+.code-text {
   color: var(--color-text-muted);
   font-size: 13px;
 }
 
-.module-pill {
+.code-text {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.module-pill,
+.result-pill {
   display: inline-flex;
   min-height: 26px;
   align-items: center;
@@ -478,6 +627,26 @@ onMounted(fetchLogs)
   background: var(--color-primary-soft);
   font-size: 12px;
   font-weight: 800;
+}
+
+.result-pill--success {
+  color: var(--color-success);
+  background: var(--risk-trusted-bg);
+}
+
+.result-pill--danger {
+  color: var(--color-danger);
+  background: var(--risk-high-bg);
+}
+
+.result-pill--warning {
+  color: var(--color-warning);
+  background: var(--risk-suspicious-bg);
+}
+
+.result-pill--muted {
+  color: var(--color-text-muted);
+  background: var(--color-bg-subtle);
 }
 
 .module-pagination {

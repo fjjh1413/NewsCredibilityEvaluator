@@ -28,6 +28,10 @@ def list_system_logs(
     action: str | None = None,
     user_id: int | None = None,
     keyword: str | None = None,
+    request_id: str | None = None,
+    target_type: str | None = None,
+    target_id: str | None = None,
+    result_status: str | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
 ) -> tuple[list[tuple[SystemLog, str | None]], int]:
@@ -41,6 +45,14 @@ def list_system_logs(
         query = query.filter(SystemLog.action == action)
     if user_id is not None:
         query = query.filter(SystemLog.user_id == user_id)
+    if request_id:
+        query = query.filter(SystemLog.request_id == request_id)
+    if target_type:
+        query = query.filter(SystemLog.target_type == target_type)
+    if target_id:
+        query = query.filter(SystemLog.target_id == target_id)
+    if result_status:
+        query = query.filter(SystemLog.result_status == result_status)
     if date_from:
         query = query.filter(SystemLog.created_at >= date_from)
     if date_to:
@@ -55,6 +67,10 @@ def list_system_logs(
                 SystemLog.action.like(keyword_pattern),
                 SystemLog.description.like(keyword_pattern),
                 SystemLog.ip_address.like(keyword_pattern),
+                SystemLog.request_id.like(keyword_pattern),
+                SystemLog.target_type.like(keyword_pattern),
+                SystemLog.target_id.like(keyword_pattern),
+                SystemLog.result_status.like(keyword_pattern),
                 User.username.like(keyword_pattern),
             )
         )
