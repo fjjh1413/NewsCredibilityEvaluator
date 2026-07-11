@@ -227,26 +227,7 @@ git diff --check
 - 默认推荐配置使用 DashScope `text-embedding-v4` 语义 embedding。`hash` embedding 只适合本地无 API Key 时演示 Chroma 流程，不代表真实语义检索能力，也不应作为正式 RAG 方案。
 - 切换 `EMBEDDING_PROVIDER` 或 `EMBEDDING_DIMENSION` 后必须重建 Chroma 知识库索引，否则可能出现维度不匹配或旧向量检索结果不可靠。
 
-## 代码审查建议
 
-如果需要使用 Claude Code 审查项目，建议在项目根目录执行：
-
-```powershell
-cd E:\nan\NewsCredibilityEvaluator
-claude
-```
-
-然后让 Claude 先阅读：
-
-```text
-CLAUDE.md
-README.md
-docs/claude_code_review_prompt.md
-```
-
-审查要求建议使用 `docs/claude_code_review_prompt.md`。如果希望从企业级成熟度角度审查，可以使用 `docs/enterprise_code_review_prompt.md`。
-
-审查阶段只定位问题，不直接修改文件。拿到报告后，再把 Claude 生成的单个修复任务逐条交给 Codex 执行，每次只修一个明确问题。
 
 ## 相关文档
 
