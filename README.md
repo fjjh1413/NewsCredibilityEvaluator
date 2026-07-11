@@ -26,6 +26,10 @@
 - 检测历史、结果详情、相似证据、风险点和建议展示。
 - PDF 报告生成与下载。
 - 管理员后台：知识库管理、Prompt 模板管理、报告管理、高风险新闻审核、统计图表。
+- AI 工程化后台：评估指标、运行链路、策略配置、知识索引任务和系统审计。
+- 工程化 RAG：v2 chunk 索引、dense + lexical 混合召回、RRF 融合、父文档聚合、MMR 去重、rerank、索引审计和 query-aware evidence compression。
+- 证据仲裁质量控制：候选证据中立随机排序、`candidate_id` 约束、后端校验、质量指标和低质量仲裁识别。
+- 知识库索引 outbox/job 模式：自动抓取入库和手工入库统一进入异步索引任务，避免绕过 v2 chunk 索引。
 - 演示数据初始化，支持课程答辩快速启动。
 
 ## 项目结构
@@ -60,6 +64,43 @@ NewsCredibilityEvaluator/
 ├── CLAUDE.md                # Claude Code 项目上下文
 └── README.md
 ```
+
+## 系统架构
+
+```mermaid
+flowchart LR
+  User["用户 / 管理员"] --> Frontend["Vue 3 前端"]
+  Frontend --> API["FastAPI API 层"]
+
+  API --> Auth["认证与权限"]
+  API --> Detect["可信度检测编排"]
+  API --> Admin["管理后台"]
+  API --> Report["报告生成"]
+
+  Detect --> Claim["关键词与核心声明提取"]
+  Claim --> Retrieval["工程化 RAG 检索"]
+  Retrieval --> Fusion["Dense + Lexical + RRF"]
+  Fusion --> Rerank["规则 / 可选模型 Rerank"]
+  Rerank --> Arbitration["LLM 证据仲裁"]
+  Arbitration --> Scoring["规则评分与风险分级"]
+  Scoring --> Persist["结果落库与阶段耗时记录"]
+
+  Admin --> Knowledge["知识库管理"]
+  Knowledge --> Outbox["knowledge_index_jobs Outbox"]
+  Outbox --> Indexer["索引 Worker / Scheduler"]
+  Indexer --> Chroma["Chroma v2 Chunk 索引"]
+
+  Retrieval --> Chroma
+  Detect --> Web["必要时联网搜索与网页抽取"]
+  Detect --> LLM["DeepSeek LLM"]
+  Report --> PDF["HTML / PDF 报告"]
+
+  Persist --> MySQL["MySQL"]
+  Auth --> MySQL
+  Admin --> MySQL
+```
+
+检测主链路不是一次模型调用，而是“声明抽取 -> RAG 检索 -> 必要时联网补证 -> 证据仲裁 -> 规则评分 -> 结果落库 -> 指标与审计”的可观测流水线。知识库写入侧采用 outbox/job 模式，让自动抓取、管理员导入和重建索引都进入同一套索引同步策略。
 
 ## 快速启动
 
@@ -112,6 +153,7 @@ CREATE DATABASE zhiyun_bianzhen
 cd E:\nan\NewsCredibilityEvaluator\backend
 pip install -r requirements.txt
 python -m app.db.migrate
+alembic upgrade head
 python -m app.db.init_db
 python -m app.db.seed_demo_data
 ```
@@ -186,6 +228,9 @@ npm run dev
 ```powershell
 cd E:\nan\NewsCredibilityEvaluator\backend
 python -m unittest discover -s tests -p "test_*.py"
+cd E:\nan\NewsCredibilityEvaluator
+python -m unittest discover -s evaluation/tests -p "test_*.py"
+cd E:\nan\NewsCredibilityEvaluator\backend
 python -m py_compile app/db/seed_demo_data.py app/core/config.py app/main.py app/db/init_db.py app/db/migration_guard.py app/db/migrate.py
 ```
 
@@ -258,3 +303,4 @@ docs/claude_code_review_prompt.md
 - `docs/12_phase7_testing_deployment_prompts.md`：第七阶段测试、部署和答辩材料。
 - `docs/claude_code_review_prompt.md`：代码审查提示词。
 - `docs/enterprise_code_review_prompt.md`：企业级项目审查提示词。
+- `docs/release_notes_v1.0.0.md`：v1.0.0 发布说明。
