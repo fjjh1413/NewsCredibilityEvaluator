@@ -1,5 +1,0 @@
-﻿parameter,value,metric,metric_value,data_scope
-Top-K,1,Recall@K,1.0,既有80条整体评测（探索性，非验证集调参）
-Top-K,3,Recall@K,1.0,既有80条整体评测（探索性，非验证集调参）
-Top-K,5,Recall@K,1.0,既有80条整体评测（探索性，非验证集调参）
-Top-K,10,Recall@K,1.0,既有80条整体评测（探索性，非验证集调参）

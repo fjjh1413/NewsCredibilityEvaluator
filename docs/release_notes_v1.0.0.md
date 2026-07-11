@@ -55,5 +55,7 @@ v1.0.0 不包含本地运行时数据和生成产物：
 - `data/chroma/`
 - `data/reports/`
 - `evaluation/results/`
+- `evaluation/output/`
+- `evaluation/runs/`
 
 这些目录均可由 seed、检测、报告生成或评估命令重新生成。

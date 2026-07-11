@@ -1,5 +1,0 @@
-﻿case_type,sample_id,title,gold_label,predicted_label,local_candidate_count,web_triggered,valid_evidence_count,excluded_evidence_count,S_L,S_E,S_R,final_score,contract_status,analysis
-正确评估的可信新闻,NEWS-EVAL-001,芝加哥城市与人口：可信样本,可信新闻,可信新闻,10,False,1,9,95.0,87.71,80.0,91.7,ok,分类正确
-正确识别的高风险新闻,NEWS-EVAL-004,芝加哥城市与人口：高风险样本,高风险谣言,高风险谣言,10,False,1,9,20.0,82.24,100.0,34.8,ok,分类正确
-证据不足案例,NEWS-EVAL-003,芝加哥城市与人口：疑似谣言样本,疑似谣言,可信新闻,10,False,0,0,0.0,0.0,80.0,80.0,provider_error,真实疑似谣言，预测可信新闻；需结合模板化数据与评分阈值分析
-误判案例,NEWS-EVAL-002,芝加哥城市与人口：存疑样本,存疑信息,疑似谣言,10,False,1,9,45.0,85.58,100.0,56.0,ok,真实存疑信息，预测疑似谣言；需结合模板化数据与评分阈值分析

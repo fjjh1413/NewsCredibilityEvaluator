@@ -40,3 +40,5 @@ data/reports/
 
 # Generated evaluation outputs
 evaluation/results/
+evaluation/output/
+evaluation/runs/
