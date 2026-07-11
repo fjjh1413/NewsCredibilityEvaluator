@@ -1,4 +1,0 @@
-﻿variant,sample_count,accuracy,macro_f1,weighted_f1,balanced_accuracy,high_risk_recall,mean_final_score,contract_pass_rate,note,trusted_precision,trusted_recall,trusted_f1,suspicious_precision,suspicious_recall,suspicious_f1,rumor_precision,rumor_recall,rumor_f1,high_risk_precision,high_risk_f1,threshold_shift,trusted_cutoff,suspicious_cutoff,rumor_cutoff
-Risk-Threshold-Shift--5,80,0.4125,0.3607,0.3607,0.4125,0.1,71.8362,N/A,三个生产风险分界点同向平移；仅作探索性离线重分类,0.4545,1.0,0.625,0.6667,0.3,0.4138,0.2,0.25,0.2222,1.0,0.1818,-5.0,75.0,55.0,35.0
-Risk-Threshold-Shift-+0,80,0.4,0.3458,0.3458,0.4,0.2,71.8362,N/A,三个生产风险分界点同向平移；仅作探索性离线重分类,0.4762,1.0,0.6452,0.4,0.1,0.16,0.2069,0.3,0.2449,1.0,0.3333,0.0,80.0,60.0,40.0
-Risk-Threshold-Shift-+5,80,0.425,0.3909,0.3909,0.425,0.25,71.8362,N/A,三个生产风险分界点同向平移；仅作探索性离线重分类,0.625,1.0,0.7692,0.2143,0.15,0.1765,0.2308,0.3,0.2609,0.625,0.3571,5.0,85.0,65.0,45.0

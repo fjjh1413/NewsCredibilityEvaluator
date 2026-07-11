@@ -19,6 +19,8 @@ backend/.env
 
 # Logs
 *.log
+.artifacts/
+.codex_work/
 
 # Local backups
 backups/
@@ -31,6 +33,10 @@ frontend/dist/
 
 # Local vector database
 backend/chroma_db/
+backend/tmp*/
 chroma_db/
 data/chroma/
 data/reports/
+
+# Generated evaluation outputs
+evaluation/results/

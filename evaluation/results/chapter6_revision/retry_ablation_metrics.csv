@@ -1,3 +1,0 @@
-﻿variant,sample_count,accuracy,macro_f1,weighted_f1,balanced_accuracy,high_risk_recall,mean_final_score,contract_pass_rate,note,trusted_precision,trusted_recall,trusted_f1,suspicious_precision,suspicious_recall,suspicious_f1,rumor_precision,rumor_recall,rumor_f1,high_risk_precision,high_risk_f1
-Full,80,0.3,0.2426,0.2426,0.3,0.15,67.745,0.8875,同一次首次模型输出；允许一次聚焦重试,0.5405,1.0,0.7018,0.0,0.0,0.0,0.0303,0.05,0.0377,0.5,0.2308
-No-Focused-Retry,80,0.3,0.2426,0.2426,0.3,0.15,67.94,0.85,同一次首次模型输出；首次契约失败时直接采用无证据分支,0.5405,1.0,0.7018,0.0,0.0,0.0,0.0303,0.05,0.0377,0.5,0.2308

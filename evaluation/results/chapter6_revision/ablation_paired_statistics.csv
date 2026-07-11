@@ -1,4 +1,0 @@
-﻿baseline,variant,sample_count,accuracy_delta,accuracy_ci_low,accuracy_ci_high,macro_f1_delta,macro_f1_ci_low,macro_f1_ci_high,baseline_only_correct,variant_only_correct,discordant_pairs,mcnemar_exact_p,bootstrap_iterations,seed
-Full,No-Evidence-Quality,68,0.1471,0.0441,0.25,0.1729,0.0569,0.2853,2,12,14,0.012939,5000,20260701
-Full,No-Rule,68,0.0735,-0.0147,0.1618,0.0521,-0.0507,0.1496,3,8,11,0.226562,5000,20260701
-Full,Use-All-Candidates,68,0.0,0.0,0.0,-0.0037,-0.0137,0.0,0,0,0,1.0,5000,20260701

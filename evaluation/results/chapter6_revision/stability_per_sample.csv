@@ -1,5 +1,0 @@
-﻿sample_id,prediction_all_same,predicted_labels,score_mean,score_stddev,score_range,candidate_pairwise_jaccard,latency_mean_ms
-NEWS-EVAL-001,True,可信新闻 | 可信新闻 | 可信新闻,91.7,0.0,0.0,1.0,23658.013333
-NEWS-EVAL-002,False,疑似谣言 | 可信新闻 | 可信新闻,80.333333,18.263503,44.0,1.0,35436.5
-NEWS-EVAL-003,False,可信新闻 | 可信新闻 | 疑似谣言,71.9,14.977984,33.9,1.0,26349.996667
-NEWS-EVAL-004,False,高风险谣言 | 高风险谣言 | 可信新闻,57.433333,30.119355,65.2,1.0,25064.646667

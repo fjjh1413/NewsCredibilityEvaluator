@@ -1,4 +1,0 @@
-timestamp=20260706T104651Z
-project=news-credibility-evaluator
-created_at_utc=2026-07-06T10:47:02Z
-contents=mysql.sql,chroma_data.tgz,report_data.tgz,redis_data.tgz
