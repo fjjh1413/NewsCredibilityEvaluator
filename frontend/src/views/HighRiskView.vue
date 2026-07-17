@@ -33,9 +33,12 @@
       <label class="filter-field">
         <span>风险等级</span>
         <el-select v-model="filters.riskLevel" clearable placeholder="全部风险等级">
-          <el-option label="高风险谣言" value="高风险谣言" />
-          <el-option label="疑似谣言" value="疑似谣言" />
-          <el-option label="存疑信息" value="存疑信息" />
+          <el-option
+            v-for="level in highRiskLevelOptions"
+            :key="level.value"
+            :label="level.label"
+            :value="level.value"
+          />
         </el-select>
       </label>
       <label class="filter-field">
@@ -202,6 +205,7 @@ import LoadingState from '@/components/LoadingState.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import RiskLevelTag from '@/components/RiskLevelTag.vue'
 import AdminChartPanel from '@/components/admin/AdminChartPanel.vue'
+import { HIGH_RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 import { formatDateTime, formatScore } from '@/utils/format'
 import {
   createHorizontalBarChartOption,
@@ -222,6 +226,7 @@ const listError = ref('')
 const rankingError = ref('')
 const keywordError = ref('')
 const categoryError = ref('')
+const highRiskLevelOptions = HIGH_RISK_LEVEL_OPTIONS
 
 const filters = reactive({
   keyword: '',

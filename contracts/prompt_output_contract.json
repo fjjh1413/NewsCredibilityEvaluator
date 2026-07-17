@@ -1,0 +1,89 @@
+{
+  "name": "news_credibility_analysis",
+  "version": "2.1",
+  "required_fields": [
+    "llm_score",
+    "risk_level",
+    "reason",
+    "evidence_quality",
+    "evidence_arbitration",
+    "similar_news",
+    "risk_points",
+    "keywords",
+    "suggestion"
+  ],
+  "field_aliases": {
+    "llm_score": ["llm_score", "score", "credibility_score", "可信度评分"],
+    "risk_level": ["risk_level", "风险等级"],
+    "reason": ["reason", "judgement_result", "judgment_result", "判断理由", "reasoning"],
+    "risk_points": ["risk_points", "风险点"],
+    "keywords": ["keywords", "关键词"],
+    "suggestion": ["suggestion", "建议"]
+  },
+  "fallbacks": {
+    "reason": "模型未提供判断理由。",
+    "suggestion": "建议结合权威来源进行人工复核。"
+  },
+  "risk_levels": [
+    {
+      "key": "trusted",
+      "value": "可信新闻",
+      "min_score": 80,
+      "max_score": 100,
+      "default_score": 85,
+      "description": "整体可信度较高，仍建议保留基本核查意识。",
+      "aliases": ["trusted", "credible", "可信"]
+    },
+    {
+      "key": "suspicious",
+      "value": "存疑信息",
+      "min_score": 60,
+      "max_score": 79,
+      "default_score": 65,
+      "description": "存在不确定因素，建议进一步核查权威来源。",
+      "aliases": ["suspicious", "uncertain", "存疑"]
+    },
+    {
+      "key": "rumor",
+      "value": "疑似谣言",
+      "min_score": 40,
+      "max_score": 59,
+      "default_score": 50,
+      "description": "风险特征较明显，传播前应谨慎验证。",
+      "aliases": ["suspected_rumor", "rumor", "rumour", "疑似"]
+    },
+    {
+      "key": "high",
+      "value": "高风险谣言",
+      "min_score": 0,
+      "max_score": 39,
+      "default_score": 25,
+      "description": "风险较高，不建议继续转发未经证实的信息。",
+      "aliases": ["high", "high_risk", "high_risk_rumor", "高风险"]
+    }
+  ],
+  "evidence_quality": {
+    "model_required_fields": ["coverage", "consistency", "assessment"],
+    "normalized_fields": ["coverage", "consistency", "score", "assessment"],
+    "score_policy": "server_computed_coverage_0_6_consistency_0_4",
+    "field_descriptions": {
+      "coverage": "0-100 的数字，表示有效证据对新闻核心主张的覆盖程度。",
+      "consistency": "0-100 的数字，表示有效证据之间的一致程度。",
+      "assessment": "字符串，综合说明有效证据覆盖和一致性情况。",
+      "score": "后端按 coverage*0.6 + consistency*0.4 统一计算，不信任模型返回值。"
+    }
+  },
+  "evidence_arbitration": {
+    "ranked_evidence": {
+      "required_fields": ["candidate_id", "relevance_score", "quality_score", "stance", "reason"],
+      "optional_fields": ["claim_ids"]
+    },
+    "rejected_evidence": {
+      "required_fields": ["candidate_id", "reason"]
+    },
+    "stances": ["support", "contradict", "neutral"]
+  },
+  "similar_news": {
+    "required_fields": ["candidate_id", "risk_level", "relevance_reason"]
+  }
+}

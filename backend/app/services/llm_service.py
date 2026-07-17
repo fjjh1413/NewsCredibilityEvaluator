@@ -9,14 +9,21 @@ import urllib.request
 from typing import Any
 from html import escape as escape_html
 
-from app.core.constants import (
-    RISK_LEVEL_HIGH,
-    RISK_LEVEL_RUMOR,
-    RISK_LEVEL_SUSPICIOUS,
-    RISK_LEVEL_TRUSTED,
-)
+from app.core.constants import RISK_LEVEL_SUSPICIOUS
 from app.core.config import BASE_DIR, get_settings
 from app.core.result_cache import cache_key_from_payload, sync_json_cache
+from app.services.prompt_output_contract import (
+    ANALYSIS_CONTRACT_VERSION,
+    ARBITRATION_REQUIRED_KEYS,
+    ARBITRATION_STANCES,
+    REQUIRED_RESULT_FIELDS,
+    RISK_LEVELS,
+    get_contract_value,
+    get_fallback_value,
+    get_risk_level_default_score,
+    render_evidence_arbitration_contract,
+    render_output_contract,
+)
 from app.services.prompt_template_validator import (
     NEWS_CREDIBILITY_PROMPT_TYPE,
     PromptTemplateValidationError,
@@ -39,7 +46,6 @@ DEFAULT_DEEPSEEK_MODEL = "deepseek-chat"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 DEFAULT_EVIDENCE_LIMIT = 10
 LLM_FAILURE_ERROR = "模型调用失败"
-ANALYSIS_CONTRACT_VERSION = "2.1"
 
 # Sentinel used to distinguish "field absent" from "field is None" in
 # LLM response dicts (data.get(key, sentinel)).
@@ -75,7 +81,6 @@ SYSTEM_MESSAGE = (
 DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE = """\
 你是“智闻辨真”的新闻可信度辅助评估工具，用于帮助用户初步判断新闻内容的可信度和风险点。
 你的结论只作为辅助参考，不能绝对替代人工事实核查、权威媒体报道或官方通报。
-输出契约版本：2.0
 
 请基于以下输入进行分析：
 
@@ -95,40 +100,9 @@ DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE = """\
 1. 当前候选证据的输入顺序已经过随机化处理，证据在列表中的位置不代表相关性、可信度或质量。knowledge_base 来源不天然高于 web_search 来源，web_search 来源也不天然低于 knowledge_base 来源。
 2. 你必须根据每条证据的内容（title、summary、source_name、source_url、publish_time）与你对当前新闻核心事实的理解，独立判断每条证据是否与新闻相关、证据质量如何、应该支持还是质疑新闻。
 3. 每条证据通过其 candidate_id 唯一标识。你必须使用 candidate_id 精确引用证据，不得凭空生成不存在的 candidate_id，也不得通过标题模糊匹配。
-4. 你需要在 JSON 输出中提供 evidence_arbitration 对象，包含 ranked_evidence 和 rejected_evidence 两个数组，格式如下：
-
-"evidence_arbitration": {{
-  "ranked_evidence": [
-    {{
-      "candidate_id": "web:2",
-      "relevance_score": 92,
-      "quality_score": 88,
-      "stance": "support",
-      "reason": "该证据直接描述了同一事件的核心事实，并引用了权威官方来源，发布时间与新闻接近。"
-    }},
-    {{
-      "candidate_id": "kb:15",
-      "relevance_score": 84,
-      "quality_score": 90,
-      "stance": "neutral",
-      "reason": "该证据提供了相关的政策背景，有助于理解事件上下文，但不能直接证明或反驳当前新闻的具体主张。"
-    }}
-  ],
-  "rejected_evidence": [
-    {{
-      "candidate_id": "kb:5",
-      "reason": "该证据的标题包含相似关键词，但实际描述的是另一个不相关事件的铁路调度公告，与本次检测新闻的核心事实完全无关。"
-    }}
-  ]
-}}
-
-字段说明：
-- ranked_evidence: 你认为与新闻相关、应当参与最终评分的证据列表。数组顺序就是这些证据的最终展示顺序（第一条最重要）。
-- rejected_evidence: 你认为与新闻核心事实无关、不应参与评分的证据列表。
-- relevance_score: 0-100，证据与新闻核心事实的相关程度。100=直接描述同一事件并覆盖核心事实；0=完全无关。
-- quality_score: 0-100，证据本身的质量评价（来源权威性、内容完整性、发布时间、可验证性）。100=官方权威来源、内容完整、时间明确；0=来源不明或内容残缺。
-- stance: 证据对新闻的立场，只能是 support（支持新闻主张）、contradict（质疑新闻主张）、neutral（中性背景或无法判断立场）。
-- reason: 说明你做出上述判断的具体依据，必须基于该证据的实际内容。
+4. ranked_evidence 是你认为与新闻相关、应当参与最终评分的证据列表。数组顺序就是这些证据的最终展示顺序（第一条最重要）。
+5. rejected_evidence 是你认为与新闻核心事实无关、不应参与评分的证据列表。
+6. relevance_score 表示证据与新闻核心事实的相关程度；quality_score 表示证据本身的质量评价；reason 必须基于该证据的实际内容。
 
 ================================================================
 新闻可信度分析要求
@@ -137,80 +111,13 @@ DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE = """\
 1. 必须优先依据你判定为相关的证据（ranked_evidence）进行判断，不能脱离证据凭空推断。
 2. 如果新闻内容与有效证据一致，可以给出较高可信度评分。
 3. 如果新闻内容与证据冲突、来源不清、表达夸张或缺少权威佐证，需要降低可信度评分。
-4. 如果有效证据不足或证据无法直接支持/反驳新闻，应输出"存疑信息"或"疑似谣言"，不要强行判断真假。
-5. 风险等级 risk_level 只能从以下四类中选择一个: 可信新闻、存疑信息、疑似谣言、高风险谣言。
-6. llm_score 为 0-100 的数字，分数越高表示越可信。
-7. evidence_quality 必须是 JSON 对象（不允许是字符串、数字、数组或 null），包含以下字段:
-   - coverage: 0-100 的数字，表示有效证据（ranked_evidence 中的证据）对新闻核心主张的覆盖程度。
-     100=有效证据完全覆盖并可验证新闻的每个核心主张；0=有效证据与新闻完全无关或没有有效证据。
-   - consistency: 0-100 的数字，表示有效证据之间的一致程度。
-     100=所有有效证据互相印证、指向一致结论；0=有效证据之间完全矛盾、来源对立。
-   - assessment: 字符串，综合说明有效证据的覆盖程度和各证据间的一致性情况。
-   （不需要返回 score 字段，score 由后端统一计算。）
-8. 必须只输出 JSON 对象，不允许输出 Markdown 代码块，不允许添加解释性前缀或后缀。
-9. similar_news 必须是 JSON 数组。每条记录只能引用 ranked_evidence 中存在的 candidate_id，并包含 risk_level 和 relevance_reason。risk_level 只能使用四类标准风险等级。
+4. 如果有效证据不足或证据无法直接支持/反驳新闻，应输出存疑或谣言风险结论，不要强行判断真假。
+5. llm_score 为 0-100 的数字，分数越高表示越可信。
+6. evidence_quality 评估有效证据对核心主张的覆盖程度和证据间一致性。
+7. similar_news 只能引用 ranked_evidence 中存在的 candidate_id。
 
-JSON 输出格式必须为:
-{{
-  "llm_score": 75,
-  "risk_level": "存疑信息",
-  "reason": "用一段话说明判断依据，必须引用或概括有效证据情况。",
-  "evidence_quality": {{
-    "coverage": 80,
-    "consistency": 70,
-    "assessment": "有效证据覆盖较充分，但不同来源之间存在少量差异。"
-  }},
-  "evidence_arbitration": {{
-    "ranked_evidence": [
-      {{
-        "candidate_id": "web:2",
-        "relevance_score": 92,
-        "quality_score": 88,
-        "stance": "support",
-        "reason": "相关性判断依据。"
-      }}
-    ],
-    "rejected_evidence": [
-      {{
-        "candidate_id": "kb:5",
-        "reason": "排除原因。"
-      }}
-    ]
-  }},
-  "similar_news": [
-    {{
-      "candidate_id": "web:2",
-      "risk_level": "可信新闻",
-      "relevance_reason": "该候选描述同一事件，核心事实与检测新闻一致。"
-    }}
-  ],
-  "risk_points": ["风险点1", "风险点2"],
-  "keywords": ["关键词1", "关键词2"],
-  "suggestion": "给用户的核查或阅读建议。"
-}}
+{output_contract}
 """.strip()
-
-REQUIRED_RESULT_FIELDS = (
-    "llm_score",
-    "risk_level",
-    "reason",
-    "evidence_quality",
-    "evidence_arbitration",
-    "similar_news",
-    "risk_points",
-    "keywords",
-    "suggestion",
-)
-
-RISK_LEVELS = (
-    RISK_LEVEL_TRUSTED,
-    RISK_LEVEL_SUSPICIOUS,
-    RISK_LEVEL_RUMOR,
-    RISK_LEVEL_HIGH,
-)
-
-ARBITRATION_STANCES = frozenset({"support", "contradict", "neutral"})
-ARBITRATION_REQUIRED_KEYS = frozenset({"candidate_id", "relevance_score", "quality_score", "stance", "reason"})
 
 
 class DeepSeekServiceError(Exception):
@@ -331,6 +238,7 @@ def build_evidence_arbitration_prompt(
         _strip_retrieval_metadata(_limit_evidence_list(evidence_list)),
         indent=2,
     )
+    output_contract = render_evidence_arbitration_contract()
     prompt = clean_text(
         f"""{PROMPT_INPUT_BOUNDARY_PREFIX}
 
@@ -345,14 +253,7 @@ def build_evidence_arbitration_prompt(
 候选证据：
 {evidence_json}
 
-输出契约版本：{ANALYSIS_CONTRACT_VERSION}
-必须返回且只返回以下三个顶层字段：
-1. evidence_arbitration：包含 ranked_evidence 和 rejected_evidence 两个数组。每个输入 candidate_id 必须且只能出现一次。
-2. evidence_quality：包含 coverage、consistency、score、assessment；前三个分数字段必须是 0-100 数字，assessment 必须是非空字符串。
-3. similar_news：数组；每项包含 candidate_id、risk_level、relevance_reason，candidate_id 必须来自 ranked_evidence。没有则返回空数组。
-
-ranked_evidence 每项必须包含 candidate_id、relevance_score、quality_score、stance、reason；stance 只能是 support、contradict、neutral。
-rejected_evidence 每项必须包含 candidate_id、reason。
+{output_contract}
 """,
         max_length=None,
     )
@@ -427,7 +328,10 @@ def build_analysis_prompt(
 
 
 def get_default_prompt_template() -> str:
-    return DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE
+    return DEFAULT_CREDIBILITY_ANALYSIS_PROMPT_TEMPLATE.replace(
+        "{output_contract}",
+        render_output_contract(),
+    )
 
 
 def _ensure_claim_contract(
@@ -503,9 +407,10 @@ def _render_prompt_template(
         "content": _wrap_xml_text("news_content", content),
         "evidence_list": evidence_json,
         "evidence_json": evidence_json,
+        "output_contract": render_output_contract(),
     }
     return re.sub(
-        r"\{(title|content|evidence_list|evidence_json)\}",
+        r"\{(title|content|evidence_list|evidence_json|output_contract)\}",
         lambda match: replacements[match.group(1)],
         template,
     )
@@ -747,40 +652,32 @@ def _pick_result_dict(parsed: Any) -> dict[str, Any] | None:
 
 
 def _normalize_result(data: dict[str, Any], raw_text: str = "") -> dict[str, Any]:
-    score = _normalize_score(
-        data.get("llm_score")
-        or data.get("score")
-        or data.get("credibility_score")
-        or data.get("可信度评分")
-    )
+    score = _normalize_score(get_contract_value(data, "llm_score"))
     risk_level = clean_text(
-        data.get("risk_level") or data.get("风险等级"),
+        get_contract_value(data, "risk_level"),
         max_length=50,
     )
     if not risk_level:
         risk_level = get_risk_level_from_score(score)
 
     reason = clean_text(
-        data.get("reason")
-        or data.get("judgement_result")
-        or data.get("judgment_result")
-        or data.get("判断理由")
-        or data.get("reasoning")
+        get_contract_value(data, "reason")
         or raw_text
-        or "模型未提供判断理由。",
+        or get_fallback_value("reason", "模型未提供判断理由。"),
         max_length=2000,
     )
 
     risk_points = _normalize_string_list(
-        data.get("risk_points") or data.get("风险点"),
+        get_contract_value(data, "risk_points"),
         fallback=[],
     )
     keywords = _normalize_string_list(
-        data.get("keywords") or data.get("关键词"),
+        get_contract_value(data, "keywords"),
         fallback=[],
     )
     suggestion = clean_text(
-        data.get("suggestion") or data.get("建议") or "建议结合权威来源进行人工复核。",
+        get_contract_value(data, "suggestion")
+        or get_fallback_value("suggestion", "建议结合权威来源进行人工复核。"),
         max_length=1000,
     )
 
@@ -1117,13 +1014,7 @@ def _try_normalize_score(value: Any) -> tuple[float, bool]:
 
 
 def _score_from_risk_level(risk_level: str) -> int:
-    mapping = {
-        RISK_LEVEL_TRUSTED: 85,
-        RISK_LEVEL_SUSPICIOUS: 65,
-        RISK_LEVEL_RUMOR: 50,
-        RISK_LEVEL_HIGH: 25,
-    }
-    return mapping.get(risk_level, 0)
+    return get_risk_level_default_score(risk_level)
 
 
 def _normalize_string_list(value: Any, fallback: list[str]) -> list[str]:
@@ -1154,19 +1045,7 @@ def _ensure_output_contract(prompt: str, template: str | None = None) -> str:
     if contract_marker in prompt:
         return prompt
 
-    output_contract = contract_marker + "\n" + """
-输出要求：
-1. 必须只输出 JSON 对象，不允许输出 Markdown 代码块，不允许添加解释性前缀或后缀。
-2. risk_level 只能从以下四类中选择一个：可信新闻、存疑信息、疑似谣言、高风险谣言。
-3. evidence_quality 必须是 JSON 对象（不允许是字符串、数字、数组或 null），包含 coverage、consistency、score、assessment 四个字段；三个分数字段必须为 0-100 的数字。
-4. evidence_arbitration 必须是以下结构；candidate_id 必须来自输入候选：
-   {"ranked_evidence":[{"candidate_id":"web:1","relevance_score":90,"quality_score":85,"stance":"support","reason":"相关性依据"}],"rejected_evidence":[{"candidate_id":"kb:2","reason":"排除依据"}]}
-   relevance_score 和 quality_score 必须为 0-100 的数字；stance 只能是 support、contradict 或 neutral；reason 必须为非空字符串。
-5. similar_news 必须是数组，每项严格使用以下结构：
-   {"candidate_id":"web:1","risk_level":"可信新闻","relevance_reason":"与当前新闻的关联依据"}
-   candidate_id 必须来自 ranked_evidence；没有相似新闻时返回空数组，不得省略字段。
-6. JSON 字段必须包含：llm_score、risk_level、reason、evidence_quality、evidence_arbitration、similar_news、risk_points、keywords、suggestion。
-""".strip()
+    output_contract = render_output_contract()
     return f"{prompt}\n\n{output_contract}"
 
 

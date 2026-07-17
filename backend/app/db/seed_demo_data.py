@@ -26,6 +26,7 @@ from app.schemas.prompt import PromptTemplateCreate
 from app.schemas.user import UserAdminCreate
 from app.services.chroma_service import ChromaServiceError, get_knowledge_collection
 from app.services.knowledge_service import create_knowledge_item, vectorize_knowledge_item
+from app.services.prompt_output_contract import REQUIRED_RESULT_FIELDS, render_risk_level_phrase
 from app.services.prompt_service import create_prompt_template, set_default_prompt_template
 from app.services.prompt_template_validator import NEWS_CREDIBILITY_PROMPT_TYPE
 from app.services.report_service import ReportServiceError, generate_detection_report
@@ -67,15 +68,16 @@ DEMO_USERS = (
     },
 )
 
-DEMO_PROMPT_CONTENT = """
+DEMO_PROMPT_CONTENT = f"""
 你是“智闻辨真”的新闻可信度评估助手。请基于输入新闻、知识库检索证据和常识风险线索进行结构化评估。
 
-新闻标题：{title}
-新闻正文：{content}
-检索证据：{evidence_list}
+新闻标题：{{title}}
+新闻正文：{{content}}
+检索证据：{{evidence_list}}
 
-请严格输出 JSON，字段必须包括 llm_score、risk_level、reason、risk_points、keywords、suggestion。
-risk_level 只能从“可信新闻、存疑信息、疑似谣言、高风险谣言”中选择。
+请严格输出 JSON，并遵守运行时追加的输出契约。
+契约字段包括 {", ".join(REQUIRED_RESULT_FIELDS)}。
+risk_level 只能从“{render_risk_level_phrase()}”中选择。
 """.strip()
 
 

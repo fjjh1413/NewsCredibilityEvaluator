@@ -17,6 +17,12 @@ from app.services.llm_service import (
     get_default_prompt_template,
     parse_analysis_response,
 )
+from app.services.prompt_output_contract import (
+    ANALYSIS_CONTRACT_VERSION,
+    REQUIRED_RESULT_FIELDS,
+    RISK_LEVELS,
+    render_output_contract,
+)
 
 
 class LlmServiceTestCase(unittest.TestCase):
@@ -358,18 +364,12 @@ class LlmServiceTestCase(unittest.TestCase):
         self.assertIn("{title}", template)
         self.assertIn("{content}", template)
         self.assertIn("{evidence_list}", template)
-        self.assertIn("可信新闻、存疑信息、疑似谣言、高风险谣言", template)
         self.assertIn("不允许输出 Markdown 代码块", template)
-        self.assertIn("llm_score", template)
-        self.assertIn("risk_level", template)
-        self.assertIn("reason", template)
-        self.assertIn("evidence_quality", template)
-        self.assertIn("coverage", template)
-        self.assertIn("consistency", template)
-        self.assertIn("assessment", template)
-        self.assertIn("risk_points", template)
-        self.assertIn("keywords", template)
-        self.assertIn("suggestion", template)
+        self.assertIn(render_output_contract(), template)
+        for field in REQUIRED_RESULT_FIELDS:
+            self.assertIn(field, template)
+        for risk_level in RISK_LEVELS:
+            self.assertIn(risk_level, template)
 
     def test_build_analysis_prompt_uses_top_ten_evidence(self) -> None:
         prompt = build_analysis_prompt(
@@ -405,7 +405,7 @@ class LlmServiceTestCase(unittest.TestCase):
         self.assertIn("stance", prompt)
         self.assertIn("similar_news", prompt)
         self.assertIn("relevance_reason", prompt)
-        self.assertIn("输出契约版本：2.1", prompt)
+        self.assertIn(f"输出契约版本：{ANALYSIS_CONTRACT_VERSION}", prompt)
 
     def test_analyze_returns_readable_error_without_api_key(self) -> None:
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}, clear=False):

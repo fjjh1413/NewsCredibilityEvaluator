@@ -84,6 +84,7 @@ import {
   WarningFilled
 } from '@element-plus/icons-vue'
 import RiskLevelTag from '@/components/RiskLevelTag.vue'
+import { RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 
 const signals = ['证据检索', 'AI 分析', '规则评分', '风险等级', '报告沉淀']
 
@@ -113,12 +114,11 @@ const workflow = [
   { title: '综合评估', description: '输出可信度评分、风险等级和报告入口。' }
 ]
 
-const riskLevels = [
-  { level: '可信新闻', range: '80-100 分', description: '整体可信度较高，仍建议保留基本核查意识。' },
-  { level: '存疑信息', range: '60-79 分', description: '存在不确定因素，建议进一步核查权威来源。' },
-  { level: '疑似谣言', range: '40-59 分', description: '风险特征较明显，传播前应谨慎验证。' },
-  { level: '高风险谣言', range: '0-39 分', description: '风险较高，不建议继续转发未经证实的信息。' }
-]
+const riskLevels = RISK_LEVEL_OPTIONS.map((item) => ({
+  level: item.value,
+  range: item.range,
+  description: item.description
+}))
 </script>
 
 <style scoped>

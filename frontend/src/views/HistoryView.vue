@@ -195,6 +195,7 @@ import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import RiskLevelTag from '@/components/RiskLevelTag.vue'
+import { RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 import { formatDateTime, formatScore, scoreToPercent as normalizeScorePercent } from '@/utils/format'
 
 const router = useRouter()
@@ -217,7 +218,7 @@ const pagination = reactive({
   pageSize: 10
 })
 
-const riskOptions = ['可信新闻', '存疑信息', '疑似谣言', '高风险谣言']
+const riskOptions = RISK_LEVEL_OPTIONS.map((item) => item.value)
 
 const queryParams = computed(() => ({
   page: pagination.page,

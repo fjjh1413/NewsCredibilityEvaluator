@@ -45,10 +45,12 @@
       <label class="filter-field">
         <span>风险等级</span>
         <el-select v-model="filters.riskLevel" clearable placeholder="全部风险等级">
-          <el-option label="可信新闻" value="可信新闻" />
-          <el-option label="存疑信息" value="存疑信息" />
-          <el-option label="疑似谣言" value="疑似谣言" />
-          <el-option label="高风险谣言" value="高风险谣言" />
+          <el-option
+            v-for="level in riskLevelOptions"
+            :key="level.value"
+            :label="level.label"
+            :value="level.value"
+          />
         </el-select>
       </label>
 
@@ -245,10 +247,12 @@
             <label class="form-field">
               <span>风险等级</span>
               <el-select v-model="form.risk_level" clearable placeholder="选择风险等级">
-                <el-option label="可信新闻" value="可信新闻" />
-                <el-option label="存疑信息" value="存疑信息" />
-                <el-option label="疑似谣言" value="疑似谣言" />
-                <el-option label="高风险谣言" value="高风险谣言" />
+                <el-option
+                  v-for="level in riskLevelOptions"
+                  :key="level.value"
+                  :label="level.label"
+                  :value="level.value"
+                />
               </el-select>
             </label>
 
@@ -310,6 +314,7 @@ import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import RiskLevelTag from '@/components/RiskLevelTag.vue'
+import { RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 import { formatDateTime } from '@/utils/format'
 
 const loading = ref(false)
@@ -324,6 +329,7 @@ const formMode = ref('create')
 const formLoading = ref(false)
 const submitting = ref(false)
 const editingId = ref(null)
+const riskLevelOptions = RISK_LEVEL_OPTIONS
 
 const filters = reactive({
   keyword: '',

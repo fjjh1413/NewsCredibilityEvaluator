@@ -22,10 +22,12 @@
       <label class="filter-field">
         <span>风险等级</span>
         <el-select v-model="filters.riskLevel" clearable placeholder="全部风险等级">
-          <el-option label="可信新闻" value="可信新闻" />
-          <el-option label="存疑信息" value="存疑信息" />
-          <el-option label="疑似谣言" value="疑似谣言" />
-          <el-option label="高风险谣言" value="高风险谣言" />
+          <el-option
+            v-for="level in riskLevelOptions"
+            :key="level.value"
+            :label="level.label"
+            :value="level.value"
+          />
         </el-select>
       </label>
 
@@ -265,6 +267,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ResultSection from '@/components/ResultSection.vue'
 import RiskLevelTag from '@/components/RiskLevelTag.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
+import { RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 import { formatDateTime, formatScore } from '@/utils/format'
 
 const loading = ref(false)
@@ -276,6 +279,7 @@ const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detailError = ref('')
 const detailData = ref(null)
+const riskLevelOptions = RISK_LEVEL_OPTIONS
 
 const filters = reactive({
   keyword: '',

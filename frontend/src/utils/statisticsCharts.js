@@ -1,3 +1,5 @@
+import { getRiskLevelMeta } from '@/contracts/promptOutputContract'
+
 const palette = {
   primary: '#0369A1',
   accent: '#0EA5E9',
@@ -413,22 +415,20 @@ function wrapAxisLabel(value, length) {
 }
 
 function riskLabel(name) {
-  const value = String(name || '').toLowerCase()
-
-  if (value.includes('high') || value.includes('高风险')) return '高风险'
-  if (value.includes('rumor') || value.includes('谣言')) return '疑似谣言'
-  if (value.includes('medium') || value.includes('suspicious') || value.includes('存疑')) return '存疑'
-  if (value.includes('low') || value.includes('trusted') || value.includes('可信')) return '可信'
+  const meta = getRiskLevelMeta(name)
+  if (meta?.key === 'high') return '高风险'
+  if (meta?.key === 'rumor') return '疑似谣言'
+  if (meta?.key === 'suspicious') return '存疑'
+  if (meta?.key === 'trusted') return '可信'
   return String(name)
 }
 
 function riskColor(name) {
-  const value = String(name || '').toLowerCase()
-
-  if (value.includes('high') || value.includes('高风险')) return palette.danger
-  if (value.includes('rumor') || value.includes('谣言')) return palette.orange
-  if (value.includes('medium') || value.includes('suspicious') || value.includes('存疑')) return palette.warning
-  if (value.includes('low') || value.includes('trusted') || value.includes('可信')) return palette.success
+  const meta = getRiskLevelMeta(name)
+  if (meta?.key === 'high') return palette.danger
+  if (meta?.key === 'rumor') return palette.orange
+  if (meta?.key === 'suspicious') return palette.warning
+  if (meta?.key === 'trusted') return palette.success
   return palette.accent
 }
 

@@ -8,6 +8,7 @@
 <script setup>
 import { computed } from 'vue'
 import { CircleCheck, CircleCloseFilled, InfoFilled, WarningFilled } from '@element-plus/icons-vue'
+import { getRiskLevelMeta } from '@/contracts/promptOutputContract'
 
 const props = defineProps({
   level: {
@@ -25,80 +26,39 @@ const props = defineProps({
   }
 })
 
-const riskMap = {
+const iconByRiskKey = {
+  trusted: CircleCheck,
+  suspicious: InfoFilled,
+  rumor: WarningFilled,
+  high: CircleCloseFilled
+}
+
+const specialRiskMap = {
   unknown: {
+    key: 'unknown',
     label: '未返回风险等级',
     className: 'risk-level-tag--unknown',
     icon: InfoFilled
   },
   auxiliary: {
+    key: 'auxiliary',
     label: '辅助证据',
     className: 'risk-level-tag--auxiliary',
     icon: InfoFilled
   },
   unrated: {
+    key: 'unrated',
     label: '未评级案例',
     className: 'risk-level-tag--unrated',
     icon: InfoFilled
-  },
-  trusted: {
-    label: '可信新闻',
-    className: 'risk-level-tag--trusted',
-    icon: CircleCheck
-  },
-  suspicious: {
-    label: '存疑信息',
-    className: 'risk-level-tag--suspicious',
-    icon: InfoFilled
-  },
-  rumor: {
-    label: '疑似谣言',
-    className: 'risk-level-tag--rumor',
-    icon: WarningFilled
-  },
-  high: {
-    label: '高风险谣言',
-    className: 'risk-level-tag--high',
-    icon: CircleCloseFilled
   }
 }
 
-function keyFromLevel(level) {
+function specialKeyFromLevel(level) {
   const value = String(level || '').toLowerCase()
-  const normalized = value.replace(/[\s-]+/g, '_')
 
   if (!value) {
     return 'unknown'
-  }
-
-  if (
-    value.includes('高风险') ||
-    normalized === 'high' ||
-    normalized === 'high_risk' ||
-    normalized === 'high_risk_rumor' ||
-    normalized.startsWith('high_risk_')
-  ) {
-    return 'high'
-  }
-
-  if (value.includes('可信') || value.includes('trusted') || value.includes('credible')) {
-    return 'trusted'
-  }
-
-  if (value.includes('存疑') || value.includes('suspicious') || value.includes('uncertain')) {
-    return 'suspicious'
-  }
-
-  if (
-    value.includes('疑似') ||
-    normalized === 'suspected_rumor' ||
-    normalized.includes('suspected_rumor') ||
-    normalized === 'rumor' ||
-    normalized === 'rumour' ||
-    normalized.endsWith('_rumor') ||
-    normalized.endsWith('_rumour')
-  ) {
-    return 'rumor'
   }
 
   if (value.includes('辅助证据') || value.includes('auxiliary')) {
@@ -112,13 +72,27 @@ function keyFromLevel(level) {
   return 'unknown'
 }
 
-const riskKey = computed(() => keyFromLevel(props.level))
-const riskConfig = computed(() => riskMap[riskKey.value])
+function contractRiskConfig(level) {
+  const meta = getRiskLevelMeta(level)
+  if (!meta) {
+    return null
+  }
+  return {
+    key: meta.key,
+    label: meta.label,
+    className: `risk-level-tag--${meta.key}`,
+    icon: iconByRiskKey[meta.key] || InfoFilled
+  }
+}
+
+const riskConfig = computed(
+  () => contractRiskConfig(props.level) || specialRiskMap[specialKeyFromLevel(props.level)]
+)
 
 const displayLabel = computed(() => {
   const rawLabel = String(props.level || '').trim()
 
-  if (riskKey.value === 'unknown') {
+  if (riskConfig.value.key === 'unknown') {
     return riskConfig.value.label
   }
 
