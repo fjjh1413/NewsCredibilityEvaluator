@@ -321,6 +321,7 @@ python -m evaluation.run_title_retrieval_baseline
 - 切换 embedding provider、向量维度或索引版本后必须重建 Chroma 索引，否则可能发生维度不匹配或旧向量污染检索结果。
 - 输出契约是跨前后端风险语义的单一事实来源，不要在 Prompt、解析器或组件中维护第二份字段与风险等级清单。
 
+
 ## 相关文档
 
 - `backend/README.md`：后端配置、演示数据和联调说明。
