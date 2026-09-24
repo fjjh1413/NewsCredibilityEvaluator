@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -18,19 +19,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告"
-    r"\智闻辨真：基于RAG与大语言模型的新闻可信度评估系统3_第4章系统总体设计完成版.docx"
-)
-OUTPUT_DIR = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告\润色"
-)
+SOURCE = Path(os.environ.get("CHAPTER2_SOURCE_DOCX", ROOT / ".artifacts" / "docs" / "input" / "chapter4.docx"))
+OUTPUT_DIR = ROOT / ".artifacts" / "docs"
 OUTPUT_DOCX = OUTPUT_DIR / "智闻辨真_第二章需求分析优化版.docx"
 OUTPUT_MD = OUTPUT_DIR / "第二章修改说明.md"
-WORK_DIR = ROOT / ".codex_work" / "chapter2_revision"
+WORK_DIR = OUTPUT_DIR / "chapter2_revision"
 FIGURE_DIR = WORK_DIR / "figures"
 BUILD_REPORT = WORK_DIR / "build_report.json"
-DOT = Path(r"D:\Program Files\Graphviz\bin\dot.exe")
+DOT = os.environ.get("GRAPHVIZ_DOT") or shutil.which("dot")
 
 
 REQUIRED_HEADINGS = [
@@ -402,8 +398,8 @@ def format_three_line_table(table, widths: list[float], font_size: float) -> Non
 
 
 def generate_figures() -> dict[str, Path]:
-    if not DOT.exists():
-        raise FileNotFoundError(f"Graphviz dot not found: {DOT}")
+    if not DOT or not Path(DOT).is_file():
+        raise FileNotFoundError("Graphviz dot not found; add it to PATH or set GRAPHVIZ_DOT")
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     result: dict[str, Path] = {}
     for name, dot_text in FIGURE_DOTS.items():

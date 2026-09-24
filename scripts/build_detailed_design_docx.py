@@ -14,7 +14,7 @@ import build_outline_design_docx as base
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = Path(r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\开发管理")
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / ".artifacts" / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "04_《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》详细设计书.docx"
 
 PROJECT_TITLE = "基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计"

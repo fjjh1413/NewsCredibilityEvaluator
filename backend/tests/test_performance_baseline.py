@@ -56,6 +56,7 @@ class PerformanceBaselineConfigTestCase(unittest.TestCase):
 class DatabaseMetricTestCase(unittest.TestCase):
     def test_sqlalchemy_engine_records_query_duration_metric(self) -> None:
         engine = create_engine("sqlite:///:memory:")
+        self.addCleanup(engine.dispose)
         instrument_sqlalchemy_engine(engine)
 
         with engine.connect() as connection:

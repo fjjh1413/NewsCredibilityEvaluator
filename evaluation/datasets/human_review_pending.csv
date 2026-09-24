@@ -1,0 +1,121 @@
+sample_id,topic_id,split,title,content,source_record_ids,reviewer_1_id,reviewer_1_type,reviewer_1_label,reviewer_1_reason,reviewer_1_sources,reviewer_2_id,reviewer_2_type,reviewer_2_label,reviewer_2_reason,reviewer_2_sources,gold_label,adjudication_reason,human_review_status
+CFEVER-DEV-10186,ed7090cf96c68fac,train,待核验原始主张,致力革除「讀書爲官」之舊俗的蔡元培是中國近代民族學研究的先驅。,10186,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-10504,377eb997040e7bc2,dev,待核验原始主张,臺北市私立滬江高級中學，位在臺灣臺北市文山區 ， 附近有景美溪 、 景美夜市 、 世新大學 。,10504,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-10642,b0f41fba9c4cf256,train,待核验原始主张,在1949年前一直被英屬印度統治的科奇比哈爾土邦，後來被併入西孟加拉邦和東巴基斯坦。,10642,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-11539,b2ff70d7cb32ae5e,train,待核验原始主张,鹽水區歷史第二久的國小是建校於1919年的臺南市鹽水區歡雅國民小學，班級數共七班。,11539,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-11686,2646cfc2e8dc78b8,train,待核验原始主张,位於日本鳥取縣的倉吉市，現任市長是石田耕太郎，木星會通過倉吉市。,11686,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-12267,3948873ae73b3279,train,待核验原始主张,功績是抵擋曹操的南征以及瓦解劉備勢力的呂蒙是孫權麾下的勢力，併爲四大都督之一。,12267,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-12279,7884c93ffe6887d7,train,待核验原始主张,生於日本大阪府的手冢治虫是現代日本動畫的創立者，創作出《原子小金剛》、《怪醫黑傑克》等知名作品深深影響著許多新生代漫畫家。,12279,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-12335,a2d955d616a7f9ec,test,待核验原始主张,從法國巴黎阻止的超現實主義，給傳統對藝術的看法有了巨大的影響，盛行於1920年至1930年的歐洲。,12335,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-12468,1ac6dedebc889a71,test,待核验原始主张,臺南市歷史的大約3000年前 ， 出現了擁有稻作技術的左鎮人文化 ， 之後的兩千多年以來都持續是平埔族的世居地 。,12468,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-12813,48264c99fa438a7c,test,待核验原始主张,白先勇的小說集《臺北人》是在描寫在臺北長大的人的生活。,12813,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-13031,266058fdc0e1b694,train,待核验原始主张,臺灣檢警人員認爲VoIP難以學習，若成爲詐騙集團的工具，檢警人員偵辦難度會提升。,13031,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-13359,b7231c7f6f0a34cc,train,待核验原始主张,種植業包含火箭、水槍、金屬等，其中園林也稱庭園。,13359,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-1353,ed7090cf96c68fac,train,待核验原始主张,蔡元培被點翰林院庶吉士 ，於翰林院內學習，後任中華民國首任教育總長。,1353,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-13533,b7231c7f6f0a34cc,train,待核验原始主张,歡雅國小創建於民國八年3月27日，本來是今鹽水國小的分學校。,13533,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-1391,637c14f81cf783cf,dev,待核验原始主张,導彈的對付目標作用可以簡單地分爲戰略和戰術。,1391,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-14387,05ddfcb877811faa,train,待核验原始主张,唐朝的王果是王雄誕的兒子，曾討伐並平定了叛唐的獠人。,14387,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-14511,2646cfc2e8dc78b8,train,待核验原始主张,潮州市鄰近廣東省，潮州市地勢北高南低，山區約佔全市陸地面積的65.2%。,14511,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-14922,3ae9bf3d6bf34066,train,待核验原始主张,2000年7月開始發行流通的第五套橫式新臺幣有機器辨識功能，發行銀行自臺灣銀行改爲中央銀行。,14922,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-15046,1adb125af89123bc,test,待核验原始主张,地神五代之一的火折尊爲日本傳說中的葦原中國治天 ， 爲神武天皇 （ 日本第1代天皇 ） 的信仰 。,15046,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-15272,db55f99e9ed3884f,dev,待核验原始主张,新華網是新華通訊社的官方網站，由30多個地方頻道和十多家子網站組成，是世界最重要的中文新聞網站之一。,15272,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-15393,b4eb7186a173c8e5,train,待核验原始主张,現時阿根廷收入最高的公司是成立於1966年的達契亞汽車，已於1999年被收購。,15393,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-15547,fc95dff5b1b0aa76,test,待核验原始主张,位於臺北市文山區的臺北市立景美女子高級中學爲第一所由臺灣人創立的公立女子高級中學，離心於1962年。,15547,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-15853,7e46c1befb87c490,train,待核验原始主张,主祭神是宇迦之御魂神、日本武尊、保食神的花園神社在德川家康1590年進入江戶時就已經存在，目前位於日本東京都。,15853,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-16040,2646cfc2e8dc78b8,train,待核验原始主张,屬於喬治亞州的皮奇縣英文名爲Peach Count，其命名是因爲以該州最有名的水果桃子的英語Peach而來。,16040,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-16154,f141c43efbf7a9fe,train,待核验原始主张,1989年民主運動包含中國人民解放軍、武裝警察部隊和人民警察在北京天安門廣場對示威集會進行的武力清場行動，即六四事件，事件後據中國政府官方統計非軍人200餘人死亡。,16154,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-17419,05ddfcb877811faa,train,待核验原始主张,亞洲政治家伍廷芳是首位取得外國律師資格的華人，與妻子育有一小孩。,17419,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-17837,b7231c7f6f0a34cc,train,待核验原始主张,臺南市立建興國民中學校內有一棟歷史建築，建築於1917年。,17837,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18031,03760946a497360c,train,待核验原始主张,約翰·馮·諾伊曼從小時候就以他過人的智力與記憶力出名，一生中大概發表了150篇左右的論文。,18031,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18157,f141c43efbf7a9fe,train,待核验原始主张,私人銀行服務的月均利潤率可達到35 % ， 遠高於其他金融服務。,18157,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18231,056f5ece340a874c,dev,待核验原始主张,臺北市的仁愛路行經的行政區域只有大安區。,18231,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-1825,fea6eaff23282acc,test,待核验原始主张,波爾布特是東突厥政治人物沙洛特紹的化名。,1825,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18281,05ddfcb877811faa,train,待核验原始主张,黃桂蘭出生於安徽省廬州府合肥縣 ，爲唐朝的軍事將領。,18281,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18284,05ddfcb877811faa,train,待核验原始主张,出生於安徽省廬州府合肥縣的黃桂蘭爲清朝的軍事將領。,18284,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18723,05ddfcb877811faa,train,待核验原始主张,演員傑森·多靈曾飾演青春劇《美眉校探》中的男主角。,18723,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-18979,b7231c7f6f0a34cc,train,待核验原始主张,美國休斯頓第一個設立的中資銀行爲中國工商銀行。,18979,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19025,056f5ece340a874c,dev,待核验原始主张,生於倫敦的威廉·薩默塞特·毛姆曾在戰爭期間加入紅十字會和救護隊服役。,19025,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19027,056f5ece340a874c,dev,待核验原始主张,生於巴黎的威廉·薩默塞特·毛姆曾在疫情期間加入紅十字會和救護隊服役。,19027,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19578,ccfc7e01af6487b2,train,待核验原始主张,在橄欖球中想要達陣僅需持球者進入對方的得分區即可。,19578,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19664,df192a5d6138a964,train,待核验原始主张,櫟迷孔菌生長於離低中海拔林區甚遠的地方，它的最大特色是烘乾加工後還是無法當作抗癌藥物。,19664,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19667,df192a5d6138a964,train,待核验原始主张,櫟迷孔菌生長在如臺灣等地泥沼區，它的最大特色是烘乾加工後可以當作抗癌藥物。,19667,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19795,5deb6ad57546ae04,dev,待核验原始主张,威克島在北太平洋上是由威克、威爾克斯和皮爾組成的環礁，且是美國的無建制領地。,19795,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-19798,5deb6ad57546ae04,dev,待核验原始主张,威克島在北大西洋上是由威克、威爾克斯和皮爾組成的環礁，且是美國的無建制領地。,19798,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20091,5a754294973f7669,dev,待核验原始主张,百福道爲香港港島東區七姊妹的一條行車街道，此道方便山上的豪宅居民出入。,20091,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20096,5a754294973f7669,dev,待核验原始主张,百福道爲香港港島東區七姊妹的一條行車街道，此道方便外地遊客出入。,20096,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20122,b58534377d46f2de,train,待核验原始主张,凱旋站是高雄的捷運車站，總共有三個出入口。,20122,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20218,f141c43efbf7a9fe,train,待核验原始主张,第一批走出非洲的人類且在五萬年前到達澳洲的是澳洲人種，，曾在十九世紀被分類爲黑種人。,20218,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20342,d0c3ef77cbd2c0c0,train,待核验原始主张,變形金剛是來自塞伯坦星球的超級機械生命體，分爲三大陣營。,20342,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-20414,056f5ece340a874c,dev,待核验原始主张,於1935年在歐洲創立的企鵝出版集團以保護「出版自由」而著稱，總部位於倫敦。,20414,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-21099,523d2ee3c85abb49,train,待核验原始主张,國立臺灣科技大學的第三校區位於新竹縣竹北市，是公立研究型大學。,21099,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-21228,0933936bfcfa9b59,test,待核验原始主张,爬行動物爲唯一會在胚胎和幼體發育過程中形成胎膜的四足脊椎動物。,21228,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-21491,59f7c23c47742081,train,待核验原始主张,建於1446年的扎維亞贊齊位於烏克蘭西部，面積1.45平方公里。,21491,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-21562,3f81466a2a81b115,test,待核验原始主张,位在深山的大武臺灣油杉自然保護區只能以走路到達。,21562,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-22280,f141c43efbf7a9fe,train,待核验原始主张,郴州市已有兩千多年曆史，且有耆老可以考究。,22280,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-2229,eb905c367d05092b,train,待核验原始主张,英國搖滾樂團披頭四樂隊由四人組成，入選了《 時代 》電視的 “ 時代100人：本世紀最重要的人物 ” 名單，也是史上最暢銷的樂隊 。,2229,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-22322,05ddfcb877811faa,train,待核验原始主张,松本泉因爲自發性腦脊髓液漏復發，暫停漫畫家作業。,22322,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-22541,ab1905ba9744ac61,train,待核验原始主张,特色是重點發展國樂團的臺南市安南區顯宮國民小學位於臺灣台南市。,22541,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23071,266058fdc0e1b694,train,待核验原始主张,空氣動力學問題的求解依賴於氣體在三個方面的守恆，而地面上的空氣動力學稱作工業空氣動力學。,23071,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23322,02d5fd9296ae1a7c,train,待核验原始主张,1990–91年歐洲足協盃是國際組織的歐洲足球俱樂部之間的賽事，當屆冠軍爲烏克蘭足球超級聯賽球隊。,23322,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23327,056f5ece340a874c,dev,待核验原始主张,中國上海市的金茂大廈在1994年招募員工，五年後全面營業。,23327,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23526,056f5ece340a874c,dev,待核验原始主张,勞動部勞動力發展署的臺南職業訓練場創立於1985年，其第一任中心主任爲馬國臣。,23526,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23599,05ddfcb877811faa,train,待核验原始主张,出生於日本九州的鄭成功是明鄭王朝君主，而在臺灣有些學校、街道、地名、軍艦、橋等以鄭成功的人名或稱號命名。,23599,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-23988,de5d69c7a12cebb1,test,待核验原始主张,羅納德·里根的經濟政策增加了國家負債，但使美國經濟在1982年有了茁壯成長。,23988,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-24343,0eb0ccb67ed6dbc8,dev,待核验原始主张,"拉胡科略塔山的海拔高度約 5,465 米，是在英國的山峯。",24343,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-24914,05ddfcb877811faa,train,待核验原始主张,愛倫·坡曾在美國的一所公立研究型大學短暫就業。,24914,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-25544,aea1ff16eb517fe6,train,待核验原始主张,田能村竹田是一位小說家，曾經通過書信得到谷文晁的指導。,25544,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-25945,05ddfcb877811faa,train,待核验原始主张,尼爾斯 · 索爾森出生於瑞典艾斯勒夫市鎮，爲陶藝設計師。,25945,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-26042,7e46c1befb87c490,train,待核验原始主张,位於日本群馬縣的花園神社會定期舉辦各種劇團的活動。,26042,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-26436,53c4502f99c86e51,train,待核验原始主张,張學良因爲參與第一次國共內戰末期的一場軍事政變，使得他受蔣中正軟禁。,26436,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-26438,53c4502f99c86e51,train,待核验原始主张,第二次國共內戰末期的一場軍事政變使參與者張學良被蔣中正軟禁。,26438,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-26484,e73f45908ce887cf,train,待核验原始主张,國立臺灣史前文化博物館佔地10公頃，由美國人所設計。,26484,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27218,2646cfc2e8dc78b8,train,待核验原始主张,位於中國的玉林市是廣西農業已開發的地區之一，當地氣候溫和且雨量充沛。,27218,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27222,1acff3b3d774cd7f,train,待核验原始主张,由於蝗蟲喜歡溫暖乾燥，所以嚴重的水災和蝗災是一起產生的。,27222,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27342,de5d69c7a12cebb1,test,待核验原始主张,第38任美國總統雷根，曾經從事體育運動播報的工作。,27342,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27514,056f5ece340a874c,dev,待核验原始主张,臺北市松山區西松國民小學於日治時期成立，位於臺灣台北市松山區。,27514,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27618,05ddfcb877811faa,train,待核验原始主张,曾在美國大學打掃的連戰被中國大陸認爲是臺海關係重要溝通橋樑。,27618,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-27680,2646cfc2e8dc78b8,train,待核验原始主张,南邊地勢較北邊低平的潮州市，山地、丘陵主要分佈的其中一個縣，與臺灣島接壤。,27680,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28220,ef15ec50b0f933d8,dev,待核验原始主张,至今仍可以發現使用菊石的殼的古寄居蟹屬在英國活動。,28220,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28236,05ddfcb877811faa,train,待核验原始主张,在辛亥革命後遷居天津的陶湘以刊印古籍聞名，於光緒十七年娶妻。,28236,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28303,995cb37c74978354,test,待核验原始主张,文熙俊在2017年與唱跳女歌手結婚，並在同一年有小孩。,28303,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28682,be1cea002d019a0a,train,待核验原始主张,臺南市私立南英高級商工職業學校目前還未創校百年。,28682,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28750,8b88430443188993,dev,待核验原始主张,霍伊巴赫是一個德國境內的遊樂園，總面積超過25平方公里。,28750,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28878,056f5ece340a874c,dev,待核验原始主张,高君宇故居是早期中共成員之一的高君宇的故居，爲高君宇的祖父所建。,28878,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-28899,05ddfcb877811faa,train,待核验原始主张,卡洛斯·曼努埃爾·普埃布拉出生在古巴的一個音樂家庭，他於1930年代開始作曲，在他的家鄉小有名氣。,28899,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-29070,614fd69c3e5d1ce5,dev,待核验原始主张,開始營業於2001年的海上田園是深圳最廣大的一座生態文化主題旅遊景區。,29070,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-29716,3c66c24bfbf59b86,train,待核验原始主张,出現在第三王朝末期的象形繭是最早與法老有關連的，而象形繭是古埃及繩環象形文的變化應用。,29716,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-30563,6c10ccc4f68e2faa,train,待核验原始主张,理查德·貝利沃擁有加拿大醫師執照，現爲魁北克大學分子醫學實驗室主任。,30563,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-3059,fb1a0e5ea16d3c05,train,待核验原始主张,位於朝鮮半島的全羅北道的首府在聯合國教科文組織指定的美食城市之一全州。,3059,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-30598,1b374574b3c0cdb5,train,待核验原始主张,核酸位於細胞內，有兩大類，爲生命的基本物質。,30598,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-30948,f3e0011122f359ef,train,待核验原始主张,海歸回國當演員的崔宇植十歲時移民至加拿大。,30948,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-31269,0a05b9492c62a49d,train,待核验原始主张,作者爲諫山創的漫畫進擊的巨人，將來的真人版電影，將會由執導過電影《牠》的導演拍攝。,31269,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-31523,b777230a50ea06c3,train,待核验原始主张,韓國男子團體Super Junior在2006年有新成員加入。,31523,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-31598,c3c0fdc570d63aa4,dev,待核验原始主张,演員許凱在2018年以演員身份演出《延禧攻略》出道。,31598,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-3485,fdd39bbfdc14b674,train,待核验原始主张,相較於通用機槍輕型的機槍稱作輕機槍，屬於自動步槍的一種，一般會用於軍隊，可以由一個士兵所操作使用。,3485,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-3903,cf24b501ea80b6c3,train,待核验原始主张,佛朗哥於西班牙第二共和國期間贏得內戰後，以威權極端民族主義統治西班牙。,3903,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-3908,cf24b501ea80b6c3,train,待核验原始主张,佛朗哥於西班牙第三共和國期間贏得內戰後，以威權極端民族主義統治西班牙。,3908,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-4271,fe8fc3bea6dc54df,train,待核验原始主张,華南師範大學曾被稱爲廣東喫飯學院與華南喝水學院。,4271,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-4512,db55f99e9ed3884f,dev,待核验原始主张,世界範圍內重要的中文新聞網站新華網 ，是新華社的官方網站，而新華社是中國國務院正部級直屬事業單位。,4512,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-5002,5420fb2999937336,train,待核验原始主张,2013年6月前Mac OS以學校名稱來命名版本名。,5002,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-5059,7085ac309d4cc91b,train,待核验原始主张,木衛三十九被以希臘神話中的超級名模之一的名稱命名。,5059,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-5505,474e9155fe42875c,test,待核验原始主张,九州縹緲錄是一部由小說家江南創作的小說，背景是虛構世界九州。,5505,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-5656,31fb9be2b83feb06,dev,待核验原始主张,《易傳》中將爻分爲陽爻和陰爻兩種，二爻的本義在周文王眼中認爲「 爻 」 ， 皎也 ，「爻」代表著陰陽氣化，由於「爻」之動而有卦之變，故「爻」是氣化的始祖。,5656,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-5700,d518ac055fa429c8,test,待核验原始主张,希臘神話透過公車上的司機得到考古學上的證明。,5700,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-6060,a9b0c62a4c33439e,train,待核验原始主张,世界上創建最早的期貨和期權交易所的所在地是美國伊利諾州芝加哥的期貨交易所，世界上國內生產總值最高的地區之一芝加哥在2018年創造了6890億美元，同時也是美國的鐵路樞紐，擁有最多數量的聯邦高速公路。,6060,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-6293,2646cfc2e8dc78b8,train,待核验原始主张,位於義大利半島西南方的撒丁島是黑海的第二大島，島上盛行飼養豬、羊等家畜，並擁有自己特有的語言、食物和風俗習慣。,6293,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-6565,31cd0ccd55b88d72,train,待核验原始主张,燕國與趙國的滅亡是戰國時期秦國名星王翦所爲。,6565,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7066,c1ec2219b0a7735c,train,待核验原始主张,絕對星等爲 286.61789 等的小行星9027 會圍繞太陽公轉。,7066,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7384,737302743a369b93,test,待核验原始主张,屬於臺灣總督府轄下的臺灣總督府民政部到1919年暫停。,7384,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7452,b5f7535901fbff5f,train,待核验原始主张,位於臺灣台南市的象山公園是個長條帶狀地形的公園。,7452,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7607,cefd350652abdad5,test,待核验原始主张,局部擇優的爬山算法利用回饋資訊幫助生成地圖，存在的問題包括局部最大、搜尋一旦到達高地會使搜尋效率降低。,7607,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7637,0072f37a066ba58e,train,待核验原始主张,《 臺灣時報 》 ，於1909年發行，其前身是東亞人所成立的 「 臺灣協會 」 發行之 《 臺灣協會會報 》 。,7637,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7744,b7231c7f6f0a34cc,train,待核验原始主张,臺中市政府第二辦公大樓是外在臺中豐原區的臺中市政府陽明大樓。,7744,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7821,4e0f2db7b3be61f4,train,待核验原始主张,2020年與妻子離婚的臺灣演員董至成曾在《紅白勝利》中扮演的經典角色「董月花」紅極一時。,7821,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-7824,4e0f2db7b3be61f4,train,待核验原始主张,曾扮演經典角色「董月花」的董至成現實生活婚姻生活幸福美滿，令人稱羨。,7824,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-8157,465a91a3cd5671db,train,待核验原始主张,BI是協助企業制訂出最佳的策略主題與策略目標的一種決策支援的玩具。,8157,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-8536,8432223ec90740e9,test,待核验原始主张,"聖保羅書院爲基督教學校，共有 1,800 名學生就讀，他的校長爲源迪恩先生。",8536,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-8586,a24fd90ddb2d397d,train,待核验原始主张,歐陸舞曲是在80年代後期到90年代中期流行於歐洲 、 大洋洲及南美洲的舞曲 ，有許多歐陸舞曲在北美洲造成轟動 ， 讓歐陸舞曲在北美洲比較流行 。,8586,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-8989,05ddfcb877811faa,train,待核验原始主张,香港編劇陳韻文曾在香港電臺及商業電臺主持音樂節目，出生在加拿大多倫多。,8989,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-9463,ed7090cf96c68fac,train,待核验原始主张,蔡元培兩度遊學澳洲，將中國文化教育 「 從封建專制時代擺渡到民主自由時代 」，並創立現代教育制度 。,9463,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-9487,7e46c1befb87c490,train,待核验原始主张,文殊在印度教中是智慧的象徵，標準形象爲乘青獅 、 持寶劍，並被稱智慧第一。,9487,,,,,,,,,,,,,pending_independent_review
+CFEVER-DEV-9519,b7231c7f6f0a34cc,train,待核验原始主张,古埃及數學家鑑定尼羅河氾濫後的土地面積即是利用現代三角函數的概念。,9519,,,,,,,,,,,,,pending_independent_review

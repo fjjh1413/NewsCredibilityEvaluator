@@ -1,0 +1,2 @@
+# Frozen manifests hash bytes, so checkout must preserve source/CSV line endings.
+datasets/** -text

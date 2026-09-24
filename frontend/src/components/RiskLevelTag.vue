@@ -40,6 +40,9 @@ const specialRiskMap = {
     className: 'risk-level-tag--unknown',
     icon: InfoFilled
   },
+  abstained: {
+    key: 'abstained', label: '无法判断', className: 'risk-level-tag--unknown', icon: InfoFilled
+  },
   auxiliary: {
     key: 'auxiliary',
     label: '辅助证据',
@@ -56,6 +59,8 @@ const specialRiskMap = {
 
 function specialKeyFromLevel(level) {
   const value = String(level || '').toLowerCase()
+
+  if (value.includes('无法判断')) return 'abstained'
 
   if (!value) {
     return 'unknown'

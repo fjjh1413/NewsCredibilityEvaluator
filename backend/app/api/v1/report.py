@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, Path, status
 from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.report_download import build_report_pdf_download_response
 from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.report import ReportGenerateApiResponse, ReportOut
 from app.services.report_service import (
     ReportAccessDeniedError,
-    ReportFileMissingError,
     ReportGenerationError,
     ReportNotFoundError,
     generate_detection_report,
@@ -57,19 +57,11 @@ def download_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> FileResponse | JSONResponse:
-    try:
-        report, pdf_file = get_report_pdf_for_download(db, report_id, current_user)
-    except ReportNotFoundError as exc:
-        return _error(exc, status.HTTP_404_NOT_FOUND)
-    except ReportAccessDeniedError as exc:
-        return _error(exc, status.HTTP_403_FORBIDDEN)
-    except ReportFileMissingError as exc:
-        return _error(exc, status.HTTP_404_NOT_FOUND)
-
-    return FileResponse(
-        path=pdf_file,
-        media_type="application/pdf",
-        filename=f"news-credibility-report-{report.id}.pdf",
+    return build_report_pdf_download_response(
+        db=db,
+        report_id=report_id,
+        current_user=current_user,
+        load_report_pdf=get_report_pdf_for_download,
     )
 
 

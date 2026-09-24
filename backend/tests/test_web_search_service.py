@@ -18,6 +18,28 @@ from app.schemas.web_search import WebEvidenceItem
 
 
 class ShouldTriggerWebSearchTests(unittest.TestCase):
+    def test_v2_high_rank_fusion_cannot_hide_weak_cosine(self):
+        self.assertTrue(should_trigger_web_search([
+            {"index_version": "v2", "raw_cosine_score": 0.12,
+             "similarity_score": 0.12, "fusion_score": 0.99, "rerank_score": 0.95}
+        ], True))
+
+    def test_cosine_routing_is_independent_of_reranked_order(self):
+        self.assertFalse(should_trigger_web_search([
+            {"index_version": "v2", "raw_cosine_score": 0.2},
+            {"index_version": "v2", "raw_cosine_score": 0.8},
+        ], True))
+
+    def test_missing_v2_cosine_and_nonfinite_values_trigger_web(self):
+        for evidence in (
+            {"index_version": "v2", "similarity_score": 0.99},
+            {"index_version": "v2", "raw_cosine_score": None, "fusion_score": 1},
+            {"raw_cosine_score": float("nan")},
+            {"raw_cosine_score": float("inf")},
+        ):
+            with self.subTest(evidence=evidence):
+                self.assertTrue(should_trigger_web_search([evidence], True))
+
     def test_disabled_when_flag_is_false(self):
         self.assertFalse(
             should_trigger_web_search(
@@ -103,6 +125,28 @@ class MergeEvidenceTests(unittest.TestCase):
     - Limits are applied after dedup, per source.
     - candidate_id is generated after dedup + limits.
     """
+
+    def test_merge_preserves_v2_context_and_score_provenance_without_aliasing(self):
+        rag = self._rag()
+        rag.update({
+            "index_version": "v2", "raw_cosine_score": 0.21, "fusion_score": 0.95,
+            "chunks": [{"chunk_id": "k1", "document": "Current evidence"}],
+            "supporting_spans": [{"text": "Current evidence", "start": 0, "end": 16}],
+            "score_components": {"dense_score": 0.21, "rrf_score": 0.95},
+            "query_hits": [{"query_index": 0, "rank": 1}],
+            "retrieval_queries": ["query"], "rerank_score": 0.55,
+            "metadata": {"parent_revision": "revision"},
+        })
+        merged = merge_evidence([rag], [self._web()])
+        for key in ("index_version", "raw_cosine_score", "fusion_score", "chunks",
+                    "supporting_spans", "score_components", "query_hits",
+                    "retrieval_queries", "rerank_score", "metadata"):
+            self.assertEqual(merged[0][key], rag[key])
+        merged[0]["chunks"][0]["document"] = "changed by downstream"
+        merged[0]["score_components"]["dense_score"] = 1
+        self.assertEqual(rag["chunks"][0]["document"], "Current evidence")
+        self.assertEqual(rag["score_components"]["dense_score"], 0.21)
+        self.assertNotIn("rank_order", merged[0])
 
     # ── helpers ──────────────────────────────────────────────────────
 

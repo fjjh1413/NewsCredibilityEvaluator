@@ -175,15 +175,21 @@ def validate_prediction_contract(prediction: dict[str, Any]) -> list[str]:
         errors.append("risk_level")
 
     final_score = _safe_float(prediction.get("final_score"))
-    if final_score is None or final_score < 0 or final_score > 100:
+    abstained = prediction.get("assessment_status") in {"insufficient_evidence", "degraded"}
+    if abstained:
+        if prediction.get("final_score") is not None or prediction.get("risk_level") != "无法判断":
+            errors.append("abstention_contract")
+    elif final_score is None or final_score < 0 or final_score > 100:
         errors.append("final_score")
 
     evidence = _extract_selected_evidence(prediction)
-    if not evidence:
+    if not evidence and not abstained:
         errors.append("evidence_list")
 
     if not isinstance(prediction.get("arbitration_status"), str) or not prediction.get("arbitration_status", "").strip():
         errors.append("arbitration_status")
+    elif prediction.get("arbitration_status") == "unknown":
+        errors.append("arbitration_status_unknown")
 
     stage_latency = prediction.get("stage_latency_ms")
     if stage_latency is not None and not isinstance(stage_latency, dict):
@@ -338,6 +344,7 @@ def evaluate_cases(
         "total_cases": total_cases,
         "contract_valid_rate": _rate(contract_valid, total_cases),
         "risk_level_accuracy": _rate(risk_correct, risk_expected),
+        "risk_labeled_cases": risk_expected,
         "score_in_range_rate": 1.0 if score_expected == 0 else _rate(score_in_range, score_expected),
         "context_precision_at_k": _mean(context_precisions),
         "context_recall_at_k": _mean(context_recalls),
@@ -347,6 +354,8 @@ def evaluate_cases(
         "rag_claim_coverage_at_k": _mean(rag_claim_coverages),
         "rag_empty_rate": _rate(rag_empty_count, total_cases),
         "degraded_rate": _rate(degraded_count, total_cases),
+        "abstention_rate": _rate(sum((case.get("prediction") or {}).get("assessment_status") in {"insufficient_evidence", "degraded"} for case in cases), total_cases),
+        "insufficient_evidence_count": sum((case.get("prediction") or {}).get("assessment_status") == "insufficient_evidence" for case in cases),
         "total_latency_ms_p95": _percentile(total_latencies, 95),
         "arbitration_quality_present_rate": _rate(arbitration_quality_present, total_cases),
         "claim_coverage_avg": _mean(claim_coverages),
@@ -502,7 +511,7 @@ def _evidence_id(evidence: dict[str, Any]) -> str:
 def _is_degraded(prediction: dict[str, Any]) -> bool:
     if prediction.get("error") or prediction.get("error_message"):
         return True
-    for key in ("arbitration_status", "quality_status", "status"):
+    for key in ("assessment_status", "arbitration_status", "quality_status", "status"):
         value = str(prediction.get(key) or "").strip().lower()
         if value in DEGRADED_STATUSES:
             return True

@@ -556,7 +556,7 @@ class KnowledgeSyncTestCase(unittest.TestCase):
             },
         ]
         mocked_get_item.side_effect = [
-            _knowledge_item(id=1, title="Existing"),
+            _knowledge_item(id=1, title="Existing", vector_sync_status="synced"),
             None,
         ]
 

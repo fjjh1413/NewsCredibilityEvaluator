@@ -9,6 +9,20 @@ from app.services.rag.query_planner import build_claim_aware_queries
 
 
 class RagEngineeringTestCase(unittest.TestCase):
+    def test_multi_query_fusion_preserves_raw_cosine_and_never_converts_lexical_to_dense(self):
+        a = {"metadata": {"knowledge_id": 1}, "similarity_score": 0.1,
+             "raw_cosine_score": 0.1, "fusion_score": 0.7}
+        b = {"metadata": {"knowledge_id": 1}, "similarity_score": 0.2,
+             "raw_cosine_score": 0.2, "fusion_score": 0.9}
+        lexical = {"metadata": {"knowledge_id": 2}, "similarity_score": None,
+                   "raw_cosine_score": None, "fusion_score": 0.25}
+        fused = fuse_ranked_parent_results([[a, lexical], [b, lexical]], top_k=2)
+        self.assertEqual(fused[0]["similarity_score"], 0.2)
+        self.assertEqual(fused[0]["raw_cosine_score"], 0.2)
+        self.assertEqual(fused[0]["fusion_score"], 1.0)
+        self.assertIsNone(fused[1]["raw_cosine_score"])
+        self.assertIsNone(fused[1]["similarity_score"])
+
     def test_normalized_rrf_score_is_rank_based_and_calibrated(self) -> None:
         weights = {"dense": 0.70, "lexical": 0.25, "exact": 0.05}
 

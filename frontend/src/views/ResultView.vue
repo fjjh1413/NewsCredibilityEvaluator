@@ -56,6 +56,9 @@
         role="alert"
       />
 
+      <el-alert v-if="!assessmentState.hasVerdict" :title="assessmentState.title"
+        :description="assessmentState.description" type="warning" show-icon :closable="false" role="status" />
+
       <section class="result-hero surface-card" :class="riskHeroClass">
         <div class="result-hero__main">
           <p class="result-hero__eyebrow">综合可信度评分</p>
@@ -89,7 +92,7 @@
       <section class="score-grid" aria-label="三项评分">
         <ScoreCard title="证据质量" :score="eqScore" :subtitle="qualityState.cardSubtitle" :show-unit="eqScore !== null" tone="primary" />
         <ScoreCard title="大模型判断" :score="llmScore" subtitle="基于 DeepSeek 分析结果" tone="neutral" />
-        <ScoreCard title="来源/规则评分" :score="ruleScore" subtitle="基于风险规则和来源特征" :tone="ruleTone" />
+        <ScoreCard title="来源/规则评分" :score="ruleScore" subtitle="规则诊断分，不构成事实结论" :tone="ruleTone" />
       </section>
 
       <section
@@ -241,7 +244,8 @@
         </div>
       </ResultSection>
 
-      <ResultSection title="AI 分析过程" description="展示轻量 Agent 工具链的关键步骤。">
+      <ResultSection title="证据调查 Agent 轨迹" description="展示工具路由、决策依据、降级状态与阶段耗时；不包含原文、完整 Prompt 或隐藏推理。">
+        <AgentGraphPath :graph="agentGraph" />
         <AgentSteps :steps="agentSteps" />
       </ResultSection>
 
@@ -266,6 +270,7 @@
 </template>
 
 <script setup>
+import { getAssessmentState } from '@/utils/assessmentState'
 import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
 import { DocumentAdd, Download, Loading, RefreshRight } from '@element-plus/icons-vue'
@@ -273,6 +278,7 @@ import { useRouter } from 'vue-router'
 import { getDetectionDetail, reEvaluateDetection } from '@/api/detect'
 import { downloadReport, generateReport } from '@/api/report'
 import AgentSteps from '@/components/AgentSteps.vue'
+import AgentGraphPath from '@/components/AgentGraphPath.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import EvidenceList from '@/components/EvidenceList.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -287,6 +293,7 @@ import {
 } from '@/utils/detectionResultCache'
 import { formatDateTime, formatScore, isValidScore, scoreToPercent as normalizeScorePercent } from '@/utils/format'
 import { getEvidenceQualityState } from '@/utils/evidenceQualityState'
+import { normalizeAgentGraph, normalizeAgentTrace } from '@/utils/agentTrace'
 import { unwrapApiResponse } from '@/utils/response'
 
 const props = defineProps({
@@ -594,9 +601,8 @@ const resultTimeDescription = computed(() =>
   `检测时间：${displayTime.value} · 新闻发布时间：${displayPublishTime.value}`
 )
 
-const finalScore = computed(() =>
-  pick(resultData.value?.final_score, resultData.value?.credibility_score, resultData.value?.score)
-)
+const assessmentState = computed(() => getAssessmentState(resultData.value || {}))
+const finalScore = computed(() => assessmentState.value.score)
 const formattedFinalScore = computed(() => formatScore(finalScore.value))
 const hasFinalScore = computed(() => isValidScore(finalScore.value))
 const evidenceScore = computed(() => pick(resultData.value?.evidence_score, resultData.value?.retrieval_score))
@@ -618,11 +624,12 @@ const eqScore = computed(() => qualityState.value.score)
 const eqCoverage = computed(() => evidenceQuality.value?.coverage ?? null)
 const eqConsistency = computed(() => evidenceQuality.value?.consistency ?? null)
 const eqAssessment = computed(() => evidenceQuality.value?.assessment ?? '')
-const llmScore = computed(() => pick(resultData.value?.llm_score, resultData.value?.model_score))
+const llmScore = computed(() => assessmentState.value.hasVerdict ? pick(resultData.value?.llm_score, resultData.value?.model_score) : null)
 const ruleScore = computed(() => pick(resultData.value?.rule_score, resultData.value?.source_score))
-const riskLevel = computed(() => pick(resultData.value?.risk_level, resultData.value?.riskLevel))
-const judgementResult = computed(() =>
-  pick(resultData.value?.judgement_result, resultData.value?.judgment_result, resultData.value?.conclusion, '暂无判断结论')
+const riskLevel = computed(() => assessmentState.value.riskLevel)
+const judgementResult = computed(() => !assessmentState.value.hasVerdict
+  ? assessmentState.value.description
+  : pick(resultData.value?.judgement_result, resultData.value?.judgment_result, resultData.value?.conclusion, '暂无判断结论')
 )
 const reasonText = computed(() => pick(resultData.value?.reason, resultData.value?.analysis_reason, '后端未返回判断理由。'))
 const suggestionText = computed(() => pick(resultData.value?.suggestion, resultData.value?.advice, '后端未返回辟谣建议。'))
@@ -675,7 +682,10 @@ const similarNewsDescription = computed(() =>
     : '经 LLM 证据仲裁后，与当前检测内容相近的新闻或案例。'
 )
 const agentSteps = computed(() =>
-  getArray(resultData.value?.agent_steps || resultData.value?.agentSteps || resultData.value?.analysis_steps)
+  normalizeAgentTrace(resultData.value || {})
+)
+const agentGraph = computed(() =>
+  normalizeAgentGraph(resultData.value || {})
 )
 const webSearchTriggered = computed(() =>
   Boolean(resultData.value?.web_search_triggered || resultData.value?.webSearchTriggered)
@@ -776,7 +786,7 @@ const riskHint = computed(() => {
     suspicious: '当前结果存在不确定因素，建议继续核查权威来源。',
     rumor: '当前结果呈现明显风险，应谨慎传播并进一步核实。',
     high: '当前结果风险较高，建议不要转发未经证实的信息。',
-    unknown: '后端未返回完整风险等级或分数，请结合证据和判断理由继续核查。'
+    unknown: '当前未形成可信度结论，请补充证据、稍后重试或人工核查。'
   }
 
   return hints[normalizedRiskKey.value]

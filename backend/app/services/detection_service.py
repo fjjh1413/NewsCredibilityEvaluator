@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import math
 import re
 import time
 from typing import Any
@@ -7,6 +8,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.assessment import ASSESSMENT_COMPLETED, UNKNOWN_RISK_LEVEL, assessment_outcome
 from app.core.constants import (
     RISK_LEVEL_HIGH,
     RISK_LEVEL_RUMOR,
@@ -33,6 +35,13 @@ from app.services.llm_service import (
     LLM_FAILURE_ERROR,
     analyze_evidence_arbitration,
     analyze_news_credibility,
+)
+from app.services.agent_trace import build_agent_trace
+from app.services.agent_state_graph import END, GraphExecutionJournal
+from app.services.detection_agent_graph import (
+    DETECTION_NODE_IDS,
+    DetectionAgentState,
+    build_detection_agent_graph,
 )
 from app.services.prompt_service import get_default_prompt_content
 from app.services.rule_score_service import calculate_rule_score
@@ -84,7 +93,7 @@ DISCLAIMER = (
 )
 
 LLM_FAILURE_RISK_LEVEL = "模型调用失败"
-LLM_DEGRADED_NOTICE = "LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成。"
+LLM_DEGRADED_NOTICE = "LLM 分析暂不可用，本次无法判断；规则分仅供诊断，不构成可信度结论。"
 
 KEYWORD_HINTS = (
     "网传",
@@ -150,8 +159,10 @@ def validate_and_apply_llm_ranking(
     ``errors`` will describe what went wrong.  The caller must decide whether
     to retry or mark arbitration as failed.
     """
-    ranked_raw: list[dict[str, Any]] = list(arbitration.get("ranked_evidence") or [])
-    rejected_raw: list[dict[str, Any]] = list(arbitration.get("rejected_evidence") or [])
+    if not isinstance(arbitration, dict):
+        return {"ranked": [], "rejected": [], "errors": ["evidence_arbitration is not an object"]}
+    ranked_raw = arbitration.get("ranked_evidence")
+    rejected_raw = arbitration.get("rejected_evidence")
 
     candidate_map: dict[str, dict[str, Any]] = {
         str(item["candidate_id"]): item for item in candidates
@@ -199,7 +210,7 @@ def validate_and_apply_llm_ranking(
             errors.append(f"ranked_evidence [{cid}]: relevance_score must be a number")
             continue
         rel = float(rel_score)
-        if rel < 0 or rel > 100:
+        if not math.isfinite(rel) or rel < 0 or rel > 100:
             errors.append(f"ranked_evidence [{cid}]: relevance_score out of range {rel}")
             continue
 
@@ -209,7 +220,7 @@ def validate_and_apply_llm_ranking(
             errors.append(f"ranked_evidence [{cid}]: quality_score must be a number")
             continue
         qual = float(qual_score)
-        if qual < 0 or qual > 100:
+        if not math.isfinite(qual) or qual < 0 or qual > 100:
             errors.append(f"ranked_evidence [{cid}]: quality_score out of range {qual}")
             continue
 
@@ -220,7 +231,8 @@ def validate_and_apply_llm_ranking(
             continue
 
         # reason: must be non-empty string
-        reason = str(entry.get("reason", "")).strip()
+        raw_reason = entry.get("reason")
+        reason = raw_reason.strip() if isinstance(raw_reason, str) else ""
         if not reason:
             errors.append(f"ranked_evidence [{cid}]: reason is empty")
             continue
@@ -259,7 +271,8 @@ def validate_and_apply_llm_ranking(
             continue
         all_ids.add(cid)
 
-        reason = str(entry.get("reason", "")).strip()
+        raw_reason = entry.get("reason")
+        reason = raw_reason.strip() if isinstance(raw_reason, str) else ""
         if not reason:
             errors.append(f"rejected_evidence [{cid}]: reason is empty")
             continue
@@ -306,403 +319,524 @@ def validate_and_apply_llm_ranking(
     }
 
 
-def detect_news_credibility(
-    db: Session,
-    payload: DetectNewsRequest,
-    current_user: Any | None = None,
-) -> dict[str, Any]:
-    title = clean_text(payload.title, max_length=255)
-    content = clean_text(payload.content, max_length=12000)
-    if not title or not content:
+def _node_prepare_input(state: DetectionAgentState) -> None:
+    state.title = clean_text(state.payload.title, max_length=255)
+    state.content = clean_text(state.payload.content, max_length=12000)
+    if not state.title or not state.content:
         raise DetectionServiceError("新闻标题和正文不能为空")
 
-    stage_latency_ms: dict[str, float] = {}
-    stage_started = time.perf_counter()
+
+def _node_extract_claims(state: DetectionAgentState) -> None:
+    started_at = time.perf_counter()
     with trace_span(
         "detection.extract_keywords",
-        {"news.category": payload.category or ""},
+        {"news.category": state.payload.category or ""},
     ) as span:
-        keywords = extract_keywords(title=title, content=content)
-        core_claims = extract_core_claims(title, content)
+        state.keywords = extract_keywords(title=state.title, content=state.content)
+        state.core_claims = extract_core_claims(state.title, state.content)
         add_span_attributes(
             span,
             {
-                "keyword.count": len(keywords),
-                "claim.count": len(core_claims),
+                "keyword.count": len(state.keywords),
+                "claim.count": len(state.core_claims),
             },
         )
-    _record_stage_latency(stage_latency_ms, "extract_keywords", stage_started)
+    _record_stage_latency(state.stage_latency_ms, "extract_keywords", started_at)
 
-    stage_started = time.perf_counter()
+
+def _node_retrieve_local_evidence(state: DetectionAgentState) -> None:
+    started_at = time.perf_counter()
     with trace_span("detection.rag_search", {"rag.top_k": RAG_TOP_K}) as span:
         evidence_results = _search_top10_evidence(
-            db=db,
-            title=title,
-            content=content,
-            claims=core_claims,
+            db=state.db,
+            title=state.title,
+            content=state.content,
+            claims=state.core_claims,
         )
-        evidence_list = _format_evidence_list(evidence_results)
-        rag_query_count = max(
+        state.evidence_list = _format_evidence_list(evidence_results)
+        state.rag_query_count = max(
             [
                 int(evidence.get("retrieval_query_count") or 0)
-                for evidence in evidence_list
+                for evidence in state.evidence_list
             ]
             or [1]
         )
         add_span_attributes(
             span,
             {
-                "rag.match_count": len(evidence_list),
-                "rag.query_count": rag_query_count,
+                "rag.match_count": len(state.evidence_list),
+                "rag.query_count": state.rag_query_count,
             },
         )
-    _record_stage_latency(stage_latency_ms, "rag_search", stage_started)
+    _record_stage_latency(state.stage_latency_ms, "rag_search", started_at)
 
-    # ── web search (conditional) ──
-    web_triggered = False
-    web_sources_count = 0
-    settings = get_settings()
-    web_search_enabled = getattr(settings, "web_search_enabled", True)
-    stage_started = time.perf_counter()
+
+def _node_route_web_search(state: DetectionAgentState) -> None:
+    state.settings = get_settings()
+    state.web_search_enabled = getattr(state.settings, "web_search_enabled", True)
+    state.should_search_web = (
+        state.web_search_enabled
+        and should_trigger_web_search(
+            state.evidence_list,
+            state.payload.enable_web_search,
+        )
+    )
+    if not state.should_search_web:
+        started_at = time.perf_counter()
+        with trace_span(
+            "detection.web_search",
+            {
+                "web_search.enabled": state.web_search_enabled,
+                "web_search.requested": bool(state.payload.enable_web_search),
+                "web_search.triggered": False,
+            },
+        ):
+            pass
+        _record_stage_latency(state.stage_latency_ms, "web_search", started_at)
+
+
+def _node_search_web_evidence(state: DetectionAgentState) -> None:
+    started_at = time.perf_counter()
     with trace_span(
         "detection.web_search",
         {
-            "web_search.enabled": web_search_enabled,
-            "web_search.requested": bool(payload.enable_web_search),
+            "web_search.enabled": state.web_search_enabled,
+            "web_search.requested": bool(state.payload.enable_web_search),
+            "web_search.triggered": True,
         },
     ) as span:
-        should_search_web = web_search_enabled and should_trigger_web_search(
-            evidence_list,
-            payload.enable_web_search,
-        )
-        add_span_attributes(span, {"web_search.triggered": should_search_web})
-        if should_search_web:
-            try:
-                bocha_client = BochaClient(
-                    api_key=settings.bocha_api_key,
-                    timeout=settings.web_search_timeout_seconds,
+        state.web_search_attempted = True
+        try:
+            bocha_client = BochaClient(
+                api_key=state.settings.bocha_api_key,
+                timeout=state.settings.web_search_timeout_seconds,
+            )
+            web_items = search_evidence(
+                client=bocha_client,
+                title=state.title,
+                keywords=state.keywords,
+                count=state.settings.web_search_count,
+                freshness=state.settings.web_search_freshness,
+            )
+            add_span_attributes(span, {"web_search.result_count": len(web_items)})
+            if web_items:
+                state.evidence_list = merge_evidence(state.evidence_list, web_items)
+                state.web_triggered = True
+                state.web_sources_count = sum(
+                    1
+                    for evidence in state.evidence_list
+                    if evidence.get("source_type") == "web_search"
                 )
-                web_items = search_evidence(
-                    client=bocha_client,
-                    title=title,
-                    keywords=keywords,
-                    count=settings.web_search_count,
-                    freshness=settings.web_search_freshness,
-                )
-                add_span_attributes(span, {"web_search.result_count": len(web_items)})
-                if web_items:
-                    evidence_list = merge_evidence(evidence_list, web_items)
-                    web_triggered = True
-                    web_sources_count = sum(
-                        1 for e in evidence_list if e.get("source_type") == "web_search"
-                    )
-            except BochaServiceError:
-                add_span_attributes(span, {"web_search.failed": True})
-                logger.warning("Bocha web search failed, continuing with RAG-only evidence")
-    _record_stage_latency(stage_latency_ms, "web_search", stage_started)
+        except BochaServiceError:
+            add_span_attributes(span, {"web_search.failed": True})
+            logger.warning("Bocha web search failed, continuing with RAG-only evidence")
+    _record_stage_latency(state.stage_latency_ms, "web_search", started_at)
 
-    # ── ensure every candidate has a candidate_id ──────────────────────
-    _ensure_candidate_ids(evidence_list)
 
-    # ── build neutral input order for LLM (source-neutral, reproducible) ──
-    seed = f"{title}\n{content}"
-    neutral_evidence = build_neutral_candidate_order(evidence_list, seed)
-    prompt_evidence = neutral_evidence[:PROMPT_EVIDENCE_LIMIT]
+def _node_prepare_model_input(state: DetectionAgentState) -> None:
+    _ensure_candidate_ids(state.evidence_list)
+    seed = f"{state.title}\n{state.content}"
+    neutral_evidence = build_neutral_candidate_order(state.evidence_list, seed)
+    state.prompt_evidence = neutral_evidence[:PROMPT_EVIDENCE_LIMIT]
 
-    stage_started = time.perf_counter()
+    started_at = time.perf_counter()
     with trace_span("detection.prompt_template") as span:
-        prompt_template = get_default_prompt_content(db)
-        add_span_attributes(span, {"prompt_template.loaded": bool(prompt_template)})
-    _record_stage_latency(stage_latency_ms, "prompt_template", stage_started)
+        state.prompt_template = get_default_prompt_content(state.db)
+        add_span_attributes(
+            span,
+            {"prompt_template.loaded": bool(state.prompt_template)},
+        )
+    _record_stage_latency(state.stage_latency_ms, "prompt_template", started_at)
 
-    stage_started = time.perf_counter()
+
+def _node_analyze_with_model(state: DetectionAgentState) -> None:
+    started_at = time.perf_counter()
     with trace_span(
         "detection.llm_analysis",
-        {"evidence.prompt_count": len(prompt_evidence)},
+        {"evidence.prompt_count": len(state.prompt_evidence)},
     ) as span:
-        llm_result = analyze_news_credibility(
-            title=title,
-            content=content,
-            evidence_list=prompt_evidence,
-            prompt_template=prompt_template,
-            claims=core_claims,
+        state.llm_result = analyze_news_credibility(
+            title=state.title,
+            content=state.content,
+            evidence_list=state.prompt_evidence,
+            prompt_template=state.prompt_template,
+            claims=state.core_claims,
         )
-        add_span_attributes(span, {"llm.degraded": _is_llm_failure(llm_result)})
-    _record_stage_latency(stage_latency_ms, "llm_analysis", stage_started)
+        add_span_attributes(
+            span,
+            {"llm.degraded": _is_llm_failure(state.llm_result)},
+        )
+    _record_stage_latency(state.stage_latency_ms, "llm_analysis", started_at)
 
-    # ── evidence arbitration ─────────────────────────────────────────
-    ranking_result: dict[str, Any] | None = None
-    arbitration_status = "unavailable"
-    quality_status = "unavailable"
-    arbitration_attempts = 0
-    arbitration_error: str | None = None
-    arbitration_quality_summary: dict[str, Any] = {}
 
-    if not evidence_list:
-        ranking_result = {"ranked": [], "rejected": [], "errors": []}
-        arbitration_status = "no_evidence"
-        quality_status = "no_evidence"
-    elif _is_llm_failure(llm_result):
-        arbitration_status = "provider_error"
-        arbitration_error = "模型服务调用失败，未执行证据仲裁"
+def _node_arbitrate_evidence(state: DetectionAgentState) -> None:
+    state.should_retry_arbitration = False
+    if _is_llm_failure(state.llm_result):
+        state.arbitration_status = "invalid_response" if state.llm_result.get("analysis_status") == "invalid_response" else "provider_error"
+        state.arbitration_error = state.llm_result.get("analysis_error") or "模型服务调用失败，未执行证据仲裁"
+        return
+    if not state.evidence_list:
+        state.ranking_result = {"ranked": [], "rejected": [], "errors": []}
+        state.arbitration_status = "no_evidence"
+        state.quality_status = "no_evidence"
+        return
+
+    state.arbitration_attempts = 1
+    arbitration = state.llm_result.get("evidence_arbitration")
+    if arbitration is None:
+        state.ranking_result = {
+            "ranked": [],
+            "rejected": [],
+            "errors": ["missing evidence_arbitration"],
+        }
     else:
-        arbitration_attempts = 1
-        arbitration = llm_result.get("evidence_arbitration")
-        if arbitration is None:
-            ranking_result = {
-                "ranked": [],
-                "rejected": [],
-                "errors": ["missing evidence_arbitration"],
-            }
-        else:
-            ranking_result = validate_and_apply_llm_ranking(evidence_list, arbitration)
-
-        quality_errors = _validate_evidence_quality(llm_result.get("evidence_quality"))
-        first_errors = [*ranking_result["errors"], *quality_errors]
-        if first_errors:
-            logger.warning(
-                "LLM evidence contract validation failed: %s. Retrying focused arbitration once.",
-                "; ".join(first_errors),
-            )
-            arbitration_attempts = 2
-            stage_started = time.perf_counter()
-            with trace_span(
-                "detection.evidence_arbitration_retry",
-                {"evidence.prompt_count": len(prompt_evidence)},
-            ):
-                retry_result = analyze_evidence_arbitration(
-                    title=title,
-                    content=content,
-                    evidence_list=prompt_evidence,
-                    claims=core_claims,
-                )
-            _record_stage_latency(
-                stage_latency_ms,
-                "evidence_arbitration_retry",
-                stage_started,
-            )
-            retry_arbitration = retry_result.get("evidence_arbitration")
-            retry_ranking = (
-                validate_and_apply_llm_ranking(evidence_list, retry_arbitration)
-                if isinstance(retry_arbitration, dict)
-                else {
-                    "ranked": [],
-                    "rejected": [],
-                    "errors": ["missing evidence_arbitration"],
-                }
-            )
-            retry_quality = retry_result.get("evidence_quality")
-            retry_quality_errors = _validate_evidence_quality(retry_quality)
-
-            if not retry_ranking["errors"] and not retry_quality_errors:
-                ranking_result = retry_ranking
-                llm_result = {
-                    **llm_result,
-                    "evidence_arbitration": retry_arbitration,
-                    "evidence_quality": retry_quality,
-                    "similar_news": retry_result.get("similar_news") or [],
-                }
-                arbitration_status = "ok"
-                quality_status = "ok"
-            else:
-                retry_errors = [
-                    *retry_ranking["errors"],
-                    *retry_quality_errors,
-                ]
-                provider_error = clean_text(retry_result.get("error"), max_length=500)
-                if provider_error:
-                    logger.error("Focused arbitration provider error: %s", provider_error)
-                    retry_errors.append("focused arbitration provider request failed")
-                arbitration_status = "retry_exhausted"
-                arbitration_error = "; ".join(retry_errors)[:1000]
-                ranking_result = retry_ranking
-                logger.error(
-                    "Focused evidence arbitration retry failed: %s",
-                    arbitration_error,
-                )
-        else:
-            arbitration_status = "ok"
-            quality_status = "ok"
-
-    if ranking_result is not None and not ranking_result["errors"]:
-        quality_control = apply_arbitration_quality_controls(
-            ranked=ranking_result["ranked"],
-            rejected=ranking_result["rejected"],
-            claims=core_claims,
-            source_url=payload.source_url,
+        state.ranking_result = validate_and_apply_llm_ranking(
+            state.evidence_list,
+            arbitration,
         )
-        ranking_result = {
-            **ranking_result,
+
+    quality_errors = _validate_evidence_quality(
+        state.llm_result.get("evidence_quality")
+    )
+    first_errors = [*state.ranking_result["errors"], *quality_errors]
+    if first_errors:
+        logger.warning(
+            "LLM evidence contract validation failed: %s. "
+            "Retrying focused arbitration once.",
+            "; ".join(first_errors),
+        )
+        state.should_retry_arbitration = True
+        return
+
+    state.arbitration_status = "ok"
+    state.quality_status = "ok"
+
+
+def _node_retry_arbitration(state: DetectionAgentState) -> None:
+    state.arbitration_attempts = 2
+    started_at = time.perf_counter()
+    with trace_span(
+        "detection.evidence_arbitration_retry",
+        {"evidence.prompt_count": len(state.prompt_evidence)},
+    ):
+        retry_result = analyze_evidence_arbitration(
+            title=state.title,
+            content=state.content,
+            evidence_list=state.prompt_evidence,
+            claims=state.core_claims,
+        )
+    _record_stage_latency(
+        state.stage_latency_ms,
+        "evidence_arbitration_retry",
+        started_at,
+    )
+
+    retry_arbitration = retry_result.get("evidence_arbitration")
+    retry_ranking = (
+        validate_and_apply_llm_ranking(state.evidence_list, retry_arbitration)
+        if isinstance(retry_arbitration, dict)
+        else {
+            "ranked": [],
+            "rejected": [],
+            "errors": ["missing evidence_arbitration"],
+        }
+    )
+    retry_quality = retry_result.get("evidence_quality")
+    retry_quality_errors = _validate_evidence_quality(retry_quality)
+
+    if not retry_ranking["errors"] and not retry_quality_errors:
+        state.ranking_result = retry_ranking
+        state.llm_result = {
+            **state.llm_result,
+            "evidence_arbitration": retry_arbitration,
+            "evidence_quality": retry_quality,
+            "similar_news": retry_result.get("similar_news") or [],
+        }
+        state.arbitration_status = "ok"
+        state.quality_status = "ok"
+        return
+
+    retry_errors = [*retry_ranking["errors"], *retry_quality_errors]
+    provider_error = clean_text(retry_result.get("error"), max_length=500)
+    if provider_error:
+        logger.error("Focused arbitration provider error: %s", provider_error)
+        retry_errors.append("focused arbitration provider request failed")
+    state.arbitration_status = "retry_exhausted"
+    state.arbitration_error = "; ".join(retry_errors)[:1000]
+    state.ranking_result = retry_ranking
+    logger.error(
+        "Focused evidence arbitration retry failed: %s",
+        state.arbitration_error,
+    )
+
+
+def _node_score_risk(state: DetectionAgentState) -> None:
+    if state.ranking_result is not None and not state.ranking_result["errors"]:
+        quality_control = apply_arbitration_quality_controls(
+            ranked=state.ranking_result["ranked"],
+            rejected=state.ranking_result["rejected"],
+            claims=state.core_claims,
+            source_url=state.payload.source_url,
+        )
+        state.ranking_result = {
+            **state.ranking_result,
             "ranked": quality_control["ranked"],
             "rejected": quality_control["rejected"],
             "quality": quality_control["quality"],
         }
-        arbitration_quality_summary = quality_control["quality"]
+        state.arbitration_quality_summary = quality_control["quality"]
 
-    is_llm_degraded = _is_llm_failure(llm_result)
-    if is_llm_degraded:
-        llm_result = _build_degraded_llm_result(llm_result)
+    state.is_llm_degraded = _is_llm_failure(state.llm_result)
+    if state.is_llm_degraded:
+        state.llm_result = _build_degraded_llm_result(state.llm_result)
 
-    # ── determine effective evidence ──────────────────────────────────
-    if ranking_result is not None and not ranking_result["errors"]:
-        effective_evidence = ranking_result["ranked"]
-        excluded_evidence = ranking_result["rejected"]
+    if state.ranking_result is not None and not state.ranking_result["errors"]:
+        state.effective_evidence = state.ranking_result["ranked"]
+        state.excluded_evidence = state.ranking_result["rejected"]
     else:
         # Unarbitrated candidates must not affect scoring.
-        effective_evidence = []
-        excluded_evidence = []
+        state.effective_evidence = []
+        state.excluded_evidence = []
 
-    knowledge_has_relevant_match = any(
+    state.knowledge_has_relevant_match = any(
         evidence.get("source_type") == "knowledge_base"
-        for evidence in effective_evidence
+        for evidence in state.effective_evidence
     )
-    web_has_relevant_match = any(
+    state.web_has_relevant_match = any(
         evidence.get("source_type") == "web_search"
-        for evidence in effective_evidence
+        for evidence in state.effective_evidence
     )
 
-    stage_started = time.perf_counter()
+    started_at = time.perf_counter()
     with trace_span(
         "detection.rule_score",
-        {"evidence.effective_count": len(effective_evidence)},
+        {"evidence.effective_count": len(state.effective_evidence)},
     ) as span:
         rule_result = calculate_rule_score(
-            title=title,
-            content=content,
-            source_name=payload.source_name,
-            evidence_list=effective_evidence,
+            title=state.title,
+            content=state.content,
+            source_name=state.payload.source_name,
+            evidence_list=state.effective_evidence,
         )
         add_span_attributes(
             span,
             {"rule_score": _normalize_score(rule_result.get("rule_score"))},
         )
-    _record_stage_latency(stage_latency_ms, "rule_score", stage_started)
+    _record_stage_latency(state.stage_latency_ms, "rule_score", started_at)
 
-    evidence_score = calculate_evidence_score(effective_evidence)
-    llm_score = _normalize_score(llm_result.get("llm_score"))
-    rule_score = _normalize_score(rule_result.get("rule_score"))
-
-    # ── evidence quality (LLM-evaluated) ──
-    raw_evidence_quality = llm_result.get("evidence_quality") or {}
-    evidence_quality = raw_evidence_quality if quality_status == "ok" else None
-    if isinstance(evidence_quality, dict) and arbitration_quality_summary:
-        evidence_quality = {
-            **evidence_quality,
-            "backend_arbitration_quality": arbitration_quality_summary,
+    state.evidence_score = calculate_evidence_score(state.effective_evidence)
+    state.llm_score = _normalize_score(state.llm_result.get("llm_score"))
+    state.rule_score = _normalize_score(rule_result.get("rule_score"))
+    raw_evidence_quality = state.llm_result.get("evidence_quality") or {}
+    if not isinstance(raw_evidence_quality, dict):
+        raw_evidence_quality = {}
+    state.evidence_quality = (
+        raw_evidence_quality if state.quality_status == "ok" else None
+    )
+    if (
+        isinstance(state.evidence_quality, dict)
+        and state.arbitration_quality_summary
+    ):
+        state.evidence_quality = {
+            **state.evidence_quality,
+            "backend_arbitration_quality": state.arbitration_quality_summary,
         }
-    eq_score = (
+    evidence_quality_score = (
         _normalize_score(raw_evidence_quality.get("score"))
-        if quality_status == "ok"
+        if state.quality_status == "ok"
         else 0.0
     )
 
-    if is_llm_degraded:
-        # Without an LLM arbitration decision, retrieval candidates are not
-        # trusted as scoring evidence.  Fall back to the deterministic rules.
-        final_score = rule_score
-    elif not effective_evidence:
-        final_score = round(llm_score * 0.6 + rule_score * 0.4, 2)
-    else:
-        final_score = round(
-            llm_score * 0.5 + eq_score * 0.3 + rule_score * 0.2,
+    state.assessment_status, state.assessment_reason = assessment_outcome(
+        provider_failed=state.is_llm_degraded,
+        arbitration_status=state.arbitration_status,
+        quality_status=state.quality_status,
+        evidence_count=sum(
+            evidence.get("stance") in {"support", "contradict"}
+            and float(evidence.get("relevance_score") or 0) > 0
+            and float(evidence.get("quality_score") or 0) > 0
+            for evidence in state.effective_evidence
+        ) if state.quality_status == "ok" and _normalize_score(raw_evidence_quality.get("coverage")) > 0 else 0,
+    )
+    if state.assessment_status == ASSESSMENT_COMPLETED:
+        state.final_score = round(
+            state.llm_score * 0.5
+            + evidence_quality_score * 0.3
+            + state.rule_score * 0.2,
             2,
         )
-    risk_level = get_risk_level_from_score(final_score)
-    judgement_result = build_judgement_result(risk_level)
-    reason = _build_reason(llm_result, effective_evidence)
-    risk_points = _merge_risk_points(
-        llm_result.get("risk_points"),
+
+        state.risk_level = get_risk_level_from_score(state.final_score)
+        state.judgement_result = build_judgement_result(state.risk_level)
+        state.reason = _build_reason(state.llm_result, state.effective_evidence)
+    else:
+        state.final_score = None
+        state.risk_level = UNKNOWN_RISK_LEVEL
+        state.judgement_result = state.assessment_reason
+        state.reason = state.assessment_reason
+    state.risk_points = _merge_risk_points(
+        state.llm_result.get("risk_points"),
         rule_result.get("hit_rules"),
     )
-    all_keywords = _merge_keywords(keywords, llm_result.get("keywords"))
-    suggestion = clean_text(
-        llm_result.get("suggestion") or "建议结合权威来源进行人工复核。",
+    state.all_keywords = _merge_keywords(
+        state.keywords,
+        state.llm_result.get("keywords"),
+    )
+    state.suggestion = clean_text(
+        state.llm_result.get("suggestion") or "建议结合权威来源进行人工复核。",
         max_length=1000,
     )
-    similar_news = _build_similar_news_from_llm(
-        candidates=evidence_list,
-        effective_evidence=effective_evidence,
-        llm_similar_news=llm_result.get("similar_news"),
+    if state.assessment_status != ASSESSMENT_COMPLETED:
+        state.suggestion = "请补充可追溯的原始来源，或在服务恢复后重新检测；不要将本次诊断分数作为真假结论。"
+    state.similar_news = _build_similar_news_from_llm(
+        candidates=state.evidence_list,
+        effective_evidence=state.effective_evidence,
+        llm_similar_news=state.llm_result.get("similar_news"),
     )
-    retrieval_index_version = (
+    state.retrieval_index_version = (
         "v2"
-        if any(evidence.get("index_version") == "v2" for evidence in evidence_list)
+        if any(
+            evidence.get("index_version") == "v2"
+            for evidence in state.evidence_list
+        )
         else "v1"
     )
-    candidate_chunk_count = sum(
-        len(evidence.get("chunks") or []) for evidence in evidence_list
+    state.candidate_chunk_count = sum(
+        len(evidence.get("chunks") or []) for evidence in state.evidence_list
     )
-    candidate_parent_count = len(
+    state.candidate_parent_count = len(
         {
             evidence.get("knowledge_id")
-            for evidence in evidence_list
+            for evidence in state.evidence_list
             if evidence.get("knowledge_id") is not None
         }
     )
-    rag_query_count = max(
-        [int(evidence.get("retrieval_query_count") or 0) for evidence in evidence_list]
+    state.rag_query_count = max(
+        [
+            int(evidence.get("retrieval_query_count") or 0)
+            for evidence in state.evidence_list
+        ]
         or [1]
     )
-    rag_query_strategy = next(
+    state.rag_query_strategy = next(
         (
             evidence.get("retrieval_query_strategy")
-            for evidence in evidence_list
+            for evidence in state.evidence_list
             if evidence.get("retrieval_query_strategy")
         ),
         "single_query",
     )
-    rag_supporting_span_count = sum(
+    state.rag_supporting_span_count = sum(
         len(chunk.get("supporting_spans") or [])
-        for evidence in evidence_list
+        for evidence in state.evidence_list
         for chunk in evidence.get("chunks") or []
     )
-    analysis_payload = {
-        "publish_time": payload.publish_time,
-        "source_name": payload.source_name,
-        "source_url": payload.source_url,
-        "web_search_enabled": payload.enable_web_search,
-        "retrieval_version": getattr(settings, "rag_index_version", "v1"),
-        "index_version": retrieval_index_version,
-        "candidate_chunk_count": candidate_chunk_count,
-        "candidate_parent_count": candidate_parent_count,
-        "rag_query_count": rag_query_count,
-        "rag_query_strategy": rag_query_strategy,
-        "rag_supporting_span_count": rag_supporting_span_count,
-        "stage_latency_ms": dict(stage_latency_ms),
-        "core_claims": core_claims,
-        "candidate_evidence_list": evidence_list,
-        "excluded_evidence": excluded_evidence,
-        "similar_news": similar_news,
-        "evidence_quality": evidence_quality,
-        "arbitration_quality": arbitration_quality_summary,
-        "arbitration_status": arbitration_status,
-        "quality_status": quality_status,
-        "arbitration_error": arbitration_error,
-        "arbitration_attempts": arbitration_attempts,
-        "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
-        "knowledge_has_relevant_match": knowledge_has_relevant_match,
-        "web_has_relevant_match": web_has_relevant_match,
+
+
+def _build_graph_execution_payload(state: DetectionAgentState) -> dict[str, Any]:
+    journal = state.runtime.get("graph_journal")
+    if not isinstance(journal, GraphExecutionJournal):
+        raise RuntimeError("detection graph execution journal is missing")
+    snapshot = journal.snapshot()
+    transitions = list(snapshot["transitions"])
+    transitions.append(
+        {"source": "persist_result", "target": END, "route": None}
+    )
+    node_runs = list(snapshot["node_runs"])
+    node_runs.append(
+        {
+            "node_id": "persist_result",
+            "status": "completed",
+            "latency_ms": None,
+            "error_type": None,
+        }
+    )
+    return {
+        "version": "1.0",
+        "graph_name": "evidence-investigation-agent",
+        "visited_nodes": snapshot["visited_nodes"],
+        "transitions": transitions,
+        "node_runs": node_runs,
     }
 
-    stage_started = time.perf_counter()
+
+def _node_persist_result(state: DetectionAgentState) -> None:
+    graph_execution = _build_graph_execution_payload(state)
+    agent_trace = build_agent_trace(
+        stage_latency_ms=state.stage_latency_ms,
+        keyword_count=len(state.all_keywords),
+        claim_count=len(state.core_claims),
+        candidate_count=len(state.evidence_list),
+        effective_evidence_count=len(state.effective_evidence),
+        excluded_evidence_count=len(state.excluded_evidence),
+        rag_query_count=state.rag_query_count,
+        web_search_requested=bool(state.payload.enable_web_search),
+        web_search_enabled=state.web_search_enabled,
+        web_search_attempted=state.web_search_attempted,
+        web_search_triggered=state.web_triggered,
+        web_search_sources=state.web_sources_count,
+        arbitration_status=state.arbitration_status,
+        arbitration_attempts=state.arbitration_attempts,
+        is_llm_degraded=state.is_llm_degraded,
+        risk_level=state.risk_level,
+        final_score=state.final_score,
+        assessment_status=state.assessment_status,
+        graph_execution=graph_execution,
+    )
+    analysis_payload = {
+        "assessment_status": state.assessment_status,
+        "assessment_reason": state.assessment_reason,
+        "publish_time": state.payload.publish_time,
+        "source_name": state.payload.source_name,
+        "source_url": state.payload.source_url,
+        "web_search_enabled": state.payload.enable_web_search,
+        "retrieval_version": getattr(state.settings, "rag_index_version", "v1"),
+        "index_version": state.retrieval_index_version,
+        "candidate_chunk_count": state.candidate_chunk_count,
+        "candidate_parent_count": state.candidate_parent_count,
+        "rag_query_count": state.rag_query_count,
+        "rag_query_strategy": state.rag_query_strategy,
+        "rag_supporting_span_count": state.rag_supporting_span_count,
+        "stage_latency_ms": dict(state.stage_latency_ms),
+        "agent_trace": agent_trace,
+        "core_claims": state.core_claims,
+        "candidate_evidence_list": state.evidence_list,
+        "excluded_evidence": state.excluded_evidence,
+        "similar_news": state.similar_news,
+        "evidence_quality": state.evidence_quality,
+        "arbitration_quality": state.arbitration_quality_summary,
+        "arbitration_status": state.arbitration_status,
+        "quality_status": state.quality_status,
+        "arbitration_error": state.arbitration_error,
+        "arbitration_attempts": state.arbitration_attempts,
+        "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
+        "knowledge_has_relevant_match": state.knowledge_has_relevant_match,
+        "web_has_relevant_match": state.web_has_relevant_match,
+    }
+
+    started_at = time.perf_counter()
     detection_record = _save_detection_record_with_tracing(
-        db,
+        state.db,
         DetectionCreate(
-            user_id=getattr(current_user, "id", None),
-            input_title=title,
-            input_content=content,
-            category=payload.category,
-            keywords=",".join(all_keywords),
-            final_score=final_score,
-            evidence_score=evidence_score,
-            llm_score=llm_score,
-            rule_score=rule_score,
-            risk_level=risk_level,
-            judgement_result=judgement_result,
-            reason=reason,
-            risk_points=risk_points,
-            suggestion=suggestion,
-            is_high_risk=should_mark_high_risk(final_score, risk_level),
+            user_id=getattr(state.current_user, "id", None),
+            input_title=state.title,
+            input_content=state.content,
+            category=state.payload.category,
+            keywords=",".join(state.all_keywords),
+            final_score=state.final_score,
+            assessment_status=state.assessment_status,
+            evidence_score=state.evidence_score,
+            llm_score=state.llm_score,
+            rule_score=state.rule_score,
+            risk_level=state.risk_level,
+            judgement_result=state.judgement_result,
+            reason=state.reason,
+            risk_points=state.risk_points,
+            suggestion=state.suggestion,
+            is_high_risk=should_mark_high_risk(
+                state.final_score,
+                state.risk_level,
+            ),
             report_url=None,
             analysis_payload=analysis_payload,
             evidence_matches=[
@@ -714,56 +848,106 @@ def detect_news_credibility(
                     "similarity_score": evidence.get("similarity_score") or 0,
                     "rank_order": evidence.get("rank_order") or index,
                 }
-                for index, evidence in enumerate(effective_evidence, start=1)
+                for index, evidence in enumerate(
+                    state.effective_evidence,
+                    start=1,
+                )
             ],
         ),
-        effective_evidence_count=len(effective_evidence),
+        effective_evidence_count=len(state.effective_evidence),
     )
-    _record_stage_latency(stage_latency_ms, "db_save", stage_started)
+    _record_stage_latency(state.stage_latency_ms, "db_save", started_at)
 
-    return {
+    state.result = {
+        "assessment_status": state.assessment_status,
+        "assessment_reason": state.assessment_reason,
         "detection_id": int(detection_record.id),
         "created_at": getattr(detection_record, "created_at", None),
-        "publish_time": payload.publish_time,
-        "source_name": payload.source_name,
-        "source_url": payload.source_url,
-        "final_score": final_score,
-        "evidence_score": evidence_score,
-        "llm_score": llm_score,
-        "rule_score": rule_score,
-        "risk_level": risk_level,
-        "judgement_result": judgement_result,
-        "reason": reason,
-        "risk_points": risk_points,
-        "keywords": all_keywords,
-        "candidate_evidence_list": evidence_list,
-        "evidence_list": effective_evidence,
-        "excluded_evidence": excluded_evidence,
-        "similar_news": similar_news,
-        "suggestion": suggestion,
-        "agent_steps": build_agent_steps(web_triggered, is_llm_degraded),
+        "publish_time": state.payload.publish_time,
+        "source_name": state.payload.source_name,
+        "source_url": state.payload.source_url,
+        "final_score": state.final_score,
+        "evidence_score": state.evidence_score,
+        "llm_score": state.llm_score,
+        "rule_score": state.rule_score,
+        "risk_level": state.risk_level,
+        "judgement_result": state.judgement_result,
+        "reason": state.reason,
+        "risk_points": state.risk_points,
+        "keywords": state.all_keywords,
+        "candidate_evidence_list": state.evidence_list,
+        "evidence_list": state.effective_evidence,
+        "excluded_evidence": state.excluded_evidence,
+        "similar_news": state.similar_news,
+        "suggestion": state.suggestion,
+        "agent_steps": build_agent_steps(
+            state.web_triggered,
+            state.is_llm_degraded,
+        ),
+        "agent_trace": agent_trace,
         "disclaimer": DISCLAIMER,
-        "web_search_triggered": web_triggered,
-        "web_search_sources": web_sources_count,
-        "retrieval_version": getattr(settings, "rag_index_version", "v1"),
-        "index_version": retrieval_index_version,
-        "candidate_chunk_count": candidate_chunk_count,
-        "candidate_parent_count": candidate_parent_count,
-        "rag_query_count": rag_query_count,
-        "rag_query_strategy": rag_query_strategy,
-        "rag_supporting_span_count": rag_supporting_span_count,
-        "stage_latency_ms": stage_latency_ms,
-        "core_claims": core_claims,
-        "evidence_quality": evidence_quality,
-        "arbitration_quality": arbitration_quality_summary,
-        "arbitration_status": arbitration_status,
-        "quality_status": quality_status,
-        "arbitration_error": arbitration_error,
-        "arbitration_attempts": arbitration_attempts,
+        "web_search_triggered": state.web_triggered,
+        "web_search_sources": state.web_sources_count,
+        "retrieval_version": getattr(state.settings, "rag_index_version", "v1"),
+        "index_version": state.retrieval_index_version,
+        "candidate_chunk_count": state.candidate_chunk_count,
+        "candidate_parent_count": state.candidate_parent_count,
+        "rag_query_count": state.rag_query_count,
+        "rag_query_strategy": state.rag_query_strategy,
+        "rag_supporting_span_count": state.rag_supporting_span_count,
+        "stage_latency_ms": state.stage_latency_ms,
+        "core_claims": state.core_claims,
+        "evidence_quality": state.evidence_quality,
+        "arbitration_quality": state.arbitration_quality_summary,
+        "arbitration_status": state.arbitration_status,
+        "quality_status": state.quality_status,
+        "arbitration_error": state.arbitration_error,
+        "arbitration_attempts": state.arbitration_attempts,
         "analysis_contract_version": ANALYSIS_CONTRACT_VERSION,
-        "knowledge_has_relevant_match": knowledge_has_relevant_match,
-        "web_has_relevant_match": web_has_relevant_match,
+        "knowledge_has_relevant_match": state.knowledge_has_relevant_match,
+        "web_has_relevant_match": state.web_has_relevant_match,
     }
+
+
+_DETECTION_AGENT_GRAPH = build_detection_agent_graph(
+    {
+        "prepare_input": _node_prepare_input,
+        "extract_claims": _node_extract_claims,
+        "retrieve_local_evidence": _node_retrieve_local_evidence,
+        "route_web_search": _node_route_web_search,
+        "search_web_evidence": _node_search_web_evidence,
+        "prepare_model_input": _node_prepare_model_input,
+        "analyze_with_model": _node_analyze_with_model,
+        "arbitrate_evidence": _node_arbitrate_evidence,
+        "retry_arbitration": _node_retry_arbitration,
+        "score_risk": _node_score_risk,
+        "persist_result": _node_persist_result,
+    }
+)
+
+
+def detect_news_credibility(
+    db: Session,
+    payload: DetectNewsRequest,
+    current_user: Any | None = None,
+) -> dict[str, Any]:
+    state = DetectionAgentState(
+        db=db,
+        payload=payload,
+        current_user=current_user,
+    )
+    journal = GraphExecutionJournal()
+    state.runtime["graph_journal"] = journal
+    _DETECTION_AGENT_GRAPH.invoke(
+        state,
+        max_steps=len(DETECTION_NODE_IDS),
+        on_node_start=journal.on_node_start,
+        on_transition=journal.on_transition,
+        on_node_run=journal.on_node_run,
+    )
+    if state.result is None:
+        raise RuntimeError("detection agent graph completed without a result")
+    return state.result
 
 
 def _save_detection_record_with_tracing(
@@ -785,7 +969,7 @@ def _validate_evidence_quality(value: Any) -> list[str]:
     if not isinstance(value, dict):
         return ["missing or invalid evidence_quality"]
 
-    errors: list[str] = []
+    errors: list[str] = list(value.get("validation_errors") or [])
     for field_name in ("coverage", "consistency", "score"):
         field_value = value.get(field_name)
         if (
@@ -927,6 +1111,9 @@ def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]
                 "publish_time": metadata.get("publish_time"),
                 "risk_level": clean_text(metadata.get("risk_level"), max_length=30),
                 "similarity_score": result.get("similarity_score"),
+                "raw_cosine_score": result.get("raw_cosine_score"),
+                "fusion_score": result.get("fusion_score"),
+                "parent_revision": metadata.get("parent_revision"),
                 "index_version": (
                     result.get("index_version")
                     or metadata.get("index_version")
@@ -958,6 +1145,8 @@ def _format_evidence_list(results: list[dict[str, Any]]) -> list[dict[str, Any]]
 
 
 def _is_llm_failure(llm_result: dict[str, Any]) -> bool:
+    if llm_result.get("analysis_status") == "invalid_response":
+        return True
     risk_level = clean_text(llm_result.get("risk_level"), max_length=50)
     if risk_level == LLM_FAILURE_RISK_LEVEL:
         return True

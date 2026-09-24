@@ -4,15 +4,24 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-WORKDIR /app
+WORKDIR /app/backend
 
 RUN groupadd --system app && useradd --system --gid app --home-dir /app app
 
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt
 
-COPY . .
+COPY backend/ .
+COPY contracts/ /app/contracts/
+COPY evaluation/__init__.py /app/evaluation/__init__.py
+COPY evaluation/ai_engineering/ /app/evaluation/ai_engineering/
+COPY scripts/ci/verify_runtime_package.py /app/verify_runtime_package.py
+
+RUN PYTHON_DOTENV_DISABLED=1 SECRET_KEY=build-smoke-secret-0123456789abcdef \
+    EMBEDDING_PROVIDER=hash WEB_SEARCH_ENABLED=false CRAWL_ENABLED=false \
+    REDIS_ENABLED=false PYROSCOPE_ENABLED=false \
+    python /app/verify_runtime_package.py
 
 RUN mkdir -p /data/chroma /data/reports \
     && chown -R app:app /app /data

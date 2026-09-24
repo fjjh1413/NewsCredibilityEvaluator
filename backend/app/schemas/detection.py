@@ -46,7 +46,8 @@ class DetectionCreate(BaseModel):
     input_content: str = Field(..., min_length=1)
     category: str | None = Field(default=None, max_length=50)
     keywords: str | None = Field(default=None, max_length=500)
-    final_score: float = Field(..., ge=0, le=100)
+    final_score: float | None = Field(..., ge=0, le=100)
+    assessment_status: Literal["completed", "insufficient_evidence", "degraded", "legacy"] = "legacy"
     evidence_score: float = Field(..., ge=0, le=100)
     llm_score: float = Field(..., ge=0, le=100)
     rule_score: float = Field(..., ge=0, le=100)
@@ -59,6 +60,15 @@ class DetectionCreate(BaseModel):
     report_url: str | None = Field(default=None, max_length=500)
     analysis_payload: dict[str, Any] = Field(default_factory=dict)
     evidence_matches: list[EvidenceMatchCreate] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def assessment_must_match_verdict(self):
+        if self.assessment_status in {"degraded", "insufficient_evidence"}:
+            if self.final_score is not None or self.risk_level != "无法判断":
+                raise ValueError("abstained assessments must have null final_score and risk_level=无法判断")
+        elif self.assessment_status == "completed" and self.final_score is None:
+            raise ValueError("completed assessment requires final_score")
+        return self
 
     @field_validator("input_title", "input_content", "risk_level", "judgement_result")
     @classmethod
@@ -83,7 +93,8 @@ class DetectionRecordOut(BaseModel):
     input_content: str
     category: str | None = None
     keywords: str | None = None
-    final_score: float
+    final_score: float | None
+    assessment_status: str = "legacy"
     evidence_score: float
     llm_score: float
     rule_score: float
@@ -122,7 +133,8 @@ class DetectionHistoryItem(BaseModel):
     id: int
     user_id: int | None = None
     input_title: str
-    final_score: float
+    final_score: float | None
+    assessment_status: str = "legacy"
     risk_level: str
     is_high_risk: bool
     report_url: str | None = None
@@ -138,11 +150,18 @@ class DetectionHistoryItem(BaseModel):
 
 
 class DetectionDetailOut(DetectionRecordOut):
+    assessment_reason: str | None = None
+    retrieval_version: str | None = None
+    index_version: str | None = None
+    candidate_chunk_count: int = 0
+    candidate_parent_count: int = 0
+    stage_latency_ms: dict[str, float] = Field(default_factory=dict)
     evidence_matches: list[EvidenceMatchOut] = Field(default_factory=list)
     candidate_evidence_list: list["DetectEvidenceItem"] = Field(default_factory=list)
     excluded_evidence: list["DetectEvidenceItem"] = Field(default_factory=list)
     similar_news: list["SimilarNewsItem"] = Field(default_factory=list)
     core_claims: list[dict[str, str]] = Field(default_factory=list)
+    agent_trace: "AgentTraceOut | None" = None
     evidence_quality: "EvidenceQualityOut | None" = None
     arbitration_quality: dict[str, Any] = Field(default_factory=dict)
     arbitration_status: str = "unavailable"
@@ -242,6 +261,9 @@ class DetectEvidenceItem(BaseModel):
     source_label: str | None = None
     risk_level: str | None = None
     similarity_score: float | None = None
+    raw_cosine_score: float | None = None
+    fusion_score: float | None = None
+    parent_revision: str | None = None
     index_version: str | None = None
     chunks: list[dict[str, Any]] = Field(default_factory=list)
     supporting_spans: list[dict[str, Any]] = Field(default_factory=list)
@@ -306,13 +328,57 @@ class EvidenceQualityOut(BaseModel):
     backend_arbitration_quality: dict[str, Any] = Field(default_factory=dict)
 
 
+class AgentTraceStageOut(BaseModel):
+    id: str
+    title: str
+    kind: Literal["reasoning", "tool", "decision", "model", "guardrail", "step"]
+    tool: str | None = None
+    status: Literal["completed", "skipped", "degraded", "failed", "pending", "running"]
+    latency_ms: float | None = Field(default=None, ge=0)
+    decision: str
+    summary: str
+    metrics: dict[str, Any] = Field(default_factory=dict)
+
+
+class AgentGraphTransitionOut(BaseModel):
+    source: str
+    target: str
+    route: str | None = None
+
+
+class AgentGraphNodeRunOut(BaseModel):
+    node_id: str
+    status: Literal["completed", "failed"]
+    latency_ms: float | None = Field(default=None, ge=0)
+    error_type: str | None = None
+
+
+class AgentGraphExecutionOut(BaseModel):
+    version: str
+    graph_name: str
+    visited_nodes: list[str] = Field(default_factory=list)
+    transitions: list[AgentGraphTransitionOut] = Field(default_factory=list)
+    node_runs: list[AgentGraphNodeRunOut] = Field(default_factory=list)
+
+
+class AgentTraceOut(BaseModel):
+    version: str
+    agent_name: str
+    status: Literal["completed", "degraded", "failed"]
+    total_latency_ms: float = Field(ge=0)
+    stages: list[AgentTraceStageOut] = Field(default_factory=list)
+    graph_execution: AgentGraphExecutionOut | None = None
+
+
 class DetectNewsResult(BaseModel):
     detection_id: int
     created_at: datetime | None = None
     publish_time: str | None = None
     source_name: str | None = None
     source_url: str | None = None
-    final_score: float
+    final_score: float | None
+    assessment_status: str = "legacy"
+    assessment_reason: str | None = None
     evidence_score: float
     llm_score: float
     rule_score: float
@@ -328,6 +394,7 @@ class DetectNewsResult(BaseModel):
     core_claims: list[dict[str, str]] = Field(default_factory=list)
     suggestion: str
     agent_steps: list[str]
+    agent_trace: AgentTraceOut | None = None
     disclaimer: str
     web_search_triggered: bool = False
     web_search_sources: int = 0
@@ -343,6 +410,11 @@ class DetectNewsResult(BaseModel):
     rag_query_count: int = 1
     rag_query_strategy: str = "single_query"
     rag_supporting_span_count: int = 0
+    retrieval_version: str | None = None
+    index_version: str | None = None
+    candidate_chunk_count: int = 0
+    candidate_parent_count: int = 0
+    stage_latency_ms: dict[str, float] = Field(default_factory=dict)
 
 
 class DetectNewsApiResponse(BaseModel):

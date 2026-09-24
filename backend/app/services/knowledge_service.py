@@ -1,4 +1,5 @@
 import logging
+import math
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -414,6 +415,10 @@ def search_similar_knowledge(
     verified_results: list[dict[str, Any]] = []
     for result in vector_results:
         metadata = result.get("metadata") or {}
+        # Both generations can coexist in one Chroma collection. A v1
+        # fallback must not re-admit v2 chunks rejected by revision checks.
+        if metadata.get("index_version") == "v2" or metadata.get("chunk_id"):
+            continue
         knowledge_id = metadata.get("knowledge_id")
         if knowledge_id is None:
             continue
@@ -421,6 +426,19 @@ def search_similar_knowledge(
         db_item = knowledge_crud.get_knowledge_item(db, int(knowledge_id))
         if db_item is None:
             continue
+        if db_item.vector_sync_status != "synced":
+            continue
+        if str(getattr(db_item, "vector_id", "") or "").endswith(":v2"):
+            continue
+
+        result = dict(result)
+        distance = result.get("distance")
+        result["raw_cosine_score"] = (
+            max(-1.0, min(1.0, 1.0 - float(distance)))
+            if isinstance(distance, (int, float)) and math.isfinite(distance)
+            else result.get("similarity_score") if distance is None else None
+        )
+        result["index_version"] = "v1"
 
         result["metadata"] = {
             "knowledge_id": int(db_item.id),
@@ -429,6 +447,8 @@ def search_similar_knowledge(
             "category": clean_text(db_item.category, max_length=50),
             "truth_label": clean_text(db_item.truth_label, max_length=30),
             "source_name": clean_text(db_item.source_name, max_length=100),
+            "source_url": clean_text(getattr(db_item, "source_url", None), max_length=500),
+            "publish_time": clean_text(getattr(db_item, "publish_time", None), max_length=50),
             "risk_level": clean_text(db_item.risk_level, max_length=30),
             "vector_sync_status": clean_text(
                 db_item.vector_sync_status,

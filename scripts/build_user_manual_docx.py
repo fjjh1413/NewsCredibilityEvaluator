@@ -12,7 +12,7 @@ from docx.shared import Cm, Inches, Pt, RGBColor
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPORT_ROOT = Path(r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告")
+REPORT_ROOT = PROJECT_ROOT / ".artifacts" / "docs"
 SCREENSHOT_ROOT = REPORT_ROOT / "使用说明书截图"
 OUTPUT_PATH = REPORT_ROOT / "《基于 RAG 与大语言模型的网络新闻真伪鉴别系统》使用说明书.docx"
 

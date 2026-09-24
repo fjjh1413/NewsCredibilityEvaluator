@@ -65,6 +65,9 @@ def search_knowledge(
                 source_name=metadata["source_name"],
                 vector_sync_status=metadata["vector_sync_status"],
                 similarity_score=result.get("similarity_score"),
+                raw_cosine_score=result.get("raw_cosine_score"),
+                fusion_score=result.get("fusion_score"),
+                parent_revision=metadata.get("parent_revision"),
                 index_version=(
                     result.get("index_version")
                     or metadata.get("index_version")

@@ -94,8 +94,11 @@ class RagApiTestCase(unittest.TestCase):
                     "risk_level": "high",
                     "vector_sync_status": "synced",
                     "index_version": "v2",
+                    "parent_revision": "current-revision",
                 },
                 "similarity_score": 0.91,
+                "raw_cosine_score": 0.91,
+                "fusion_score": 0.687,
                 "index_version": "v2",
                 "chunks": [
                     {
@@ -125,6 +128,9 @@ class RagApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         result = response.json()["data"]["results"][0]
         self.assertEqual(result["id"], 2)
+        self.assertEqual(result["raw_cosine_score"], 0.91)
+        self.assertEqual(result["fusion_score"], 0.687)
+        self.assertEqual(result["parent_revision"], "current-revision")
         self.assertEqual(result["index_version"], "v2")
         self.assertEqual(result["chunks"][0]["chunk_id"], "knowledge:2:chunk:0")
         self.assertEqual(result["score_components"]["dense_score"], 0.91)

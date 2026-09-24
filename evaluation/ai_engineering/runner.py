@@ -140,6 +140,8 @@ def main(argv: list[str] | None = None) -> int:
         gates=_load_gate_config(args.gate_config),
         k=args.k,
     )
+    summary["publication_eligible"] = bool(cases) and all(case.get("gold_eligible") is True for case in cases)
+    summary["publication_scope"] = "Regression gate only unless every case carries independently audited gold provenance; a passing fixture gate is not model accuracy."
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,12 +168,14 @@ def _csv_row_to_case(row: dict[str, Any], index: int) -> dict[str, Any]:
     relevant_ids.extend(_split_ids(row.get("relevant_chunk_ids")))
 
     success = _truthy(row.get("success"))
+    effective_ids = _split_ids(row.get("effective_evidence_ids"))
     stage_latency = {
         "parse": _float_or_none(row.get("parse_latency_ms")),
         "local_retrieval": _float_or_none(row.get("local_retrieval_latency_ms")),
         "web_search": _float_or_none(row.get("web_search_latency_ms")),
         "llm": _float_or_none(row.get("llm_latency_ms")),
         "report": _float_or_none(row.get("report_latency_ms")),
+        "db_save": _float_or_none(row.get("db_save_latency_ms")),
     }
     stage_latency = {
         key: value for key, value in stage_latency.items() if value is not None and value >= 0
@@ -182,14 +186,15 @@ def _csv_row_to_case(row: dict[str, Any], index: int) -> dict[str, Any]:
         "final_score": _float_or_none(row.get("final_score")),
         "evidence_list": [
             {"evidence_id": evidence_id, "source": "captured_csv"}
-            for evidence_id in retrieved_ids[: max(1, _int_or_zero(row.get("evidence_count")))]
+            for evidence_id in effective_ids
         ],
         "candidate_evidence_list": [
             {"evidence_id": evidence_id, "source": "captured_csv"}
             for evidence_id in retrieved_ids
         ],
-        "arbitration_status": "accepted" if success else str(row.get("error_type") or "failed"),
-        "quality_status": "ok" if success else "failed",
+        "assessment_status": str(row.get("assessment_status") or ("legacy" if success else "failed")),
+        "arbitration_status": str(row.get("arbitration_status") or ("unknown" if success else row.get("error_type") or "failed")),
+        "quality_status": str(row.get("quality_status") or ("unknown" if success else "failed")),
         "total_latency_ms": _float_or_none(row.get("total_latency_ms")),
         "stage_latency_ms": stage_latency,
     }
@@ -198,8 +203,9 @@ def _csv_row_to_case(row: dict[str, Any], index: int) -> dict[str, Any]:
 
     return {
         "case_id": sample_id,
+        "gold_eligible": _truthy(row.get("gold_eligible")),
         "expected": {
-            "risk_level": str(row.get("gold_label") or "").strip(),
+            "risk_level": str(row.get("gold_label") or "").strip() if _truthy(row.get("gold_eligible")) else "",
             "relevant_evidence_ids": relevant_ids,
         },
         "prediction": prediction,

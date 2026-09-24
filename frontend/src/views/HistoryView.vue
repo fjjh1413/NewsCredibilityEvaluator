@@ -190,6 +190,7 @@ import { useRouter } from 'vue-router'
 import { Download, Loading, Refresh, Search, View } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
 import { getDetectionHistory } from '@/api/detect'
+import { getAssessmentState } from '@/utils/assessmentState'
 import { downloadReportFile } from '@/api/report'
 import EmptyState from '@/components/EmptyState.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -345,7 +346,8 @@ function resolveHighRisk(item) {
 function normalizeRecord(item, index) {
   const id = item?.detection_id ?? item?.id ?? item?.record_id ?? item?.result_id ?? item?.report_id ?? ''
   const title = item?.input_title ?? item?.news_title ?? item?.title ?? item?.headline ?? '未命名新闻'
-  const riskLevel = item?.risk_level ?? item?.riskLevel ?? item?.risk ?? ''
+  const assessment = getAssessmentState(item)
+  const riskLevel = assessment.riskLevel
   const reportUrl = item?.report_url ?? item?.reportUrl ?? item?.pdf_url ?? item?.pdfUrl ?? ''
   const reportId = item?.report_id ?? item?.reportId ?? extractReportId(reportUrl)
 
@@ -354,7 +356,7 @@ function normalizeRecord(item, index) {
     rowKey: id || `${pagination.page}-${index}`,
     title,
     detectedAt: item?.detected_at ?? item?.detection_time ?? item?.created_at ?? item?.create_time ?? item?.updated_at ?? '',
-    finalScore: item?.final_score ?? item?.credibility_score ?? item?.score ?? item?.finalScore ?? null,
+    finalScore: assessment.score,
     riskLevel,
     isHighRisk: resolveHighRisk(item),
     reportUrl,

@@ -1,0 +1,803 @@
+{
+  "scope": "Working tree, 2026-09-19; excludes dependencies/build artifacts; test definitions are static counts, not passed cases",
+  "stats": {
+    "backend": {
+      "files": 71,
+      "definitions": 533,
+      "per_file": {
+        "backend\\tests\\test_admin_ai_engineering_api.py": 3,
+        "backend\\tests\\test_admin_operation_policies_api.py": 4,
+        "backend\\tests\\test_admin_operation_policy_service.py": 2,
+        "backend\\tests\\test_admin_prompts_api.py": 6,
+        "backend\\tests\\test_admin_reports_api.py": 10,
+        "backend\\tests\\test_admin_statistics_api.py": 7,
+        "backend\\tests\\test_admin_users_api.py": 12,
+        "backend\\tests\\test_admin_user_service.py": 8,
+        "backend\\tests\\test_agent_state_graph.py": 6,
+        "backend\\tests\\test_agent_trace.py": 4,
+        "backend\\tests\\test_agent_trace_baseline_assets.py": 2,
+        "backend\\tests\\test_ai_engineering_service.py": 2,
+        "backend\\tests\\test_auth_smoke.py": 4,
+        "backend\\tests\\test_business_timestamp_models.py": 2,
+        "backend\\tests\\test_cache_service.py": 4,
+        "backend\\tests\\test_chroma_integration.py": 1,
+        "backend\\tests\\test_chroma_service.py": 9,
+        "backend\\tests\\test_client_ip.py": 4,
+        "backend\\tests\\test_cors_config.py": 5,
+        "backend\\tests\\test_database_migrations.py": 7,
+        "backend\\tests\\test_detection_agent_graph.py": 2,
+        "backend\\tests\\test_detection_crud.py": 8,
+        "backend\\tests\\test_detection_detail_service.py": 3,
+        "backend\\tests\\test_detection_history_api.py": 11,
+        "backend\\tests\\test_detection_rag_engineering.py": 1,
+        "backend\\tests\\test_detection_rag_v2_fields.py": 1,
+        "backend\\tests\\test_detection_stage_latency.py": 1,
+        "backend\\tests\\test_detection_task_service.py": 4,
+        "backend\\tests\\test_detect_api.py": 34,
+        "backend\\tests\\test_embedding_service.py": 20,
+        "backend\\tests\\test_evidence_arbitration_quality.py": 7,
+        "backend\\tests\\test_health_api.py": 4,
+        "backend\\tests\\test_high_risk_api.py": 9,
+        "backend\\tests\\test_high_risk_service.py": 6,
+        "backend\\tests\\test_high_risk_utils.py": 5,
+        "backend\\tests\\test_knowledge_index_jobs.py": 5,
+        "backend\\tests\\test_knowledge_sync.py": 15,
+        "backend\\tests\\test_llm_service.py": 75,
+        "backend\\tests\\test_page_recognizer.py": 5,
+        "backend\\tests\\test_performance_baseline.py": 3,
+        "backend\\tests\\test_performance_indexes.py": 3,
+        "backend\\tests\\test_profiling.py": 4,
+        "backend\\tests\\test_prompt_output_contract.py": 5,
+        "backend\\tests\\test_prompt_service.py": 13,
+        "backend\\tests\\test_rag_api.py": 8,
+        "backend\\tests\\test_rag_chunker.py": 3,
+        "backend\\tests\\test_rag_config.py": 4,
+        "backend\\tests\\test_rag_engineering.py": 4,
+        "backend\\tests\\test_rag_index_audit.py": 2,
+        "backend\\tests\\test_rag_reranker.py": 3,
+        "backend\\tests\\test_rag_retrieval_v2.py": 4,
+        "backend\\tests\\test_rag_v2_hybrid_fallback.py": 1,
+        "backend\\tests\\test_rag_v2_knowledge_sync.py": 3,
+        "backend\\tests\\test_rag_vector_index.py": 4,
+        "backend\\tests\\test_rate_limit.py": 3,
+        "backend\\tests\\test_redis_client.py": 3,
+        "backend\\tests\\test_report_api.py": 5,
+        "backend\\tests\\test_report_download_response.py": 2,
+        "backend\\tests\\test_report_service.py": 20,
+        "backend\\tests\\test_risk_level_constants.py": 3,
+        "backend\\tests\\test_risk_level_utils.py": 1,
+        "backend\\tests\\test_rule_score_service.py": 5,
+        "backend\\tests\\test_secret_key_startup_validation.py": 4,
+        "backend\\tests\\test_seed_demo_data.py": 3,
+        "backend\\tests\\test_statistics_service.py": 7,
+        "backend\\tests\\test_system_logs_api.py": 5,
+        "backend\\tests\\test_system_log_events_api.py": 4,
+        "backend\\tests\\test_system_log_service.py": 5,
+        "backend\\tests\\test_text_cleaner.py": 3,
+        "backend\\tests\\test_web_content_fetcher.py": 25,
+        "backend\\tests\\test_web_search_service.py": 53
+      }
+    },
+    "evaluation": {
+      "files": 11,
+      "definitions": 131,
+      "per_file": {
+        "evaluation\\tests\\test_ai_engineering_metrics.py": 8,
+        "evaluation\\tests\\test_ai_engineering_runner.py": 6,
+        "evaluation\\tests\\test_chapter6_artifacts.py": 3,
+        "evaluation\\tests\\test_chapter6_audit.py": 5,
+        "evaluation\\tests\\test_chapter6_results.py": 3,
+        "evaluation\\tests\\test_chapter6_revision_experiments.py": 13,
+        "evaluation\\tests\\test_chapter6_word.py": 2,
+        "evaluation\\tests\\test_human_review_preparation.py": 1,
+        "evaluation\\tests\\test_metrics.py": 59,
+        "evaluation\\tests\\test_report.py": 1,
+        "evaluation\\tests\\test_runner.py": 30
+      }
+    },
+    "alert": {
+      "files": 1,
+      "definitions": 3,
+      "per_file": {
+        "deploy\\alertmanager\\test_feishu_alerts.py": 3
+      }
+    },
+    "evaluation/datasets/news_eval.csv": {
+      "rows": 80,
+      "fields": [
+        "sample_id",
+        "topic_id",
+        "title",
+        "content",
+        "url",
+        "gold_label",
+        "gold_label_source",
+        "source_dataset",
+        "source_record_ids",
+        "domain",
+        "local_kb_expected",
+        "relevant_knowledge_ids",
+        "relevant_evidence_titles",
+        "allow_web_search",
+        "reviewer_1_label",
+        "reviewer_2_label",
+        "reviewer_1_provenance",
+        "reviewer_2_provenance",
+        "human_review_status",
+        "reviewer_notes",
+        "annotation_rule",
+        "content_char_count"
+      ],
+      "gold_distribution": {
+        "可信": 20,
+        "存疑": 20,
+        "疑似谣言": 20,
+        "高风险": 20
+      },
+      "nonempty_fields": {
+        "sample_id": 80,
+        "topic_id": 80,
+        "title": 80,
+        "content": 80,
+        "url": 80,
+        "gold_label": 80,
+        "gold_label_source": 80,
+        "source_dataset": 80,
+        "source_record_ids": 80,
+        "domain": 80,
+        "local_kb_expected": 80,
+        "relevant_knowledge_ids": 80,
+        "relevant_evidence_titles": 80,
+        "allow_web_search": 80,
+        "reviewer_1_label": 80,
+        "reviewer_2_label": 80,
+        "reviewer_1_provenance": 80,
+        "reviewer_2_provenance": 80,
+        "human_review_status": 80,
+        "reviewer_notes": 80,
+        "annotation_rule": 80,
+        "content_char_count": 80
+      },
+      "firstrow": {
+        "sample_id": "NEWS-EVAL-001",
+        "topic_id": "T01",
+        "title": "芝加哥城市与人口：可信样本",
+        "content": "围绕“芝加哥城市与人口”，近期社交平台出现多种版本的文章和转述。相关内容涉及世界地理领域，部分帖子只保留结论，没有给出原始出处、统计口径或完整上下文。为避免把关键词相似度直接当成事实可信度，核验时需要同时检查陈述中的人物、地点、时间、数量和因果关系，并将文章主张与可追溯证据逐项比对。现有评测知识条目给出的核验依据是：芝加哥是美国重要的大城市之一，人口规模接近三百万。现有证据支持其城市属性与大致人口规模，但不能据此推出当地汽车和摩托车总量。该知识条目仅用于测试检索、证据引用和风险分类，不代表可以跳过联网核验或人工复核。待核验文章的核心表述为：芝加哥是美国重要的大城市之一，人口规模接近三百万。文章在人物身份、概念关系和主要事实方面与证据一致，没有额外加入相互冲突的数字、地点或因果结论。因此该样本用于测试系统能否在存在明确支持证据时输出“可信”，并返回对应知识条目和来源。",
+        "url": "https://zh.wikipedia.org/wiki/%E8%8A%9D%E5%8A%A0%E5%93%A5",
+        "gold_label": "可信",
+        "gold_label_source": "CFEVER人工共识标签+本项目四级风险映射",
+        "source_dataset": "CFEVER",
+        "source_record_ids": "462|463|465",
+        "domain": "世界地理",
+        "local_kb_expected": "true",
+        "relevant_knowledge_ids": "EVAL-KB-0001",
+        "relevant_evidence_titles": "芝加哥",
+        "allow_web_search": "true",
+        "reviewer_1_label": "可信",
+        "reviewer_2_label": "可信",
+        "reviewer_1_provenance": "CFEVER公开人工共识标签映射",
+        "reviewer_2_provenance": "独立规则复核预标注（非真人）",
+        "human_review_status": "待两名真人复核",
+        "reviewer_notes": "当前两列用于评测脚本兼容与预标注，不得宣称为两名真人独立标注。正式论文或简历指标前，须由两名真人分别覆盖reviewer_1_label和reviewer_2_label。",
+        "annotation_rule": "核心事实受证据支持，未加入冲突结论",
+        "content_char_count": "388"
+      }
+    },
+    "evaluation/datasets/knowledge_base_eval.csv": {
+      "rows": 20,
+      "fields": [
+        "knowledge_id",
+        "title",
+        "content",
+        "source_title",
+        "source_url",
+        "source_dataset",
+        "source_record_ids",
+        "domain",
+        "label_scope",
+        "is_eval_only"
+      ],
+      "gold_distribution": {
+        "null": 20
+      },
+      "nonempty_fields": {
+        "knowledge_id": 20,
+        "title": 20,
+        "content": 20,
+        "source_title": 20,
+        "source_url": 20,
+        "source_dataset": 20,
+        "source_record_ids": 20,
+        "domain": 20,
+        "label_scope": 20,
+        "is_eval_only": 20
+      },
+      "firstrow": {
+        "knowledge_id": "EVAL-KB-0001",
+        "title": "芝加哥城市与人口",
+        "content": "芝加哥是美国重要的大城市之一，人口规模接近三百万。现有证据支持其城市属性与大致人口规模，但不能据此推出当地汽车和摩托车总量。",
+        "source_title": "芝加哥",
+        "source_url": "https://zh.wikipedia.org/wiki/%E8%8A%9D%E5%8A%A0%E5%93%A5",
+        "source_dataset": "CFEVER",
+        "source_record_ids": "462|463|465",
+        "domain": "世界地理",
+        "label_scope": "用于本地RAG评测，覆盖同topic_id的四类样本",
+        "is_eval_only": "true"
+      }
+    },
+    "evaluation/datasets/news_eval_demo.csv": {
+      "rows": 3,
+      "fields": [
+        "sample_id",
+        "title",
+        "content",
+        "url",
+        "gold_label",
+        "gold_label_source",
+        "local_kb_expected",
+        "relevant_knowledge_ids",
+        "allow_web_search",
+        "reviewer_1_label",
+        "reviewer_2_label",
+        "reviewer_notes"
+      ],
+      "gold_distribution": {
+        "可信新闻": 1,
+        "存疑信息": 1,
+        "高风险谣言": 1
+      },
+      "nonempty_fields": {
+        "sample_id": 3,
+        "title": 3,
+        "content": 3,
+        "url": 3,
+        "gold_label": 3,
+        "gold_label_source": 3,
+        "local_kb_expected": 3,
+        "relevant_knowledge_ids": 0,
+        "allow_web_search": 3,
+        "reviewer_1_label": 0,
+        "reviewer_2_label": 0,
+        "reviewer_notes": 3
+      },
+      "firstrow": {
+        "sample_id": "DEMO-001",
+        "title": "今日天气晴朗适合户外活动",
+        "content": "根据气象部门发布的最新预报，今天全市天气以晴为主，气温在18到26摄氏度之间，适合户外运动和出行。市民外出时建议做好防晒措施。",
+        "url": "https://example.com/weather",
+        "gold_label": "可信新闻",
+        "gold_label_source": "DEMO标注仅供测试",
+        "local_kb_expected": "unknown",
+        "relevant_knowledge_ids": "",
+        "allow_web_search": "false",
+        "reviewer_1_label": "",
+        "reviewer_2_label": "",
+        "reviewer_notes": "DEMO样本，仅用于验证评测链路可用性"
+      }
+    }
+  },
+  "counts": {
+    "api_operations": 65,
+    "unique_paths": 57,
+    "by_module": {
+      "backend/app/api/v1/admin.py": 1,
+      "backend/app/api/v1/admin_ai_engineering.py": 1,
+      "backend/app/api/v1/admin_detections.py": 3,
+      "backend/app/api/v1/admin_high_risk.py": 5,
+      "backend/app/api/v1/admin_knowledge.py": 7,
+      "backend/app/api/v1/admin_logs.py": 1,
+      "backend/app/api/v1/admin_operation_policies.py": 1,
+      "backend/app/api/v1/admin_prompts.py": 8,
+      "backend/app/api/v1/admin_reports.py": 4,
+      "backend/app/api/v1/admin_statistics.py": 8,
+      "backend/app/api/v1/admin_users.py": 6,
+      "backend/app/api/v1/auth.py": 3,
+      "backend/app/api/v1/detect.py": 6,
+      "backend/app/api/v1/health.py": 3,
+      "backend/app/api/v1/high_risk.py": 4,
+      "backend/app/api/v1/rag.py": 2,
+      "backend/app/api/v1/report.py": 2
+    },
+    "apis": [
+      {
+        "method": "GET",
+        "path": "/api/admin/ping",
+        "file": "backend/app/api/v1/admin.py",
+        "line": 11
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/ai-engineering/summary",
+        "file": "backend/app/api/v1/admin_ai_engineering.py",
+        "line": 17
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/detections",
+        "file": "backend/app/api/v1/admin_detections.py",
+        "line": 31
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/detections/{id}",
+        "file": "backend/app/api/v1/admin_detections.py",
+        "line": 63
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/detections/{id}",
+        "file": "backend/app/api/v1/admin_detections.py",
+        "line": 83
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/high-risk",
+        "file": "backend/app/api/v1/admin_high_risk.py",
+        "line": 33
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/high-risk/{record_id}",
+        "file": "backend/app/api/v1/admin_high_risk.py",
+        "line": 69
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/high-risk/{record_id}/review",
+        "file": "backend/app/api/v1/admin_high_risk.py",
+        "line": 82
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/high-risk/{record_id}/public",
+        "file": "backend/app/api/v1/admin_high_risk.py",
+        "line": 118
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/high-risk/{record_id}/remark",
+        "file": "backend/app/api/v1/admin_high_risk.py",
+        "line": 150
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/knowledge",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 38
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/knowledge/rebuild-index",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 69
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/knowledge/{id}",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 101
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/knowledge/{id}/vectorize",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 119
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/knowledge",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 156
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/knowledge/{id}",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 183
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/knowledge/{id}",
+        "file": "backend/app/api/v1/admin_knowledge.py",
+        "line": 223
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/logs",
+        "file": "backend/app/api/v1/admin_logs.py",
+        "line": 21
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/operation-policies",
+        "file": "backend/app/api/v1/admin_operation_policies.py",
+        "line": 18
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/prompts",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 38
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/prompts/{id}",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 65
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/prompts",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 78
+      },
+      {
+        "method": "PUT",
+        "path": "/api/admin/prompts/{id}",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 106
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/prompts/{id}",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 137
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/prompts/{id}/enable",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 164
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/prompts/{id}/disable",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 192
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/prompts/{id}/set-default",
+        "file": "backend/app/api/v1/admin_prompts.py",
+        "line": 218
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/reports",
+        "file": "backend/app/api/v1/admin_reports.py",
+        "line": 29
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/reports/{report_id}",
+        "file": "backend/app/api/v1/admin_reports.py",
+        "line": 56
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/admin/reports/{report_id}",
+        "file": "backend/app/api/v1/admin_reports.py",
+        "line": 69
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/reports/{report_id}/download",
+        "file": "backend/app/api/v1/admin_reports.py",
+        "line": 95
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/overview",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 37
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/trend",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 49
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/risk-distribution",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 76
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/category-distribution",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 98
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/keywords",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 125
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/user-activity",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 152
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/knowledge-overview",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 179
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/statistics/knowledge-vector-status",
+        "file": "backend/app/api/v1/admin_statistics.py",
+        "line": 191
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 40
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/users/{user_id}/detections",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 67
+      },
+      {
+        "method": "GET",
+        "path": "/api/admin/users/{user_id}",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 96
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/users/{user_id}/enable",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 109
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/users/{user_id}/disable",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 135
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/users/{user_id}/role",
+        "file": "backend/app/api/v1/admin_users.py",
+        "line": 163
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/register",
+        "file": "backend/app/api/v1/auth.py",
+        "line": 80
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/login",
+        "file": "backend/app/api/v1/auth.py",
+        "line": 113
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "file": "backend/app/api/v1/auth.py",
+        "line": 182
+      },
+      {
+        "method": "POST",
+        "path": "/api/detect/news",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 80
+      },
+      {
+        "method": "POST",
+        "path": "/api/detect/extract-preview",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 177
+      },
+      {
+        "method": "GET",
+        "path": "/api/detect/history",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 241
+      },
+      {
+        "method": "GET",
+        "path": "/api/detect/tasks/{task_id}",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 267
+      },
+      {
+        "method": "POST",
+        "path": "/api/detect/{id}/re-evaluate",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 282
+      },
+      {
+        "method": "GET",
+        "path": "/api/detect/{id}",
+        "file": "backend/app/api/v1/detect.py",
+        "line": 370
+      },
+      {
+        "method": "GET",
+        "path": "/api/health",
+        "file": "backend/app/api/v1/health.py",
+        "line": 13
+      },
+      {
+        "method": "GET",
+        "path": "/api/metrics",
+        "file": "backend/app/api/v1/health.py",
+        "line": 26
+      },
+      {
+        "method": "GET",
+        "path": "/api/ready",
+        "file": "backend/app/api/v1/health.py",
+        "line": 31
+      },
+      {
+        "method": "GET",
+        "path": "/api/high-risk/public",
+        "file": "backend/app/api/v1/high_risk.py",
+        "line": 25
+      },
+      {
+        "method": "GET",
+        "path": "/api/high-risk/ranking",
+        "file": "backend/app/api/v1/high_risk.py",
+        "line": 56
+      },
+      {
+        "method": "GET",
+        "path": "/api/high-risk/keywords",
+        "file": "backend/app/api/v1/high_risk.py",
+        "line": 64
+      },
+      {
+        "method": "GET",
+        "path": "/api/high-risk/category-distribution",
+        "file": "backend/app/api/v1/high_risk.py",
+        "line": 72
+      },
+      {
+        "method": "POST",
+        "path": "/api/rag/search",
+        "file": "backend/app/api/v1/rag.py",
+        "line": 29
+      },
+      {
+        "method": "GET",
+        "path": "/api/rag/audit",
+        "file": "backend/app/api/v1/rag.py",
+        "line": 95
+      },
+      {
+        "method": "POST",
+        "path": "/api/report/generate/{detection_id}",
+        "file": "backend/app/api/v1/report.py",
+        "line": 24
+      },
+      {
+        "method": "GET",
+        "path": "/api/report/download/{report_id}",
+        "file": "backend/app/api/v1/report.py",
+        "line": 54
+      }
+    ],
+    "tables": [
+      {
+        "name": "crawl_tasks",
+        "file": "backend/app/models/crawl_task.py",
+        "line": 13
+      },
+      {
+        "name": "detection_records",
+        "file": "backend/app/models/detection_record.py",
+        "line": 23
+      },
+      {
+        "name": "detection_tasks",
+        "file": "backend/app/models/detection_task.py",
+        "line": 10
+      },
+      {
+        "name": "evidence_matches",
+        "file": "backend/app/models/evidence_match.py",
+        "line": 22
+      },
+      {
+        "name": "knowledge_index_jobs",
+        "file": "backend/app/models/knowledge_index_job.py",
+        "line": 10
+      },
+      {
+        "name": "knowledge_items",
+        "file": "backend/app/models/knowledge_item.py",
+        "line": 10
+      },
+      {
+        "name": "prompt_templates",
+        "file": "backend/app/models/prompt_template.py",
+        "line": 10
+      },
+      {
+        "name": "reports",
+        "file": "backend/app/models/report.py",
+        "line": 21
+      },
+      {
+        "name": "system_logs",
+        "file": "backend/app/models/system_log.py",
+        "line": 11
+      },
+      {
+        "name": "users",
+        "file": "backend/app/models/user.py",
+        "line": 7
+      }
+    ],
+    "migrations": [
+      {
+        "file": "0001_initial_schema.py",
+        "revision": "0001_initial_schema",
+        "down_revision": null
+      },
+      {
+        "file": "0002_add_high_risk_review_fields.py",
+        "revision": "0002_add_high_risk_review_fields",
+        "down_revision": "0001_initial_schema"
+      },
+      {
+        "file": "0003_add_system_logs.py",
+        "revision": "0003_add_system_logs",
+        "down_revision": "0002_add_high_risk_review_fields"
+      },
+      {
+        "file": "0004_add_business_updated_at.py",
+        "revision": "0004_add_business_updated_at",
+        "down_revision": "0003_add_system_logs"
+      },
+      {
+        "file": "0005_add_evidence_web_source.py",
+        "revision": "0005_add_evidence_web_source",
+        "down_revision": "0004_add_business_updated_at"
+      },
+      {
+        "file": "0006_create_crawl_tasks.py",
+        "revision": "0006_create_crawl_tasks",
+        "down_revision": "0005_add_evidence_web_source"
+      },
+      {
+        "file": "0007_add_detection_analysis_payload.py",
+        "revision": "0007_analysis_payload",
+        "down_revision": "0006_create_crawl_tasks"
+      },
+      {
+        "file": "0008_add_performance_indexes.py",
+        "revision": "0008_performance_indexes",
+        "down_revision": "0007_analysis_payload"
+      },
+      {
+        "file": "0009_create_detection_tasks.py",
+        "revision": "0009_detection_tasks",
+        "down_revision": "0008_performance_indexes"
+      },
+      {
+        "file": "0010_create_knowledge_index_jobs.py",
+        "revision": "0010_knowledge_index_jobs",
+        "down_revision": "0009_detection_tasks"
+      },
+      {
+        "file": "0011_extend_system_logs_audit_context.py",
+        "revision": "0011_system_log_audit_context",
+        "down_revision": "0010_knowledge_index_jobs"
+      }
+    ]
+  }
+}

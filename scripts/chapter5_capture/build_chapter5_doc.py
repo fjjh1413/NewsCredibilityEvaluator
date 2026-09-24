@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 from typing import Iterable
@@ -12,12 +13,9 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
 
-SOURCE_DOCX = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告\润色\智闻辨真_第二章需求分析优化版.docx"
-)
-OUT_ROOT = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告\第五章撰写"
-)
+ROOT = Path(__file__).resolve().parents[2]
+SOURCE_DOCX = Path(os.environ.get("CHAPTER5_SOURCE_DOCX", ROOT / ".artifacts" / "docs" / "智闻辨真_第二章需求分析优化版.docx"))
+OUT_ROOT = ROOT / ".artifacts" / "docs" / "chapter5"
 FIG_DIR = OUT_ROOT / "chapter5_figures"
 OUT_DOCX = OUT_ROOT / "智闻辨真_第五章系统详细设计与实现完成版.docx"
 NOTE_MD = OUT_ROOT / "第五章撰写说明.md"

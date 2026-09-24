@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Agent Trace v1 的确定性路径回归目录。P2 将为这些情景补充可执行输入和黄金标签。",
+  "scenarios": [
+    {
+      "id": "ATV1-001",
+      "category": "retrieval",
+      "title": "本地证据充分",
+      "setup": "本地混合检索返回多个高相关且可仲裁候选。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-002",
+      "category": "retrieval",
+      "title": "本地知识库无结果",
+      "setup": "本地检索为空，允许联网且联网返回可用来源。",
+      "expected": {"trace_status": "completed", "web_stage_status": "completed", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-003",
+      "category": "retrieval",
+      "title": "本地相似度低",
+      "setup": "本地仅有低相关候选，策略路由联网补证。",
+      "expected": {"trace_status": "completed", "web_stage_status": "completed", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-004",
+      "category": "routing",
+      "title": "用户关闭联网",
+      "setup": "用户明确禁用联网搜索，本地证据仍可进入仲裁。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-005",
+      "category": "routing",
+      "title": "系统关闭联网",
+      "setup": "用户允许联网但系统级开关关闭。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-006",
+      "category": "routing",
+      "title": "联网工具超时",
+      "setup": "路由策略调用联网工具，但提供商超时且无结果。",
+      "expected": {"trace_status": "degraded", "web_stage_status": "degraded", "arbitration_stage_status": "skipped"}
+    },
+    {
+      "id": "ATV1-007",
+      "category": "routing",
+      "title": "联网返回空结果",
+      "setup": "联网调用成功结束但没有可合并的来源。",
+      "expected": {"trace_status": "degraded", "web_stage_status": "degraded", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-008",
+      "category": "arbitration",
+      "title": "模型提供商异常",
+      "setup": "模型请求失败，系统使用保守评分降级。",
+      "expected": {"trace_status": "degraded", "web_stage_status": "skipped", "arbitration_stage_status": "degraded"}
+    },
+    {
+      "id": "ATV1-009",
+      "category": "arbitration",
+      "title": "输出契约首次缺失后恢复",
+      "setup": "第一次输出缺少证据仲裁字段，聚焦重试成功。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-010",
+      "category": "arbitration",
+      "title": "仲裁重试耗尽",
+      "setup": "首次输出和聚焦重试都不满足证据契约。",
+      "expected": {"trace_status": "degraded", "web_stage_status": "skipped", "arbitration_stage_status": "degraded"}
+    },
+    {
+      "id": "ATV1-011",
+      "category": "arbitration",
+      "title": "没有候选证据",
+      "setup": "本地与联网都没有召回候选，明确跳过仲裁。",
+      "expected": {"trace_status": "degraded", "web_stage_status": "degraded", "arbitration_stage_status": "skipped"}
+    },
+    {
+      "id": "ATV1-012",
+      "category": "arbitration",
+      "title": "候选被部分排除",
+      "setup": "部分候选与核心主张无关，仲裁保留有效证据并记录排除数。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-013",
+      "category": "scoring",
+      "title": "可信结果",
+      "setup": "多个独立来源一致支持核心主张，规则未发现高风险信号。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-014",
+      "category": "scoring",
+      "title": "高风险结果",
+      "setup": "权威证据反驳核心主张，风险评分落入高风险区间。",
+      "expected": {"trace_status": "completed", "web_stage_status": "completed", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-015",
+      "category": "scoring",
+      "title": "证据不足的存疑结果",
+      "setup": "仅有弱证据且没有直接反驳，使用保守权重输出存疑。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-016",
+      "category": "compatibility",
+      "title": "字典格式历史载荷",
+      "setup": "数据库适配器直接返回字典类型 analysis_payload。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-017",
+      "category": "compatibility",
+      "title": "旧 agent_steps 客户端",
+      "setup": "响应同时包含 agent_trace 与旧 agent_steps，旧客户端继续读取字符串步骤。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-018",
+      "category": "compatibility",
+      "title": "用户与管理员详情一致",
+      "setup": "同一记录经用户详情和管理员详情读取，恢复字段集合保持一致。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    },
+    {
+      "id": "ATV1-019",
+      "category": "compatibility",
+      "title": "损坏的历史载荷安全回退",
+      "setup": "analysis_payload 不是合法 JSON，详情接口使用模型默认值且不返回 500。",
+      "expected": {"trace_status": "absent", "web_stage_status": "absent", "arbitration_stage_status": "absent"}
+    },
+    {
+      "id": "ATV1-020",
+      "category": "compatibility",
+      "title": "轨迹不泄露敏感内容",
+      "setup": "轨迹只包含状态、计数、耗时和低敏摘要，不包含正文、密钥或完整 Prompt。",
+      "expected": {"trace_status": "completed", "web_stage_status": "skipped", "arbitration_stage_status": "completed"}
+    }
+  ]
+}

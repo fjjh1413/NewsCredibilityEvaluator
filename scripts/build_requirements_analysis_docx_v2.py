@@ -26,7 +26,7 @@ DOC_NO = "NCE-SRS-001"
 VERSION = "V1.1"
 BASELINE = "SRS-BL-2026-06-20-R1"
 DATE_TEXT = "2026 年 06 月 20 日"
-OUTPUT_DIR = Path(r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\开发管理")
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / ".artifacts" / "docs"
 OUTPUT_PATH = OUTPUT_DIR / f"02_《{PROJECT_TITLE}》{DOC_TITLE}.docx"
 
 

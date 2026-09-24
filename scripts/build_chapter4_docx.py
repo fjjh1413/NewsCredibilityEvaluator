@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -17,26 +18,34 @@ ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN = ROOT / "docs" / "thesis" / "chapter4_system_design.md"
 FIGURE_DIR = ROOT / "docs" / "thesis" / "figures" / "chapter4"
 FIGURE_MAP = ROOT / "docs" / "thesis" / "chapter4_figure_map.json"
+OUTPUT_DIR = ROOT / ".artifacts" / "docs"
 
 
 def find_source() -> Path:
+    explicit_source = os.environ.get("CHAPTER4_SOURCE_DOCX")
+    if explicit_source:
+        source = Path(explicit_source).expanduser().resolve()
+        if not source.is_file() or not zipfile.is_zipfile(source):
+            raise FileNotFoundError("CHAPTER4_SOURCE_DOCX must point to a valid DOCX file")
+        return source
     candidates = sorted(
         (
             p
-            for p in Path("E:/nan").rglob("*第3章规范修订版.docx")
+            for p in (OUTPUT_DIR / "input").glob("*第3章规范修订版.docx")
             if not p.name.startswith("~$") and zipfile.is_zipfile(p)
         ),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
     if not candidates:
-        raise FileNotFoundError("未找到第3章规范修订版论文")
+        raise FileNotFoundError("未找到第3章规范修订版论文；请放入 .artifacts/docs/input 或设置 CHAPTER4_SOURCE_DOCX")
     return candidates[0]
 
 
 def output_path(source: Path) -> Path:
     base = source.stem.replace("_第3章规范修订版", "")
-    return source.with_name(f"{base}_第4章系统总体设计完成版.docx")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    return OUTPUT_DIR / f"{base}_第4章系统总体设计完成版.docx"
 
 
 def set_run_font(run, size: float | None = None, bold: bool | None = None) -> None:
@@ -189,7 +198,7 @@ def build() -> tuple[Path, list[dict[str, object]]]:
             figures.append(
                 {
                     "placeholder": placeholder,
-                    "path": str(emf_path),
+                    "path": emf_path.relative_to(ROOT).as_posix(),
                     "ratio": ratio,
                     "number": number,
                 }
@@ -239,7 +248,7 @@ def build() -> tuple[Path, list[dict[str, object]]]:
     doc.core_properties.title = "智闻辨真：基于RAG与大语言模型的新闻可信度评估系统"
     doc.save(output)
     FIGURE_MAP.write_text(
-        json.dumps({"docx": str(output), "figures": figures}, ensure_ascii=False, indent=2),
+        json.dumps({"docx": output.relative_to(ROOT).as_posix(), "figures": figures}, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
     return output, figures

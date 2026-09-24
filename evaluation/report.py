@@ -99,6 +99,8 @@ def generate_run_metadata(
             "min_meaningful_results": config_info.get("rag_min_meaningful"),
         },
         "scoring_formula": config_info.get("scoring_formula"),
+        "dataset_publication_eligible": config_info.get("dataset_publication_eligible", False),
+        "research_only": config_info.get("research_only", True),
         "dataset_file_hash": run_args.get("dataset_hash", "not computed"),
         "web_search_enabled_global": run_args.get("allow_web_search", False),
         "sample_limit": run_args.get("sample_limit"),
@@ -144,6 +146,9 @@ def generate_evaluation_report_md(
     lines.append("# 新闻可信度评测报告")
     lines.append("")
     if metadata:
+        if not metadata.get("dataset_publication_eligible"):
+            lines.append("**发布限制：当前数据未通过本项目四级标签人工复核门禁。以下结果只用于工程诊断，不得宣称真实新闻分类准确率。**")
+            lines.append("")
         lines.append(f"**运行时间**: {metadata.get('run_date', 'N/A')}")
         lines.append(f"**Commit**: `{metadata.get('commit_hash', 'N/A')}`")
         lines.append(f"**模型**: {metadata.get('model_name', 'N/A')}")
@@ -159,6 +164,8 @@ def generate_evaluation_report_md(
     lines.append(f"| 有效样本数 | {sc.get('valid_samples', 0)} |")
     lines.append(f"| 成功数 | {sc.get('success_count', 0)} |")
     lines.append(f"| 失败数 | {sc.get('failure_count', 0)} |")
+    lines.append(f"| 无法判断数（含降级） | {sc.get('abstained_count', 0)} |")
+    lines.append(f"| 降级数 | {sc.get('degraded_count', 0)} |")
     lines.append("")
 
     gold_dist = sc.get("gold_label_distribution", {})
@@ -260,7 +267,7 @@ def generate_evaluation_report_md(
     lines.append("")
     labeled_count = clf.get("labeled_sample_count", 0)
     if labeled_count == 0:
-        lines.append("⚠️ 没有样本同时具有 `gold_label` 和 `predicted_label`，无法计算分类指标。")
+        lines.append("⚠️ 没有同时具备合格gold与预测结果的样本，无法计算分类指标；未人工复核的预标注不计入。")
         lines.append("")
     else:
         lines.append(f"有标签样本数: {labeled_count}")
@@ -268,6 +275,9 @@ def generate_evaluation_report_md(
         lines.append(f"| 指标 | 值 |")
         lines.append(f"|---|---|")
         lines.append(f"| Accuracy | {clf.get('accuracy', '-')} |")
+        lines.append(f"| 无法判断数（计入Accuracy分母） | {clf.get('abstention_count', 0)} |")
+        lines.append(f"| 判定覆盖率 | {clf.get('assessment_coverage', '-')} |")
+        lines.append(f"| 选择性准确率（仅已判定） | {clf.get('selective_accuracy', '-')} |")
         lines.append(f"| Macro Precision | {clf.get('macro_precision', '-')} |")
         lines.append(f"| Macro Recall | {clf.get('macro_recall', '-')} |")
         lines.append(f"| Macro F1 | {clf.get('macro_f1', '-')} |")
@@ -291,12 +301,13 @@ def generate_evaluation_report_md(
             lines.append("### 混淆矩阵 (行=真实, 列=预测)")
             lines.append("")
             labels = sorted(cm.keys())
-            header = "| 真实 \\ 预测 | " + " | ".join(labels) + " |"
+            predictions = sorted({label for row in cm.values() for label in row})
+            header = "| 真实 \\ 预测 | " + " | ".join(predictions) + " |"
             lines.append(header)
-            sep = "|---|" + "|".join(["---"] * len(labels)) + "|"
+            sep = "|---|" + "|".join(["---"] * len(predictions)) + "|"
             lines.append(sep)
             for g_label in labels:
-                row = " | ".join(str(cm[g_label].get(p_label, 0)) for p_label in labels)
+                row = " | ".join(str(cm[g_label].get(p_label, 0)) for p_label in predictions)
                 lines.append(f"| {g_label} | {row} |")
             lines.append("")
 

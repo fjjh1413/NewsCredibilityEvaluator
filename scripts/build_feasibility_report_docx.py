@@ -12,7 +12,7 @@ from docx.shared import Cm, Inches, Pt, RGBColor
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = Path(r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\开发管理")
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / ".artifacts" / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "01_《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》可行性研究报告.docx"
 
 ARCH_IMAGE = PROJECT_ROOT / "docs/thesis/figures/chapter4/fig4-1-system-architecture.png"
@@ -528,7 +528,7 @@ def build_chapter_1(doc: Document) -> None:
         ["[5]", "GB/T 25000.51—2016《就绪可用软件产品的质量要求和测试细则》", "现行；用于验收与测试参考", "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=4D62FDB5C72083A33B532CFBB08BB197"],
         ["[6]", "GB/T 35273—2020《信息安全技术 个人信息安全规范》", "现行；用于个人信息处理参考", "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=4568F276E0F8346EB0FBA097AA0CE05E"],
         ["[7]", "GB/T 22239—2019《信息安全技术 网络安全等级保护基本要求》", "现行；用于公开部署安全参考", "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=BAFB47E8874764186BDB7865E8344DAF"],
-        ["[8]", "项目源码、Alembic迁移、项目设计文档及代码知识图谱", "评估基线：2026-06-20", "E:/nan/NewsCredibilityEvaluator"],
+        ["[8]", "项目源码、Alembic迁移、项目设计文档及代码知识图谱", "评估基线：2026-06-20", "NewsCredibilityEvaluator/"],
         ["[9]", "《生成式人工智能服务管理暂行办法》", "公开提供生成式AI服务时的条件性合规参考", "https://www.gov.cn/zhengce/zhengceku/202307/content_6891752.htm"],
         ["[10]", "《人工智能生成合成内容标识办法》", "现行；对外提供生成合成内容时的标识参考", "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm"],
     ]

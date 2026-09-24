@@ -46,7 +46,7 @@ cd backend && python -m py_compile app/db/seed_demo_data.py app/core/config.py a
 cd frontend && npm run build
 
 # Lint git whitespace
-cd E:\nan\NewsCredibilityEvaluator && git diff --check
+git diff --check
 ```
 
 ## Architecture

@@ -173,6 +173,8 @@
         />
 
         <div v-else class="detail-content">
+          <el-alert v-if="!detailAssessment.hasVerdict" :title="detailAssessment.title"
+            :description="detailAssessment.description" type="warning" :closable="false" show-icon />
           <section class="detail-summary surface-card">
             <div>
               <span>综合评分</span>
@@ -240,7 +242,8 @@
             <EvidenceList :items="detailEvidenceList" />
           </ResultSection>
 
-          <ResultSection title="AI 分析过程" description="复用用户端 AgentSteps 展示分析链路。">
+          <ResultSection title="证据调查 Agent 轨迹" description="查看工具路由、阶段状态、耗时与低敏决策摘要。">
+            <AgentGraphPath :graph="detailAgentGraph" />
             <AgentSteps :steps="detailAgentSteps" />
           </ResultSection>
         </div>
@@ -250,6 +253,7 @@
 </template>
 
 <script setup>
+import { getAssessmentState } from '@/utils/assessmentState'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus/es/components/message/index.mjs'
 import { ElMessageBox } from 'element-plus/es/components/message-box/index.mjs'
@@ -260,6 +264,7 @@ import {
   getAdminDetections
 } from '@/api/adminDetections'
 import AgentSteps from '@/components/AgentSteps.vue'
+import AgentGraphPath from '@/components/AgentGraphPath.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import EvidenceList from '@/components/EvidenceList.vue'
 import LoadingState from '@/components/LoadingState.vue'
@@ -269,6 +274,7 @@ import RiskLevelTag from '@/components/RiskLevelTag.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
 import { RISK_LEVEL_OPTIONS } from '@/contracts/promptOutputContract'
 import { formatDateTime, formatScore } from '@/utils/format'
+import { normalizeAgentGraph, normalizeAgentTrace } from '@/utils/agentTrace'
 
 const loading = ref(false)
 const rows = ref([])
@@ -327,11 +333,12 @@ const queryParams = computed(() => {
 const detailTitle = computed(() =>
   pick(detailData.value?.input_title, detailData.value?.news_title, detailData.value?.title, '未命名检测记录')
 )
-const detailFinalScore = computed(() => pick(detailData.value?.final_score, detailData.value?.credibility_score, detailData.value?.score))
+const detailAssessment = computed(() => getAssessmentState(detailData.value || {}))
+const detailFinalScore = computed(() => detailAssessment.value.score)
 const detailEvidenceScore = computed(() => pick(detailData.value?.evidence_score, detailData.value?.retrieval_score))
-const detailLlmScore = computed(() => pick(detailData.value?.llm_score, detailData.value?.model_score))
+const detailLlmScore = computed(() => detailAssessment.value.hasVerdict ? pick(detailData.value?.llm_score, detailData.value?.model_score) : null)
 const detailRuleScore = computed(() => pick(detailData.value?.rule_score, detailData.value?.source_score))
-const detailRiskLevel = computed(() => pick(detailData.value?.risk_level, detailData.value?.riskLevel))
+const detailRiskLevel = computed(() => detailAssessment.value.riskLevel)
 const detailHighRisk = computed(() => resolveHighRisk(detailData.value || {}))
 const detailTime = computed(() =>
   pick(detailData.value?.created_at, detailData.value?.detected_at, detailData.value?.detection_time, detailData.value?.create_time)
@@ -348,7 +355,10 @@ const detailEvidenceList = computed(() =>
   getArray(detailData.value?.evidence_matches ?? detailData.value?.evidence_list ?? detailData.value?.evidenceList)
 )
 const detailAgentSteps = computed(() =>
-  getArray(detailData.value?.agent_steps ?? detailData.value?.agentSteps ?? detailData.value?.analysis_steps)
+  normalizeAgentTrace(detailData.value || {})
+)
+const detailAgentGraph = computed(() =>
+  normalizeAgentGraph(detailData.value || {})
 )
 const detailRuleTone = computed(() => {
   const level = String(detailRiskLevel.value || '')
@@ -480,14 +490,15 @@ function formatUserLabel(item) {
 
 function normalizeRecord(item, index) {
   const id = item?.id ?? item?.detection_id ?? item?.record_id ?? item?.result_id ?? ''
+  const assessment = getAssessmentState(item)
 
   return {
     id,
     rowKey: id || `${pagination.page}-${index}`,
     title: pick(item?.input_title, item?.news_title, item?.title, item?.headline, '未命名新闻'),
     userLabel: formatUserLabel(item),
-    finalScore: pick(item?.final_score, item?.credibility_score, item?.score, item?.finalScore, null),
-    riskLevel: pick(item?.risk_level, item?.riskLevel, item?.risk, ''),
+    finalScore: assessment.score,
+    riskLevel: assessment.riskLevel,
     isHighRisk: resolveHighRisk(item),
     detectedAt: pick(item?.created_at, item?.detected_at, item?.detection_time, item?.create_time, item?.updated_at),
     reportStatus: resolveReportStatus(item),

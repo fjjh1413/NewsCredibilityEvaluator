@@ -13,6 +13,7 @@ from app.services.rag.contracts import RAG_INDEX_VERSION_V2
 from app.services.rag.vector_index import (
     build_knowledge_chunk_vector_id,
     content_hash,
+    knowledge_revision_hash,
     fetch_rag_v2_parent_chunks,
 )
 from app.utils.text_cleaner import clean_text
@@ -34,6 +35,7 @@ def expected_chunk_records_for_item(item: KnowledgeItem | object) -> list[dict[s
             "chunk_index": int(chunk.chunk_index),
             "chunk_type": chunk.chunk_type,
             "content_hash": content_hash(chunk.chunk_text),
+            "parent_revision": knowledge_revision_hash(item),
         }
         for chunk in chunks
     ]
@@ -100,6 +102,8 @@ def _audit_item(item: KnowledgeItem | object) -> dict[str, Any]:
         actual_hash = _actual_content_hash(actual)
         if actual_hash != expected["content_hash"]:
             issues.append(_issue("stale_chunk", chunk_id))
+        if metadata.get("parent_revision") != expected["parent_revision"]:
+            issues.append(_issue("stale_parent_revision", chunk_id))
         if metadata.get("index_version") != RAG_INDEX_VERSION_V2:
             issues.append(
                 _issue(

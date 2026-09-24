@@ -39,13 +39,12 @@ def _payload(
 
 class PromptTemplateServiceTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        engine = create_engine("sqlite:///:memory:")
-        TestingSessionLocal = sessionmaker(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        self.engine = create_engine("sqlite:///:memory:")
+        self.addCleanup(self.engine.dispose)
+        TestingSessionLocal = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)
         self.db = TestingSessionLocal()
-
-    def tearDown(self) -> None:
-        self.db.close()
+        self.addCleanup(self.db.close)
 
     def test_same_type_keeps_only_one_default(self) -> None:
         first = create_prompt_template(

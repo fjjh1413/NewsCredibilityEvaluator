@@ -12,7 +12,7 @@ import build_feasibility_report_docx as base
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = Path(r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\开发管理")
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / ".artifacts" / "docs"
 OUTPUT_PATH = OUTPUT_DIR / "02_《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》需求分析书.docx"
 
 PROJECT_TITLE = "基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计"
@@ -474,7 +474,7 @@ def build_intro(doc: Document) -> None:
         ["[3]", "GB/T 11457—2006《信息技术 软件工程术语》", "术语依据，现行", "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=07E3E9867D23EA5A74EB525A44622E86"],
         ["[4]", "GB/T 25000.10—2016《系统与软件质量模型》", "质量属性依据，现行", "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=DB14B9415F3D51A9EF321EA62EDDE9A6"],
         ["[5]", "NCE-FS-001 可行性研究报告", "项目决策、边界和条件", "同目录01号文档"],
-        ["[6]", "项目源码、docs设计资料与codebase知识图谱", "实际需求事实基线", "E:/nan/NewsCredibilityEvaluator"],
+        ["[6]", "项目源码、docs设计资料与codebase知识图谱", "实际需求事实基线", "NewsCredibilityEvaluator/"],
     ], widths=[1.2, 5.4, 4.2, 5.7], font_size=8.0)
 
     doc.add_heading("1.6 需求表述约定", level=2)

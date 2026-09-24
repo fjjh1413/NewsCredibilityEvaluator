@@ -60,6 +60,7 @@ class RagParentCandidate:
     metadata: dict[str, Any]
     chunks: list[dict[str, Any]] = field(default_factory=list)
     dense_score: float = 0.0
+    raw_cosine_score: float | None = None
     lexical_score: float = 0.0
     exact_score: float = 0.0
     final_score: float = 0.0
@@ -73,7 +74,10 @@ class RagParentCandidate:
             "vector_id": f"knowledge:{self.knowledge_id}:v2",
             "document": "\n\n".join(chunk.get("document", "") for chunk in self.chunks),
             "metadata": self.metadata,
-            "similarity_score": self.final_score,
+            # Keep similarity compatible with v1: clipped cosine, never RRF.
+            "similarity_score": self.dense_score if self.raw_cosine_score is not None else None,
+            "raw_cosine_score": self.raw_cosine_score,
+            "fusion_score": self.final_score,
             "chunks": self.chunks,
             "index_version": RAG_INDEX_VERSION_V2,
             "score_components": {

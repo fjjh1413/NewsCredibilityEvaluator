@@ -1,5 +1,3 @@
-import json
-
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -32,6 +30,10 @@ from app.services.detection_service import (
     KnowledgeRetrievalFailedError,
     detect_news_credibility,
 )
+from app.services.detection_detail_service import (
+    read_detection_analysis_payload,
+    restore_detection_detail_payload,
+)
 from app.services.detection_task_service import (
     attach_celery_task_id,
     create_detection_task,
@@ -51,19 +53,6 @@ from app.utils.response import error_response, success_response
 
 router = APIRouter(prefix="/detect", tags=["detect"])
 detector_rate_limiter = RedisBackedRateLimiter("detect:news")
-
-
-def _read_analysis_payload(record: object) -> dict:
-    raw_analysis_payload = getattr(record, "analysis_payload", None)
-    if isinstance(raw_analysis_payload, str) and raw_analysis_payload.strip():
-        try:
-            parsed = json.loads(raw_analysis_payload)
-        except json.JSONDecodeError:
-            return {}
-        return parsed if isinstance(parsed, dict) else {}
-    if isinstance(raw_analysis_payload, dict):
-        return raw_analysis_payload
-    return {}
 
 
 async def enforce_detect_news_rate_limit(request: Request) -> None:
@@ -176,13 +165,15 @@ def detect_news(
         ip_address=get_request_ip(request),
         target_type="detection",
         target_id=result.get("detection_id"),
-        result_status="success",
+        result_status="success" if result.get("assessment_status", "completed") == "completed" else "degraded",
         metadata_json={
+            "assessment_status": result.get("assessment_status", "legacy"),
             "risk_level": result.get("risk_level"),
             "final_score": result.get("final_score"),
         },
     )
-    return success_response(message="检测完成", data=result)
+    message = "检测完成" if result.get("assessment_status", "completed") == "completed" else result.get("assessment_reason", "本次无法判断")
+    return success_response(message=message, data=result)
 
 
 @router.post(
@@ -224,7 +215,7 @@ def extract_preview(
         elif exc.status == "login_required":
             recovery_data["login_url"] = payload.url
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=error_response(
                 message=str(exc),
                 code=422,
@@ -233,13 +224,13 @@ def extract_preview(
         )
     except (SSRFBlockedError, WebContentFetchError) as exc:
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=error_response(message=str(exc), code=422),
         )
 
     if not article.get("title") or not article.get("content"):
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=error_response(
                 message="未能从该链接提取到有效的标题或正文，请检查链接或改用手动输入",
                 code=422,
@@ -315,7 +306,7 @@ def re_evaluate_detection(
             content=error_response("Detection record not found", code=404),
         )
 
-    analysis_payload = _read_analysis_payload(record)
+    analysis_payload = read_detection_analysis_payload(record)
     stored_web_search_enabled = analysis_payload.get("web_search_enabled", True)
     try:
         payload = DetectNewsRequest(
@@ -333,7 +324,7 @@ def re_evaluate_detection(
         )
     except ValidationError:
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=error_response(
                 "历史记录内容不符合当前检测要求，无法重新评估",
                 code=422,
@@ -391,31 +382,8 @@ def read_detection_detail(
             content=error_response("Detection record not found", code=404),
         )
 
-    data = DetectionDetailOut.model_validate(record).model_dump(mode="json")
-    analysis_payload = _read_analysis_payload(record)
-
-    if isinstance(analysis_payload, dict):
-        for field_name in (
-            "publish_time",
-            "source_name",
-            "source_url",
-            "candidate_evidence_list",
-            "excluded_evidence",
-            "similar_news",
-            "core_claims",
-            "evidence_quality",
-            "arbitration_quality",
-            "arbitration_status",
-            "quality_status",
-            "arbitration_error",
-            "arbitration_attempts",
-            "analysis_contract_version",
-            "knowledge_has_relevant_match",
-            "web_has_relevant_match",
-            "rag_query_count",
-            "rag_query_strategy",
-            "rag_supporting_span_count",
-        ):
-            if field_name in analysis_payload:
-                data[field_name] = analysis_payload[field_name]
+    data = restore_detection_detail_payload(
+        DetectionDetailOut.model_validate(record).model_dump(mode="json"),
+        record,
+    )
     return success_response(data=data)

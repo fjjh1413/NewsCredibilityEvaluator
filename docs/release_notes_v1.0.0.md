@@ -28,20 +28,20 @@ v1.0.0 是“智闻辨真”从课程展示型系统走向可复现、可观测�
 - 发布前应执行：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 alembic upgrade head
 ```
 
 ## 快速验证
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 python -m unittest discover -s tests -p "test_*.py"
 
-cd E:\nan\NewsCredibilityEvaluator
+# 从仓库根目录执行
 python -m unittest discover -s evaluation/tests -p "test_*.py"
 
-cd E:\nan\NewsCredibilityEvaluator\frontend
+cd frontend
 npm run build
 ```
 

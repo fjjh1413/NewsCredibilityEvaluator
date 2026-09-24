@@ -93,6 +93,7 @@ class RagIndexAuditTestCase(unittest.TestCase):
                         "chunk_index": record["chunk_index"],
                         "index_version": "v2",
                         "content_hash": record["content_hash"],
+                        "parent_revision": record["parent_revision"],
                     },
                 }
                 for record in expected_chunk_records_for_item(item)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 import time
 from pathlib import Path
@@ -10,10 +11,11 @@ from urllib.request import Request, urlopen
 
 
 BASE_URL = "http://127.0.0.1:8000/api"
-OUTPUT = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告\第五章撰写\chapter5_run.json"
-)
-DEMO_PASSWORD = "Chapter5Demo!2026"
+ROOT = Path(__file__).resolve().parents[2]
+OUTPUT = ROOT / ".artifacts" / "docs" / "chapter5" / "chapter5_run.json"
+DEMO_PASSWORD = os.environ.get("CHAPTER5_DEMO_PASSWORD", "")
+if not DEMO_PASSWORD:
+    raise RuntimeError("Set CHAPTER5_DEMO_PASSWORD before running the chapter 5 demo scripts")
 
 
 def request_json(
@@ -156,6 +158,7 @@ def main() -> None:
         "admin_stats": admin_stats,
         "admin_high_risk": high_risk,
     }
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(OUTPUT)
     print(f"detection_id={detection_id}")

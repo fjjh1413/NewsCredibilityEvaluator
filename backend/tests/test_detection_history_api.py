@@ -95,6 +95,43 @@ def _detail_record(record_id: int, user_id: int = 1):
                     }
                 ],
                 "arbitration_status": "ok",
+                "core_claims": [
+                    {
+                        "claim_id": "claim-1",
+                        "text": "示例事件已经由官方发布。",
+                    }
+                ],
+                "arbitration_quality": {
+                    "accepted_candidate_count": 1,
+                    "rejected_candidate_count": 1,
+                },
+                "rag_query_count": 3,
+                "rag_query_strategy": "claim_aware",
+                "rag_supporting_span_count": 4,
+                "agent_trace": {
+                    "version": "1.0",
+                    "agent_name": "evidence-investigation-agent",
+                    "status": "completed",
+                    "total_latency_ms": 18.0,
+                    "stages": [],
+                    "graph_execution": {
+                        "version": "1.0",
+                        "graph_name": "evidence-investigation-agent",
+                        "visited_nodes": [
+                            "route_web_search",
+                            "search_web_evidence",
+                            "persist_result",
+                        ],
+                        "transitions": [
+                            {
+                                "source": "route_web_search",
+                                "target": "search_web_evidence",
+                                "route": "search",
+                            }
+                        ],
+                        "node_runs": [],
+                    },
+                },
                 "quality_status": "ok",
                 "arbitration_attempts": 1,
                 "analysis_contract_version": "2.0",
@@ -160,6 +197,11 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()["data"]
         self.assertEqual(data["arbitration_status"], "ok")
+        self.assertEqual(data["agent_trace"]["agent_name"], "evidence-investigation-agent")
+        self.assertEqual(
+            data["agent_trace"]["graph_execution"]["transitions"][0]["route"],
+            "search",
+        )
         self.assertEqual(data["quality_status"], "ok")
         self.assertEqual(data["arbitration_attempts"], 1)
         self.assertEqual(data["analysis_contract_version"], "2.0")
@@ -270,8 +312,14 @@ class DetectionHistoryApiTestCase(unittest.TestCase):
         response = self.client.get("/api/admin/detections/2")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["data"]["id"], 2)
-        self.assertEqual(response.json()["data"]["arbitration_status"], "ok")
+        data = response.json()["data"]
+        self.assertEqual(data["id"], 2)
+        self.assertEqual(data["arbitration_status"], "ok")
+        self.assertEqual(data["core_claims"][0]["claim_id"], "claim-1")
+        self.assertEqual(data["arbitration_quality"]["accepted_candidate_count"], 1)
+        self.assertEqual(data["rag_query_count"], 3)
+        self.assertEqual(data["rag_query_strategy"], "claim_aware")
+        self.assertEqual(data["rag_supporting_span_count"], 4)
 
     @patch("app.api.v1.admin_detections.delete_detection_record")
     def test_admin_can_delete_detection(self, mocked_delete) -> None:

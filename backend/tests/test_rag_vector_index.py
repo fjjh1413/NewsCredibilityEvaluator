@@ -5,6 +5,7 @@ from unittest.mock import patch
 from app.services.rag.vector_index import (
     build_knowledge_chunk_vector_id,
     delete_knowledge_item_chunk_vectors,
+    knowledge_revision_hash,
     search_knowledge_chunk_vectors,
     upsert_knowledge_item_chunk_vectors,
 )
@@ -64,6 +65,21 @@ class FakeCollection:
 
 
 class RagVectorIndexTestCase(unittest.TestCase):
+    @patch("app.services.rag.vector_index.embed_text", return_value=[0.1, 0.2])
+    @patch("app.services.rag.vector_index._run_knowledge_collection_operation")
+    def test_raw_negative_cosine_is_preserved_and_nonfinite_distance_is_not_a_match(
+        self, mocked_operation, mocked_embedding
+    ):
+        mocked_operation.return_value = {
+            "ids": [["negative", "invalid"]], "documents": [["a", "b"]],
+            "metadatas": [[{}, {}]], "distances": [[1.4, float("nan")]],
+        }
+        results = search_knowledge_chunk_vectors("query", top_n=2)
+        self.assertAlmostEqual(results[0]["raw_cosine_score"], -0.4)
+        self.assertEqual(results[0]["similarity_score"], 0)
+        self.assertIsNone(results[1]["raw_cosine_score"])
+        self.assertIsNone(results[1]["similarity_score"])
+
     def _item(self):
         return SimpleNamespace(
             id=3,
@@ -104,6 +120,10 @@ class RagVectorIndexTestCase(unittest.TestCase):
         self.assertGreaterEqual(len(vector_ids), 3)
         self.assertEqual(len(mocked_embed_texts.call_args.args[0]), len(vector_ids))
         self.assertEqual(collection.upsert_kwargs["ids"], vector_ids)
+        self.assertEqual(
+            {m["parent_revision"] for m in collection.upsert_kwargs["metadatas"]},
+            {knowledge_revision_hash(self._item())},
+        )
         self.assertTrue(
             all(
                 metadata["index_version"] == "v2"
@@ -141,6 +161,7 @@ class RagVectorIndexTestCase(unittest.TestCase):
         self.assertEqual(results[0]["chunk_id"], "knowledge:3:chunk:0")
         self.assertEqual(results[0]["metadata"]["knowledge_id"], 3)
         self.assertEqual(results[0]["similarity_score"], 0.8)
+        self.assertEqual(results[0]["raw_cosine_score"], 0.8)
         self.assertEqual(collection.query_kwargs["n_results"], 2)
         self.assertEqual(collection.query_kwargs["where"], {"index_version": "v2"})
 

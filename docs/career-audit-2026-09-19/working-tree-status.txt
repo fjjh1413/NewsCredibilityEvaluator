@@ -1,0 +1,49 @@
+ M .github/workflows/ci.yml
+ M README.md
+ M backend/app/api/v1/admin_detections.py
+ M backend/app/api/v1/admin_prompts.py
+ M backend/app/api/v1/admin_reports.py
+ M backend/app/api/v1/admin_statistics.py
+ M backend/app/api/v1/detect.py
+ M backend/app/api/v1/report.py
+ M backend/app/main.py
+ M backend/app/schemas/detection.py
+ M backend/app/services/detection_service.py
+ M backend/tests/test_admin_user_service.py
+ M backend/tests/test_business_timestamp_models.py
+ M backend/tests/test_detect_api.py
+ M backend/tests/test_detection_crud.py
+ M backend/tests/test_detection_history_api.py
+ M backend/tests/test_detection_task_service.py
+ M backend/tests/test_performance_baseline.py
+ M backend/tests/test_prompt_service.py
+ M backend/tests/test_system_logs_api.py
+ M frontend/src/components/AgentSteps.vue
+ M frontend/src/views/ResultView.vue
+ M frontend/src/views/admin/AdminDetectionsView.vue
+ M frontend/vite.config.js
+?? .claude/
+?? backend/app/api/report_download.py
+?? backend/app/services/agent_state_graph.py
+?? backend/app/services/agent_trace.py
+?? backend/app/services/detection_agent_graph.py
+?? backend/app/services/detection_detail_service.py
+?? backend/requirements-test.txt
+?? backend/tests/test_agent_state_graph.py
+?? backend/tests/test_agent_trace.py
+?? backend/tests/test_agent_trace_baseline_assets.py
+?? backend/tests/test_detection_agent_graph.py
+?? backend/tests/test_detection_detail_service.py
+?? backend/tests/test_report_download_response.py
+?? docs/agent_trace_v1_example.json
+?? docs/career-audit-2026-09-19/
+?? docs/decisions/
+?? docs/p0_baseline_status.md
+?? docs/p0_market_interview_guide.md
+?? docs/p1_explicit_agent_state_graph_spec.md
+?? docs/portfolio_agent_upgrade_spec.md
+?? evaluation/datasets/agent_trace_v1_scenarios.json
+?? frontend/build/
+?? frontend/src/components/AgentGraphPath.vue
+?? frontend/src/utils/agentTrace.js
+?? frontend/src/utils/agentTrace.test.js

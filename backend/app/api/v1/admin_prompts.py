@@ -266,6 +266,6 @@ def _conflict(exc: Exception) -> JSONResponse:
 
 def _unprocessable(exc: Exception) -> JSONResponse:
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content=error_response(str(exc), code=422),
     )

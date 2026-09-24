@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import math
 from typing import Any
 
 from app.models.knowledge_item import KnowledgeItem
@@ -29,6 +31,24 @@ def build_knowledge_parent_vector_id(item: KnowledgeItem | object) -> str:
 
 def content_hash(text: str) -> str:
     return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
+
+
+def knowledge_revision_hash(item: KnowledgeItem | object) -> str:
+    """Fingerprint evidence-bearing fields, excluding mutable sync timestamps.
+
+    This revision travels with every chunk so readers can reject an older
+    vector generation while an asynchronous index update is still pending.
+    """
+    fields = (
+        "title", "content", "summary", "keywords", "debunking_explanation",
+        "category", "truth_label", "source_name", "source_url", "publish_time",
+        "risk_level",
+    )
+    payload = {
+        name: clean_text(getattr(item, name, None), max_length=None)
+        for name in fields
+    }
+    return content_hash(json.dumps(payload, ensure_ascii=False, sort_keys=True))
 
 
 def _combine_where_filters(*filters: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -97,6 +117,7 @@ def upsert_knowledge_item_chunk_vectors(
         {
             **chunk.to_metadata(),
             "content_hash": content_hash(chunk.chunk_text),
+            "parent_revision": knowledge_revision_hash(item),
         }
         for chunk in chunks
     ]
@@ -164,7 +185,11 @@ def search_knowledge_chunk_vectors(
     for index, vector_id in enumerate(ids):
         distance = distances[index] if index < len(distances) else None
         metadata = metadatas[index] if index < len(metadatas) else {}
-        similarity_score = None if distance is None else max(0.0, 1.0 - distance)
+        raw_cosine_score = (
+            max(-1.0, min(1.0, 1.0 - distance))
+            if isinstance(distance, (int, float)) and math.isfinite(distance) else None
+        )
+        similarity_score = None if raw_cosine_score is None else max(0.0, raw_cosine_score)
         items.append(
             {
                 "vector_id": vector_id,
@@ -173,6 +198,7 @@ def search_knowledge_chunk_vectors(
                 "metadata": metadata,
                 "distance": distance,
                 "similarity_score": similarity_score,
+                "raw_cosine_score": raw_cosine_score,
                 "index_version": RAG_INDEX_VERSION_V2,
             }
         )

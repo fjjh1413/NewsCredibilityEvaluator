@@ -36,7 +36,10 @@ class RagSearchItem(BaseModel):
     source_name: str
     vector_sync_status: str
     similarity_score: float | None = None
+    raw_cosine_score: float | None = None
+    fusion_score: float | None = None
     index_version: str | None = None
+    parent_revision: str | None = None
     chunks: list[dict[str, Any]] = Field(default_factory=list)
     score_components: dict[str, Any] = Field(default_factory=dict)
     rerank_original_rank: int | None = None

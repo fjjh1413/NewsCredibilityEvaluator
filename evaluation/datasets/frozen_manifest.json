@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "dataset_version": "cfever-claims-v1",
+  "upstream_commit": "01395ed4a7ab125c3e131c97d33d188159d9a1da",
+  "upstream_url": "https://raw.githubusercontent.com/IKMLab/CFEVER-data/01395ed4a7ab125c3e131c97d33d188159d9a1da/data/dev.jsonl",
+  "upstream_license": "Apache-2.0 (see bundled LICENSE)",
+  "purpose": "Official 3-class claim labels and page-title retrieval smoke baseline; NOT four-level news accuracy",
+  "sample_count": 120,
+  "upstream_row_count": 3000,
+  "title_corpus_count": 474,
+  "label_counts": {
+    "supports": 40,
+    "NOT ENOUGH INFO": 40,
+    "refutes": 40
+  },
+  "selection_rule": "For each upstream label, take first 40 distinct claims of >=20 characters sorted by SHA-256(source id); preserve exact text and evidence",
+  "split_counts": {
+    "train": 82,
+    "dev": 22,
+    "test": 16
+  },
+  "split_rule": "60/20/20 hash buckets of connected evidence-page/exact-claim groups; NEI grouped by domain; counts are not forced",
+  "limitations": [
+    "Upstream claims are human-created Wikipedia fact-verification statements, not a real-world news distribution.",
+    "All sources are Wikipedia; no claim of source-domain generalization.",
+    "Title-only corpus uses all annotated dev pages; this is a closed corpus baseline, not full Wikipedia retrieval.",
+    "Original upstream test split is not used and no official leaderboard comparison is valid.",
+    "Four-level labels, app knowledge/chunk relevance and two local human reviews remain absent."
+  ],
+  "files": {
+    "news_eval.csv": "f0dee19c95044f098b8cb8488c9bdd443501ae1670fa3fbc4c69930846d4b359",
+    "cfever_page_titles.jsonl": "1458423785c81399d8ef415e6fd8462fac89568369c7e77f5d30faede4b7196a",
+    "sources/cfever/dev.jsonl": "05f310633b2f1365444a9ef59a423b03d96bddb7591d4a1ccb054759fc2db98e",
+    "sources/cfever/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  }
+}

@@ -404,7 +404,7 @@ class ClassificationMetricsTests(unittest.TestCase):
         mat = cm["confusion_matrix"]
         self.assertEqual(len(mat), 4)  # 4 rows (gold labels)
         for row in mat.values():
-            self.assertEqual(len(row), 4)  # 4 cols (pred labels)
+            self.assertEqual(len(row), 5)  # 4 labels plus explicit abstention
 
     def test_class_not_in_gold_excluded_from_macro(self) -> None:
         """Classes not present in gold should not contribute to macro averages."""

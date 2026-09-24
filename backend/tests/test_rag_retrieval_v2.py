@@ -3,9 +3,19 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from app.services.rag.retrieval import search_similar_knowledge_v2
+from app.services.rag.vector_index import knowledge_revision_hash
 
 
 class RagRetrievalV2TestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.parents = {}
+        loader = patch("app.services.rag.retrieval._load_current_parents")
+        self.mocked_parents = loader.start()
+        self.mocked_parents.side_effect = lambda _db, ids: {
+            key: item for key, item in self.parents.items() if key in ids
+        }
+        self.addCleanup(loader.stop)
+
     def _settings(self) -> SimpleNamespace:
         return SimpleNamespace(
             rag_dense_top_n=50,
@@ -17,10 +27,11 @@ class RagRetrievalV2TestCase(unittest.TestCase):
             rag_rrf_rank_constant=60,
             rag_supporting_spans_enabled=True,
             rag_supporting_span_count=2,
+            rag_rule_rerank_enabled=False,
         )
 
     def _metadata(self, knowledge_id: int, title: str) -> dict:
-        return {
+        metadata = {
             "knowledge_id": knowledge_id,
             "title": title,
             "summary": f"{title} summary",
@@ -33,6 +44,10 @@ class RagRetrievalV2TestCase(unittest.TestCase):
             "vector_sync_status": "synced",
             "index_version": "v2",
         }
+        item = SimpleNamespace(id=knowledge_id, **{key: value for key, value in metadata.items() if key != "knowledge_id"})
+        self.parents[knowledge_id] = item
+        metadata["parent_revision"] = knowledge_revision_hash(item)
+        return metadata
 
     @patch("app.services.rag.retrieval.get_settings")
     @patch("app.services.rag.retrieval._search_lexical_candidates")
@@ -89,6 +104,9 @@ class RagRetrievalV2TestCase(unittest.TestCase):
         self.assertEqual(results[0]["chunks"][0]["chunk_id"], "knowledge:1:chunk:0")
         self.assertEqual(results[0]["index_version"], "v2")
         self.assertGreater(results[0]["score_components"]["dense_score"], 0.9)
+        self.assertEqual(results[0]["raw_cosine_score"], 0.91)
+        self.assertEqual(results[0]["similarity_score"], 0.91)
+        self.assertNotEqual(results[0]["fusion_score"], 0.91)
 
     @patch("app.services.rag.retrieval.get_settings")
     @patch("app.services.rag.retrieval._search_lexical_candidates")
@@ -115,6 +133,8 @@ class RagRetrievalV2TestCase(unittest.TestCase):
         self.assertEqual(results[0]["metadata"]["knowledge_id"], 2)
         self.assertEqual(results[0]["chunks"], [])
         self.assertEqual(results[0]["score_components"]["lexical_score"], 0.8)
+        self.assertIsNone(results[0]["raw_cosine_score"])
+        self.assertIsNone(results[0]["similarity_score"])
 
     @patch("app.services.rag.retrieval.get_settings")
     @patch("app.services.rag.retrieval._search_lexical_candidates")

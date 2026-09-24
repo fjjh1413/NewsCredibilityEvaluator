@@ -34,7 +34,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     environment: &backend_environment
       APP_ENV: production
       PROJECT_NAME: zhiyun-bianzhen-backend
@@ -99,7 +100,8 @@ services:
 
   worker:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     command:
       - celery
       - -A
@@ -117,11 +119,24 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    # The shared image's default healthcheck targets Uvicorn. A worker needs
+    # its own Celery probe instead of an HTTP endpoint it does not serve.
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; from app.worker import celery_app; replies = celery_app.control.ping(destination=['celery@' + socket.gethostname()], timeout=5); assert any(reply.get('celery@' + socket.gethostname(), {}).get('ok') == 'pong' for reply in replies), replies"
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         VITE_API_BASE_URL: /api
     ports:

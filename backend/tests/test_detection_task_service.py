@@ -98,6 +98,31 @@ class DetectionTaskServiceTestCase(unittest.TestCase):
             "similar_news": [],
             "suggestion": "none",
             "agent_steps": [],
+            "agent_trace": {
+                "version": "1.0",
+                "agent_name": "evidence-investigation-agent",
+                "status": "completed",
+                "total_latency_ms": 5.0,
+                "stages": [],
+                "graph_execution": {
+                    "version": "1.0",
+                    "graph_name": "evidence-investigation-agent",
+                    "visited_nodes": ["prepare_input", "persist_result"],
+                    "transitions": [
+                        {
+                            "source": "prepare_input",
+                            "target": "persist_result",
+                            "route": None,
+                        },
+                        {
+                            "source": "persist_result",
+                            "target": "__end__",
+                            "route": None,
+                        },
+                    ],
+                    "node_runs": [],
+                },
+            },
             "disclaimer": "for reference",
         }
 
@@ -122,6 +147,12 @@ class DetectionTaskServiceTestCase(unittest.TestCase):
         self.assertIsNotNone(refreshed.started_at)
         self.assertIsNotNone(refreshed.finished_at)
         self.assertIn('"detection_id": 321', refreshed.result_payload)
+        self.assertIn('"graph_name": "evidence-investigation-agent"', refreshed.result_payload)
+        serialized = serialize_detection_task(refreshed)
+        self.assertEqual(
+            serialized["result"]["agent_trace"]["graph_execution"]["visited_nodes"],
+            ["prepare_input", "persist_result"],
+        )
         mocked_detect.assert_called_once()
         self.assertEqual(mocked_detect.call_args.kwargs["current_user"].id, user_id)
 

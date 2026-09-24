@@ -9,6 +9,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.assessment import UNKNOWN_RISK_LEVEL, stored_assessment
 from app.crud.detection_crud import get_detection_record_by_id
 from app.crud.report_crud import (
     count_admin_reports,
@@ -17,11 +18,13 @@ from app.crud.report_crud import (
     get_report_by_detection_id,
     get_report_by_id,
     save_generated_report,
+    ReportCommitUncertainError,
 )
 from app.crud.user import get_user_by_id
 from app.models.detection_record import DetectionRecord
 from app.models.report import Report
 from app.schemas.detection import parse_risk_points
+from app.services.detection_detail_service import read_detection_analysis_payload
 
 
 logger = logging.getLogger(__name__)
@@ -207,6 +210,7 @@ def generate_detection_report(
         if existing_report is not None and _report_files_are_reusable(
             report_root,
             existing_report,
+            detection,
         ):
             return existing_report
 
@@ -235,6 +239,11 @@ def generate_detection_report(
             pdf_path=pdf_file.relative_to(report_root).as_posix(),
             api_prefix=settings.api_prefix,
         )
+    except ReportCommitUncertainError as exc:
+        # A lost commit acknowledgement must not remove potentially referenced files.
+        logger.exception("Report commit outcome unknown for detection %s; retained %s and %s",
+                         detection_id, html_file, pdf_file)
+        raise ReportGenerationError("报告保存状态待确认，请稍后重试；已保留生成文件。") from exc
     except ReportServiceError:
         _remove_files(html_file, pdf_file)
         raise
@@ -259,6 +268,13 @@ def get_report_pdf_for_download(
     if not report.pdf_path:
         raise ReportFileMissingError("报告尚未生成 PDF 文件")
 
+    detection = get_detection_record_by_id(db, report.detection_id)
+    if detection is not None:
+        status, _ = stored_assessment(detection, read_detection_analysis_payload(detection))
+        if (status not in {"completed", "legacy"} or detection.final_score is None) and not _report_files_are_reusable(
+            Path(get_settings().report_path), report, detection
+        ):
+            raise ReportFileMissingError("旧报告未包含最新的无法判断状态，请重新生成报告")
     pdf_file = _resolve_stored_path(Path(get_settings().report_path), report.pdf_path)
     if not pdf_file.is_file():
         raise ReportFileMissingError("PDF 报告文件不存在，请重新生成")
@@ -331,6 +347,10 @@ def _build_report_context(
     detection: DetectionRecord,
     owner: Any | None,
 ) -> dict[str, Any]:
+    assessment_status, assessment_reason = stored_assessment(
+        detection, read_detection_analysis_payload(detection)
+    )
+    has_verdict = assessment_status in {"completed", "legacy"} and detection.final_score is not None
     evidence_items = [
         {
             "rank_order": evidence.rank_order,
@@ -348,10 +368,14 @@ def _build_report_context(
         "username": getattr(owner, "username", None) or "游客/未知用户",
         "detection_time": _format_datetime(detection.created_at),
         "generated_time": _format_datetime(datetime.now()),
-        "final_score": _format_score(detection.final_score),
-        "risk_level": detection.risk_level,
-        "judgement_result": detection.judgement_result,
-        "reason": detection.reason or "未提供 AI 分析理由",
+        "final_score": _format_score(detection.final_score) if has_verdict else "无法判断",
+        "has_verdict": has_verdict,
+        "assessment_status": assessment_status,
+        "assessment_reason": assessment_reason,
+        "assessment_marker": f"assessment-v1:{assessment_status}:{has_verdict}",
+        "risk_level": detection.risk_level if has_verdict else UNKNOWN_RISK_LEVEL,
+        "judgement_result": detection.judgement_result if has_verdict else assessment_reason,
+        "reason": (detection.reason or "未提供 AI 分析理由") if has_verdict else assessment_reason,
         "risk_points": parse_risk_points(detection.risk_points),
         "keywords": _parse_keywords(detection.keywords),
         "evidence_items": evidence_items,
@@ -369,7 +393,7 @@ def _ensure_owner_or_admin(owner_id: int | None, current_user: Any) -> None:
         raise ReportAccessDeniedError("无权生成或下载该检测记录的报告")
 
 
-def _report_files_are_reusable(report_root: Path, report: Report) -> bool:
+def _report_files_are_reusable(report_root: Path, report: Report, detection: DetectionRecord | None = None) -> bool:
     if not report.html_path or not report.pdf_path:
         return False
     try:
@@ -377,7 +401,17 @@ def _report_files_are_reusable(report_root: Path, report: Report) -> bool:
         pdf_file = _resolve_stored_path(report_root, report.pdf_path)
     except ReportFileMissingError:
         return False
-    return html_file.is_file() and pdf_file.is_file()
+    if not html_file.is_file() or not pdf_file.is_file():
+        return False
+    if detection is None:
+        return True
+    status, _ = stored_assessment(detection, read_detection_analysis_payload(detection))
+    has_verdict = status in {"completed", "legacy"} and detection.final_score is not None
+    marker = f"assessment-v1:{status}:{has_verdict}"
+    try:
+        return marker in html_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return False
 
 
 def _resolve_stored_path(report_root: Path, stored_path: str) -> Path:

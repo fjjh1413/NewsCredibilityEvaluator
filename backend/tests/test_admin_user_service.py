@@ -22,13 +22,12 @@ from app.services.admin_user_service import (
 
 class AdminUserServiceTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        engine = create_engine("sqlite:///:memory:")
-        TestingSessionLocal = sessionmaker(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        self.engine = create_engine("sqlite:///:memory:")
+        self.addCleanup(self.engine.dispose)
+        TestingSessionLocal = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)
         self.db = TestingSessionLocal()
-
-    def tearDown(self) -> None:
-        self.db.close()
+        self.addCleanup(self.db.close)
 
     def test_list_supports_keyword_role_status_and_real_detection_counts(self) -> None:
         admin = self._add_user(1, "root_admin", "root@example.com", role="admin")

@@ -1,0 +1,99 @@
+{
+  "benchmark": "CFEVER title-only lexical closed-corpus baseline",
+  "dataset_version": "cfever-claims-v1",
+  "dataset_hashes": {
+    "news_eval.csv": "f0dee19c95044f098b8cb8488c9bdd443501ae1670fa3fbc4c69930846d4b359",
+    "cfever_page_titles.jsonl": "1458423785c81399d8ef415e6fd8462fac89568369c7e77f5d30faede4b7196a",
+    "sources/cfever/dev.jsonl": "05f310633b2f1365444a9ef59a423b03d96bddb7591d4a1ccb054759fc2db98e",
+    "sources/cfever/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  "python_version": "3.12.10",
+  "baseline_code_sha256": "beadf47107e0ae892f04aeeb6621413e473b4f0f7b74b1f204bf4cb25cdd2af7",
+  "algorithm": "exact title containment + character bigram title coverage; fixed before results",
+  "pipeline": "evaluation.run_title_retrieval_baseline; not production RAG",
+  "corpus_size": 474,
+  "metrics_by_split": {
+    "train": {
+      "sample_count": 82,
+      "annotated_count": 51,
+      "nei_excluded_count": 31,
+      "hit_at_k": {
+        "1": 0.7843,
+        "3": 0.9412,
+        "5": 0.9412,
+        "10": 0.9804
+      },
+      "recall_at_k": {
+        "1": 0.7353,
+        "3": 0.8922,
+        "5": 0.9118,
+        "10": 0.9281
+      },
+      "mrr": 0.8578
+    },
+    "dev": {
+      "sample_count": 22,
+      "annotated_count": 14,
+      "nei_excluded_count": 8,
+      "hit_at_k": {
+        "1": 0.7857,
+        "3": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "recall_at_k": {
+        "1": 0.75,
+        "3": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "mrr": 0.8929
+    },
+    "test": {
+      "sample_count": 16,
+      "annotated_count": 15,
+      "nei_excluded_count": 1,
+      "hit_at_k": {
+        "1": 0.6667,
+        "3": 0.9333,
+        "5": 0.9333,
+        "10": 0.9333
+      },
+      "recall_at_k": {
+        "1": 0.6667,
+        "3": 0.9,
+        "5": 0.9333,
+        "10": 0.9333
+      },
+      "mrr": 0.8
+    },
+    "all_diagnostic": {
+      "sample_count": 120,
+      "annotated_count": 80,
+      "nei_excluded_count": 40,
+      "hit_at_k": {
+        "1": 0.7625,
+        "3": 0.95,
+        "5": 0.95,
+        "10": 0.975
+      },
+      "recall_at_k": {
+        "1": 0.725,
+        "3": 0.9125,
+        "5": 0.9313,
+        "10": 0.9417
+      },
+      "mrr": 0.8531
+    }
+  },
+  "publication_scope": "Only page-title lexical retrieval on this frozen subset. No classification, full-text RAG, semantic embedding or LLM accuracy claim.",
+  "limitations": [
+    "Upstream claims are human-created Wikipedia fact-verification statements, not a real-world news distribution.",
+    "All sources are Wikipedia; no claim of source-domain generalization.",
+    "Title-only corpus uses all annotated dev pages; this is a closed corpus baseline, not full Wikipedia retrieval.",
+    "Original upstream test split is not used and no official leaderboard comparison is valid.",
+    "Four-level labels, app knowledge/chunk relevance and two local human reviews remain absent.",
+    "No simplified/traditional conversion: script/alias mismatches are expected failures.",
+    "Relevant sets union all upstream evidence groups; evidence completeness is not verified by this title metric."
+  ]
+}

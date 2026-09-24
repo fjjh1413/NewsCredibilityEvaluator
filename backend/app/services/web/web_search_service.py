@@ -4,7 +4,9 @@ Wraps the Bocha Web Search API to supplement local knowledge-base (Chroma) RAG
 results when the knowledge base lacks sufficient coverage for a news topic.
 """
 
+import copy
 import logging
+import math
 from typing import Any
 from urllib.parse import urlparse, urlunparse
 
@@ -72,11 +74,13 @@ def should_trigger_web_search(
         logger.info("Web search triggered: no RAG evidence found")
         return True
 
-    top1_score = _safe_float(rag_evidence[0].get("similarity_score"))
+    # Results may already be reranked or multi-query fused. Rank one need not
+    # have the highest cosine, and RRF/rerank scores share no cosine scale.
+    cosine_scores = [_routing_cosine_score(item) for item in rag_evidence]
+    top1_score = max(cosine_scores, default=0.0)
     # Count only results with meaningful similarity — ignore noise below MIN_SIMILARITY
     meaningful = [
-        e for e in rag_evidence
-        if _safe_float(e.get("similarity_score")) >= RAG_MIN_SIMILARITY
+        score for score in cosine_scores if score >= RAG_MIN_SIMILARITY
     ]
     meaningful_count = len(meaningful)
 
@@ -256,6 +260,7 @@ def merge_evidence(
         raw_rank = item.get("rank_order")
 
         rag_normalized.append({
+            **copy.deepcopy(item),
             "knowledge_id": knowledge_id,
             "title": clean_text(item.get("title"), max_length=255),
             "summary": clean_text(item.get("summary"), max_length=2000),
@@ -399,6 +404,10 @@ def merge_evidence(
         base_id = f"kb:{kid}" if _is_positive_int(kid) else f"kb:rag:{item['_orig_rag_idx']}"
 
         candidates.append({
+            **{
+                key: value for key, value in item.items()
+                if key not in {"rank_order", "_orig_rag_idx"}
+            },
             "candidate_id": _make_id(base_id),
             "knowledge_id": int(kid) if _is_positive_int(kid) else None,
             "title": item["title"],
@@ -438,6 +447,19 @@ def merge_evidence(
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
+
+
+def _routing_cosine_score(item: dict[str, Any]) -> float:
+    if "raw_cosine_score" in item:
+        value = item["raw_cosine_score"]
+    elif (item.get("index_version") or (item.get("metadata") or {}).get("index_version")) == "v2":
+        # Legacy v2 similarity_score held fusion scores: never reuse it here.
+        value = None
+    else:
+        value = item.get("similarity_score")  # v1 compatibility
+    score = _safe_float(value)
+    return max(-1.0, min(1.0, score)) if math.isfinite(score) else 0.0
+
 
 def _safe_float(value: Any) -> float:
     try:

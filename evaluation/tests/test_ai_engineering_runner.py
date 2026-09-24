@@ -58,6 +58,7 @@ class CsvAdapterTests(unittest.TestCase):
                 writer = csv.DictWriter(f, fieldnames=[
                     "sample_id",
                     "gold_label",
+                    "gold_eligible",
                     "predicted_label",
                     "final_score",
                     "success",
@@ -67,6 +68,7 @@ class CsvAdapterTests(unittest.TestCase):
                     "relevant_knowledge_ids",
                     "relevant_chunk_ids",
                     "evidence_count",
+                    "effective_evidence_ids",
                     "error_type",
                     "error_message",
                 ])
@@ -74,6 +76,7 @@ class CsvAdapterTests(unittest.TestCase):
                 writer.writerow({
                     "sample_id": "NEWS-EVAL-001",
                     "gold_label": "high_risk",
+                    "gold_eligible": "true",
                     "predicted_label": "high_risk",
                     "final_score": "22",
                     "success": "true",
@@ -83,6 +86,7 @@ class CsvAdapterTests(unittest.TestCase):
                     "relevant_knowledge_ids": "kb:official-denial",
                     "relevant_chunk_ids": "",
                     "evidence_count": "1",
+                    "effective_evidence_ids": "kb:official-denial",
                     "error_type": "",
                     "error_message": "",
                 })
@@ -151,6 +155,7 @@ class RunnerTests(unittest.TestCase):
                 writer = csv.DictWriter(f, fieldnames=[
                     "sample_id",
                     "gold_label",
+                    "gold_eligible",
                     "predicted_label",
                     "final_score",
                     "success",
@@ -158,11 +163,14 @@ class RunnerTests(unittest.TestCase):
                     "retrieved_knowledge_ids",
                     "relevant_knowledge_ids",
                     "evidence_count",
+                    "effective_evidence_ids",
+                    "arbitration_status",
                 ])
                 writer.writeheader()
                 writer.writerow({
                     "sample_id": "NEWS-EVAL-001",
                     "gold_label": "low_risk",
+                    "gold_eligible": "true",
                     "predicted_label": "low_risk",
                     "final_score": "90",
                     "success": "true",
@@ -170,6 +178,8 @@ class RunnerTests(unittest.TestCase):
                     "retrieved_knowledge_ids": "kb:official-source",
                     "relevant_knowledge_ids": "kb:official-source",
                     "evidence_count": "1",
+                    "effective_evidence_ids": "kb:official-source",
+                    "arbitration_status": "ok",
                 })
 
             code = main(["--results-csv", str(csv_path), "--output", str(output_path)])

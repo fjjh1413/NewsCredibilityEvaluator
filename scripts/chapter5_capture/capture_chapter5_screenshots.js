@@ -2,13 +2,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
-const outRoot = 'E:\\nan\\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\\报告\\第五章撰写';
+const outRoot = path.resolve(__dirname, '..', '..', '.artifacts', 'docs', 'chapter5');
 const figureDir = path.join(outRoot, 'chapter5_figures');
 const runFile = path.join(outRoot, 'chapter5_run.json');
 const frontendUrl = 'http://127.0.0.1:5173';
 const apiUrl = 'http://127.0.0.1:8000/api';
 const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
-const password = 'Chapter5Demo!2026';
+const password = process.env.CHAPTER5_DEMO_PASSWORD;
+if (!password) {
+  throw new Error('Set CHAPTER5_DEMO_PASSWORD before running the chapter 5 demo scripts');
+}
 
 fs.mkdirSync(figureDir, { recursive: true });
 

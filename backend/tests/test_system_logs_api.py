@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
+from sqlalchemy import DateTime, bindparam, create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -29,7 +29,6 @@ class SystemLogsApiTestCase(unittest.TestCase):
         )
         self.SessionLocal = sessionmaker(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
-        self._create_system_logs_table()
         self._seed_data()
 
         def override_db():
@@ -115,29 +114,6 @@ class SystemLogsApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 401)
 
-    def _create_system_logs_table(self) -> None:
-        with self.engine.begin() as conn:
-            conn.execute(
-                text(
-                    """
-                    CREATE TABLE IF NOT EXISTS system_logs (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER NULL,
-                        action VARCHAR(100) NOT NULL,
-                        module VARCHAR(100) NOT NULL,
-                        description TEXT NULL,
-                        ip_address VARCHAR(50) NULL,
-                        request_id VARCHAR(128) NULL,
-                        target_type VARCHAR(100) NULL,
-                        target_id VARCHAR(100) NULL,
-                        result_status VARCHAR(20) NULL,
-                        metadata_json JSON NULL,
-                        created_at DATETIME NOT NULL
-                    )
-                    """
-                )
-            )
-
     def _seed_data(self) -> None:
         with self.SessionLocal() as db:
             db.add(
@@ -167,7 +143,7 @@ class SystemLogsApiTestCase(unittest.TestCase):
                             :metadata_json, :created_at
                         )
                     """
-                ),
+                ).bindparams(bindparam("created_at", type_=DateTime())),
                 [
                     {
                         "user_id": 1,

@@ -39,8 +39,9 @@ as a secret; do not commit the real URL to git.
 ```sh
 docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
 docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend worker frontend
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend python -m app.db.migrate
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait mysql redis
+docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm --no-deps backend python -m app.db.migrate
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend python -m app.db.init_db
 ```
 

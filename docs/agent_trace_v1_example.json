@@ -1,0 +1,129 @@
+{
+  "version": "1.0",
+  "agent_name": "evidence-investigation-agent",
+  "status": "completed",
+  "total_latency_ms": 144.9,
+  "graph_execution": {
+    "version": "1.0",
+    "graph_name": "evidence-investigation-agent",
+    "visited_nodes": [
+      "prepare_input",
+      "extract_claims",
+      "retrieve_local_evidence",
+      "route_web_search",
+      "prepare_model_input",
+      "analyze_with_model",
+      "arbitrate_evidence",
+      "score_risk",
+      "persist_result"
+    ],
+    "transitions": [
+      { "source": "prepare_input", "target": "extract_claims", "route": null },
+      { "source": "extract_claims", "target": "retrieve_local_evidence", "route": null },
+      { "source": "retrieve_local_evidence", "target": "route_web_search", "route": null },
+      { "source": "route_web_search", "target": "prepare_model_input", "route": "skip" },
+      { "source": "prepare_model_input", "target": "analyze_with_model", "route": null },
+      { "source": "analyze_with_model", "target": "arbitrate_evidence", "route": null },
+      { "source": "arbitrate_evidence", "target": "score_risk", "route": "continue" },
+      { "source": "score_risk", "target": "persist_result", "route": null },
+      { "source": "persist_result", "target": "__end__", "route": null }
+    ],
+    "node_runs": [
+      { "node_id": "prepare_input", "status": "completed", "latency_ms": 0.1, "error_type": null },
+      { "node_id": "extract_claims", "status": "completed", "latency_ms": 2.5, "error_type": null },
+      { "node_id": "retrieve_local_evidence", "status": "completed", "latency_ms": 18.0, "error_type": null },
+      { "node_id": "route_web_search", "status": "completed", "latency_ms": 0.4, "error_type": null },
+      { "node_id": "prepare_model_input", "status": "completed", "latency_ms": 1.0, "error_type": null },
+      { "node_id": "analyze_with_model", "status": "completed", "latency_ms": 120.0, "error_type": null },
+      { "node_id": "arbitrate_evidence", "status": "completed", "latency_ms": 0.2, "error_type": null },
+      { "node_id": "score_risk", "status": "completed", "latency_ms": 3.0, "error_type": null },
+      { "node_id": "persist_result", "status": "completed", "latency_ms": null, "error_type": null }
+    ]
+  },
+  "stages": [
+    {
+      "id": "extract_claims",
+      "title": "提取关键词与核心主张",
+      "kind": "reasoning",
+      "tool": null,
+      "status": "completed",
+      "latency_ms": 2.5,
+      "decision": "先把长文本压缩为可检索、可逐项核验的主张。",
+      "summary": "提取 4 个关键词和 2 条核心主张。",
+      "metrics": {
+        "keyword_count": 4,
+        "claim_count": 2
+      }
+    },
+    {
+      "id": "retrieve_local_evidence",
+      "title": "检索本地证据",
+      "kind": "tool",
+      "tool": "chroma_hybrid_search",
+      "status": "completed",
+      "latency_ms": 18.0,
+      "decision": "始终先搜索本地知识库，建立低成本、可复用的证据基线。",
+      "summary": "使用 2 个查询召回 8 条候选证据。",
+      "metrics": {
+        "candidate_count": 8,
+        "query_count": 2
+      }
+    },
+    {
+      "id": "route_web_search",
+      "title": "路由联网补证",
+      "kind": "decision",
+      "tool": "bocha_web_search",
+      "status": "skipped",
+      "latency_ms": 0.4,
+      "decision": "本地证据已满足补证阈值，无需增加外部调用成本。",
+      "summary": "未调用联网搜索。",
+      "metrics": {
+        "requested": true,
+        "enabled": true,
+        "attempted": false,
+        "source_count": 0
+      }
+    },
+    {
+      "id": "load_output_contract",
+      "title": "加载输出契约",
+      "kind": "guardrail",
+      "tool": null,
+      "status": "completed",
+      "latency_ms": 1.0,
+      "decision": "在模型调用前固定结构化输出和证据引用边界。",
+      "summary": "已加载可信度分析模板与输出契约。",
+      "metrics": {}
+    },
+    {
+      "id": "analyze_and_arbitrate",
+      "title": "分析并仲裁证据",
+      "kind": "model",
+      "tool": "deepseek_structured_analysis",
+      "status": "completed",
+      "latency_ms": 120.0,
+      "decision": "模型已完成结构化分析，后端已校验证据仲裁契约。",
+      "summary": "采纳 3 条，排除 5 条；共尝试 1 次。",
+      "metrics": {
+        "attempts": 1,
+        "retry_count": 0,
+        "accepted_evidence_count": 3,
+        "excluded_evidence_count": 5
+      }
+    },
+    {
+      "id": "score_risk",
+      "title": "计算风险评分",
+      "kind": "guardrail",
+      "tool": null,
+      "status": "completed",
+      "latency_ms": 3.0,
+      "decision": "组合模型、证据质量与确定性规则；降级时使用保守权重。",
+      "summary": "最终分数 68.5，风险等级为存疑信息。",
+      "metrics": {
+        "final_score": 68.5
+      }
+    }
+  ]
+}

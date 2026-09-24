@@ -7,7 +7,7 @@
 后端不会提交真实本地配置。首次运行请复制环境变量模板：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 Copy-Item .env.example .env
 ```
 
@@ -39,7 +39,7 @@ CREATE DATABASE zhiyun_bianzhen
 安装依赖并执行 Alembic 迁移：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 pip install -r requirements.txt
 python -m app.db.migrate
 ```
@@ -57,7 +57,7 @@ python -m app.db.init_db
 执行：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 python -m app.db.seed_demo_data
 ```
 
@@ -84,7 +84,7 @@ seed 脚本会重复执行且不会无限新增重复演示数据。它会初始
 ## 4. 启动后端
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 uvicorn app.main:app --reload
 ```
 
@@ -114,14 +114,14 @@ CHROMA_PATH=<实际向量库目录>
 
 切换 embedding provider 或维度后，必须重建 Chroma 索引，避免维度不匹配或旧向量影响检索。可删除旧 `CHROMA_PATH` 后重新执行 `python -m app.db.seed_demo_data`，或用管理员账号调用 `POST /api/admin/knowledge/rebuild-index`。
 
-PDF 报告默认保存到 `REPORT_DIR`，例如 `E:\nan\NewsCredibilityEvaluator\data\reports`。
+PDF 报告默认保存到 `REPORT_DIR`，例如 `data/reports`。
 
 ## 6. 联调自检命令
 
 后端：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 python -m unittest discover -s tests -p "test_*.py"
 python -m app.db.migrate
 python -m app.db.init_db
@@ -132,7 +132,7 @@ uvicorn app.main:app --reload
 前端：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\frontend
+cd frontend
 npm install
 npm run dev
 npm run build
@@ -172,7 +172,7 @@ npm run build
 `.env`、MySQL 数据库和 seed 都准备好后，建议按下面顺序验证：
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 python -m app.db.migrate
 python -m app.db.init_db
 python -m app.db.seed_demo_data

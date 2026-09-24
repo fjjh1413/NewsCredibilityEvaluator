@@ -65,6 +65,7 @@ except ImportError:
 # imports from the evaluation package
 # ---------------------------------------------------------------------------
 from evaluation.metrics import compute_all_metrics
+from evaluation.dataset_quality import audit_dataset, gold_issues, verify_manifest
 from evaluation.report import (
     compute_file_hash,
     generate_evaluation_report_md,
@@ -121,6 +122,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         help="Logging level (default: INFO).",
     )
+    parser.add_argument("--research-only", action="store_true",
+                        help="Permit non-gold diagnostic data; do not publish classification effectiveness.")
+    parser.add_argument("--manifest", default=None,
+                        help="Frozen manifest to verify (auto-detect sibling frozen_manifest.json).")
     return parser.parse_args(argv)
 
 
@@ -247,6 +252,20 @@ def save_checkpoint(output_dir: Path, completed_ids: set[str]) -> None:
         json.dump({"completed_ids": sorted(completed_ids)}, f, ensure_ascii=False)
 
 
+def bind_run_context(output_dir: Path, context: dict[str, Any], *, resume: bool) -> None:
+    """Prevent joining old outputs across dataset/config changes or repeated runs."""
+    path = output_dir / "_run_context.json"
+    serialized = json.dumps(context, ensure_ascii=False, sort_keys=True)
+    fingerprint = hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+    has_results = per_case_file_path(output_dir).exists() or (output_dir / CHECKPOINT_FILENAME).exists()
+    if has_results:
+        if not resume:
+            raise ValueError("Output already contains results; choose a new directory or --resume.")
+        if not path.exists() or json.loads(path.read_text(encoding="utf-8")).get("fingerprint") != fingerprint:
+            raise ValueError("Resume dataset/config fingerprint does not match; choose a new output directory.")
+    path.write_text(json.dumps({"fingerprint": fingerprint, "context": context}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # per-case results
 # ═══════════════════════════════════════════════════════════════════════════
@@ -257,6 +276,12 @@ PER_CASE_HEADER = [
     "predicted_label",
     "final_score",
     "success",
+    "assessment_status",
+    "assessment_reason",
+    "arbitration_status",
+    "quality_status",
+    "gold_eligible",
+    "human_review_status",
     "error_type",
     "total_latency_ms",
     "parse_latency_ms",
@@ -264,6 +289,7 @@ PER_CASE_HEADER = [
     "web_search_latency_ms",
     "llm_latency_ms",
     "report_latency_ms",
+    "db_save_latency_ms",
     "web_search_allowed",
     "web_search_triggered",
     "web_trigger_reason",
@@ -276,6 +302,7 @@ PER_CASE_HEADER = [
     "candidate_parent_count",
     "candidate_chunk_count",
     "evidence_count",
+    "effective_evidence_ids",
     "valid_evidence_count",
     "citation_fields_complete",
     "llm_parse_fallback_used",
@@ -335,7 +362,7 @@ def append_per_case_row(output_dir: Path, row: dict[str, Any]) -> None:
 
 # Columns that store boolean values — must be coerced from CSV strings.
 _BOOL_COLUMNS = frozenset({
-    "success", "web_search_allowed", "web_search_triggered",
+    "success", "gold_eligible", "web_search_allowed", "web_search_triggered",
     "citation_fields_complete", "llm_parse_fallback_used",
     "is_demo", "is_timeout", "embedding_failed", "chroma_failed",
     "web_search_failed", "save_failed", "evidence_has_valid_url",
@@ -345,7 +372,7 @@ _BOOL_COLUMNS = frozenset({
 # Columns that store numeric values — coerced to float ("" stays as None).
 _NUMERIC_COLUMNS = frozenset({
     "total_latency_ms", "parse_latency_ms", "local_retrieval_latency_ms",
-    "web_search_latency_ms", "llm_latency_ms", "report_latency_ms",
+    "web_search_latency_ms", "llm_latency_ms", "report_latency_ms", "db_save_latency_ms",
     "final_score", "top_similarity",
 })
 
@@ -517,6 +544,15 @@ def _parse_relevant_chunk_ids(row: dict[str, Any]) -> str:
     return str(raw).strip()
 
 
+def _load_detection_runtime() -> tuple[Any, Any, Any, Any]:
+    """Lazy dependency boundary; unit tests need no real backend import state."""
+    from app.schemas.detection import DetectNewsRequest
+    from app.services.detection_service import (
+        DetectionServiceError, KnowledgeRetrievalFailedError, detect_news_credibility,
+    )
+    return DetectNewsRequest, DetectionServiceError, KnowledgeRetrievalFailedError, detect_news_credibility
+
+
 def run_single_detection(
     db: Any,
     row: dict[str, Any],
@@ -528,12 +564,7 @@ def run_single_detection(
     The result dict is **sensitive-information-free** — no API keys, tokens, or
     full user data appear in its values.
     """
-    from app.schemas.detection import DetectNewsRequest
-    from app.services.detection_service import (
-        DetectionServiceError,
-        KnowledgeRetrievalFailedError,
-        detect_news_credibility,
-    )
+    DetectNewsRequest, DetectionServiceError, KnowledgeRetrievalFailedError, detect_news_credibility = _load_detection_runtime()
 
     sample_id = str(row.get("sample_id", "")).strip()
     title = str(row.get("title", "")).strip()
@@ -554,6 +585,12 @@ def run_single_detection(
         "predicted_label": "",
         "final_score": "",
         "success": False,
+        "assessment_status": "failed",
+        "assessment_reason": "",
+        "arbitration_status": "unknown",
+        "quality_status": "unknown",
+        "gold_eligible": not gold_issues(row),
+        "human_review_status": row.get("human_review_status", "unverified"),
         "error_type": "",
         "error_message": "",
         "total_latency_ms": "",
@@ -562,6 +599,7 @@ def run_single_detection(
         "web_search_latency_ms": "",
         "llm_latency_ms": "",
         "report_latency_ms": "",
+        "db_save_latency_ms": "",
         "web_search_triggered": False,
         "web_trigger_reason": "",
         "local_candidate_count": "",
@@ -626,9 +664,11 @@ def run_single_detection(
 
             # ── populate result fields ──
             base_result["success"] = True
+            base_result["assessment_status"] = result.get("assessment_status", "legacy")
+            base_result["assessment_reason"] = result.get("assessment_reason", "")
             base_result["total_latency_ms"] = total_ms
             base_result["predicted_label"] = str(result.get("risk_level", ""))
-            base_result["final_score"] = result.get("final_score", 0)
+            base_result["final_score"] = result.get("final_score")
 
             # Per-stage latencies — our current detection_service doesn't
             # expose them individually, so we record what we can.
@@ -640,7 +680,8 @@ def run_single_detection(
             base_result["local_retrieval_latency_ms"] = stage_latency.get("rag_search", "")
             base_result["web_search_latency_ms"] = stage_latency.get("web_search", "")
             base_result["llm_latency_ms"] = stage_latency.get("llm_analysis", "")
-            base_result["report_latency_ms"] = stage_latency.get("db_save", "")
+            base_result["db_save_latency_ms"] = stage_latency.get("db_save", "")
+            base_result["report_latency_ms"] = stage_latency.get("report_generation", "")
 
             # Web search
             base_result["web_search_triggered"] = bool(result.get("web_search_triggered", False))
@@ -689,6 +730,10 @@ def run_single_detection(
             effective = result.get("evidence_list") or []
             base_result["evidence_count"] = len(effective)
             base_result["valid_evidence_count"] = len(effective)
+            base_result["effective_evidence_ids"] = ",".join(
+                str(e.get("knowledge_id") or e.get("candidate_id") or e.get("source_url") or "")
+                for e in effective if e.get("knowledge_id") or e.get("candidate_id") or e.get("source_url")
+            )
 
             # Citation fields complete: check title + summary
             fields_ok = all(
@@ -718,6 +763,9 @@ def run_single_detection(
                 result.get("arbitration_status")
                 or analysis_payload.get("arbitration_status", "")
             )
+            base_result["arbitration_status"] = arbitration_status or "unknown"
+            quality = result.get("evidence_quality") or analysis_payload.get("evidence_quality") or {}
+            base_result["quality_status"] = result.get("quality_status") or quality.get("status", "unknown")
             base_result["llm_parse_fallback_used"] = (
                 str(arbitration_status) == "unavailable"
                 and not result.get("evidence_quality")
@@ -812,6 +860,30 @@ def run_evaluation(args: argparse.Namespace) -> int:
         logger.error("Dataset is empty — nothing to evaluate.")
         return 1
 
+    manifest_path = Path(args.manifest) if getattr(args, "manifest", None) else dataset_path.parent / "frozen_manifest.json"
+    integrity_verified = False
+    if manifest_path.exists():
+        try:
+            manifest = verify_manifest(manifest_path)
+            integrity_verified = any((manifest_path.parent / relative).resolve() == dataset_path
+                                     for relative in manifest["files"])
+            if getattr(args, "manifest", None) and not integrity_verified:
+                raise ValueError("Selected dataset is not covered by the supplied manifest")
+        except ValueError as exc:
+            logger.error("Dataset integrity check failed: %s", exc)
+            return 2
+    quality_audit = audit_dataset(rows)
+    quality_audit["integrity_verified"] = integrity_verified
+    quality_audit["publication_eligible"] = quality_audit["publication_eligible"] and integrity_verified
+    (output_dir / "dataset_quality.json").write_text(json.dumps(quality_audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Fail before loading credentials, providers or database connections.
+    if not quality_audit["publication_eligible"] and not getattr(args, "research_only", False):
+        logger.error("Dataset is not four-level gold. Complete independent adjudication or use --research-only for non-publication diagnostics.")
+        return 2
+    if quality_audit["leakage_count"]:
+        logger.error("Model-visible target leakage detected; even research execution is rejected. Use quarantined data only in leakage-detector tests.")
+        return 2
+
     # Apply sample limit
     if args.sample_limit and args.sample_limit > 0:
         rows = rows[: args.sample_limit]
@@ -855,13 +927,21 @@ def run_evaluation(args: argparse.Namespace) -> int:
         "rag_top1_moderate": RAG_TOP1_MODERATE,
         "rag_min_meaningful": RAG_MIN_MEANINGFUL_RESULTS,
         "scoring_formula": (
-            "正常: llm_score×0.5 + evidence_quality_score×0.3 + rule_score×0.2; "
-            "无证据: llm_score×0.6 + rule_score×0.4; "
-            "LLM降级: rule_score"
+            "completed: llm_score×0.5 + evidence_quality_score×0.3 + rule_score×0.2; "
+            "insufficient_evidence/degraded: final_score=null, risk_level=无法判断"
         ),
+        "dataset_publication_eligible": quality_audit["publication_eligible"],
+        "research_only": bool(getattr(args, "research_only", False)),
     }
 
     dataset_hash = compute_file_hash(dataset_path)
+    try:
+        bind_run_context(output_dir, {"dataset_hash": dataset_hash, "config": config_info,
+                                     "allow_web_search": allow_web_global, "seed": args.seed,
+                                     "sample_limit": args.sample_limit, "commit": _get_commit_hash()}, resume=args.resume)
+    except ValueError as exc:
+        logger.error("Unsafe result reuse refused: %s", exc)
+        return 2
 
     # ── Initialize DB session ──
     from app.db.session import SessionLocal

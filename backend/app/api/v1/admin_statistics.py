@@ -207,7 +207,7 @@ async def read_knowledge_vector_status(
 
 def _unprocessable(exc: Exception) -> JSONResponse:
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content=error_response(str(exc), code=422),
     )
 

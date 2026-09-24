@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -12,7 +13,7 @@ from app.services.rag.contracts import RAG_INDEX_VERSION_V2, RagParentCandidate
 from app.services.rag.contextual_compression import add_supporting_spans_to_results
 from app.services.rag.fusion import normalized_rrf_score
 from app.services.rag.reranker import rerank_parent_results
-from app.services.rag.vector_index import search_knowledge_chunk_vectors
+from app.services.rag.vector_index import knowledge_revision_hash, search_knowledge_chunk_vectors
 from app.utils.text_cleaner import clean_text
 
 
@@ -24,6 +25,8 @@ def _safe_float(value: Any) -> float:
     try:
         number = float(value)
     except (TypeError, ValueError):
+        return 0.0
+    if not math.isfinite(number):
         return 0.0
     return max(0.0, min(number, 1.0))
 
@@ -41,6 +44,7 @@ def _metadata_from_item(item: KnowledgeItem) -> dict[str, Any]:
         "risk_level": clean_text(item.risk_level, max_length=30),
         "vector_sync_status": clean_text(item.vector_sync_status, max_length=20),
         "index_version": RAG_INDEX_VERSION_V2,
+        "parent_revision": knowledge_revision_hash(item),
     }
 
 
@@ -49,6 +53,57 @@ def _metadata_from_chunk_result(result: dict[str, Any]) -> dict[str, Any]:
     metadata.setdefault("index_version", RAG_INDEX_VERSION_V2)
     metadata.setdefault("vector_sync_status", "synced")
     return metadata
+
+
+def _load_current_parents(db: Session, knowledge_ids: set[int]) -> dict[int, KnowledgeItem]:
+    if not knowledge_ids:
+        return {}
+    # A batch lookup prevents both stale/deleted chunks and an N+1 DB query.
+    items = (
+        db.query(KnowledgeItem)
+        .populate_existing()
+        .filter(KnowledgeItem.id.in_(knowledge_ids))
+        .all()
+    )
+    return {int(item.id): item for item in items}
+
+
+def _verify_dense_results(
+    db: Session,
+    results: list[dict[str, Any]],
+    *,
+    category: str | None,
+    truth_label: str | None,
+    risk_level: str | None,
+) -> list[dict[str, Any]]:
+    ids = {
+        metadata["knowledge_id"]
+        for result in results
+        if isinstance((metadata := result.get("metadata")), dict)
+        and isinstance(metadata.get("knowledge_id"), int)
+        and not isinstance(metadata["knowledge_id"], bool)
+        and metadata["knowledge_id"] > 0
+    }
+    parents = _load_current_parents(db, ids)
+    verified = []
+    for result in results:
+        metadata = result.get("metadata") or {}
+        item = parents.get(metadata.get("knowledge_id"))
+        if item is None or item.vector_sync_status != "synced":
+            continue
+        # Old v2 indexes without a revision must be rebuilt. Guessing from
+        # matching IDs would expose pre-update content as current evidence.
+        if metadata.get("parent_revision") != knowledge_revision_hash(item):
+            continue
+        if any(
+            expected is not None and getattr(item, field) != expected
+            for field, expected in (
+                ("category", category), ("truth_label", truth_label), ("risk_level", risk_level)
+            )
+        ):
+            continue
+        verified.append({**result, "metadata": {**metadata, **_metadata_from_item(item)}})
+    return verified
 
 
 def _tokenize_query(query_text: str) -> list[str]:
@@ -167,7 +222,20 @@ def _add_dense_results(
         candidate = _candidate_for_metadata(candidates, metadata)
         if candidate is None:
             continue
-        score = _safe_float(result.get("similarity_score"))
+        raw_score = result.get("raw_cosine_score", result.get("similarity_score"))
+        try:
+            raw_score = float(raw_score)
+        except (TypeError, ValueError):
+            raw_score = None
+        if raw_score is not None and math.isfinite(raw_score):
+            raw_score = max(-1.0, min(raw_score, 1.0))
+            candidate.raw_cosine_score = (
+                raw_score if candidate.raw_cosine_score is None
+                else max(candidate.raw_cosine_score, raw_score)
+            )
+        else:
+            raw_score = None
+        score = _safe_float(raw_score)
         candidate.dense_score = max(candidate.dense_score, score)
         if candidate.dense_rank is None or rank < candidate.dense_rank:
             candidate.dense_rank = rank
@@ -178,6 +246,7 @@ def _add_dense_results(
                 "chunk_type": metadata.get("chunk_type"),
                 "document": result.get("document") or "",
                 "similarity_score": score,
+                "raw_cosine_score": raw_score,
             }
         )
 
@@ -294,6 +363,9 @@ def search_similar_knowledge_v2(
         category=category,
         truth_label=truth_label,
         risk_level=risk_level,
+    )
+    dense_results = _verify_dense_results(
+        db, dense_results, category=category, truth_label=truth_label, risk_level=risk_level
     )
     lexical_results = (
         _search_lexical_candidates(

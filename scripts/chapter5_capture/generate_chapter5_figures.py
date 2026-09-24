@@ -4,9 +4,8 @@ import subprocess
 from pathlib import Path
 
 
-FIGURE_DIR = Path(
-    r"E:\nan\《基于 RAG 与大语言模型的网络新闻真伪鉴别系统设计》\报告\第五章撰写\chapter5_figures"
-)
+ROOT = Path(__file__).resolve().parents[2]
+FIGURE_DIR = ROOT / ".artifacts" / "docs" / "chapter5" / "chapter5_figures"
 
 COMMON = """digraph G {
   graph [fontname="SimSun", rankdir=LR, bgcolor="white", pad="0.2", nodesep="0.45", ranksep="0.55"];

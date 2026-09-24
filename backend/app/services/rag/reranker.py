@@ -72,12 +72,11 @@ def _supporting_span_count(result: Mapping[str, Any]) -> int:
 
 
 def _rule_rerank_score(result: Mapping[str, Any]) -> float:
-    similarity = _safe_float(result.get("similarity_score"))
-    fusion_score = _score_component(
-        result,
-        "multi_query_rrf_score",
-        "rrf_score",
-        "final_score",
+    similarity = _safe_float(result.get("raw_cosine_score", result.get("similarity_score")))
+    fusion_score = (
+        _safe_float(result["fusion_score"])
+        if "fusion_score" in result
+        else _score_component(result, "multi_query_rrf_score", "rrf_score", "final_score")
     )
     query_match_count = min(_safe_int(result.get("query_match_count")), 4)
     supporting_span_count = min(_supporting_span_count(result), 4)

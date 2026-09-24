@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { configureBackendProxy } from './build/backendProxy.js'
 
 function stripInvalidVueusePureAnnotations() {
   return {
@@ -56,7 +57,8 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           target: 'http://127.0.0.1:8000',
-          changeOrigin: true
+          changeOrigin: true,
+          configure: configureBackendProxy
         }
       }
     },

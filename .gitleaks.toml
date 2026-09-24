@@ -1,0 +1,14 @@
+title = "NewsCredibilityEvaluator secret scanning"
+
+[extend]
+useDefault = true
+
+# Exact, reviewed false positives only: a UI metric identifier and a synthetic
+# credential used by the error-redaction test. Do not allowlist whole test paths.
+[[allowlists]]
+description = "Metric identifier and fixed redaction-test fixture"
+regexTarget = "secret"
+regexes = [
+  '''^total_latency_ms_p95$''',
+  '''^secretkey1234567890$''',
+]

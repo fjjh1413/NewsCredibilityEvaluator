@@ -1,0 +1,35 @@
+# Both application images build from the repository root so that contracts/
+# remains the single source shared by Python and Vite. Never send local secrets
+# or runtime data in that context.
+evaluation/*
+!evaluation/__init__.py
+!evaluation/ai_engineering/
+**/.env
+**/.env.*
+.git/
+.codex/
+.claude/
+.agents/
+.idea/
+.vscode/
+.venv*/
+venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/node_modules/
+**/dist/
+**/.vite/
+**/coverage/
+**/*.log
+.artifacts/
+.codex_work/
+backups/
+data/
+**/chroma_db/
+backend/tmp*/
+backend/tests/
+docs/
+performance/

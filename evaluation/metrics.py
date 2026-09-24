@@ -171,6 +171,9 @@ def compute_sample_counts(results: list[dict[str, Any]]) -> dict[str, Any]:
         "failure_count": len(failed),
         "gold_label_distribution": dict(gold_labels),
         "predicted_label_distribution": dict(predicted_labels),
+        "assessment_status_counts": dict(Counter(r.get("assessment_status") or "legacy" for r in valid)),
+        "abstained_count": sum(r.get("assessment_status") in {"insufficient_evidence", "degraded"} for r in valid),
+        "degraded_count": sum(r.get("assessment_status") == "degraded" for r in valid),
     }
 
 
@@ -202,6 +205,7 @@ def compute_latency_stats(results: list[dict[str, Any]]) -> dict[str, Any]:
         "web_search_latency_ms": [],
         "llm_latency_ms": [],
         "report_latency_ms": [],
+        "db_save_latency_ms": [],
     }
 
     for r in success:
@@ -424,7 +428,9 @@ def compute_classification_metrics(
         if not r.get("is_demo", False)
         and r.get("success")
         and r.get("gold_label") in ALL_RISK_LEVELS
-        and r.get("predicted_label") in ALL_RISK_LEVELS
+        and r.get("gold_eligible", True) is True
+        and (r.get("predicted_label") in ALL_RISK_LEVELS
+             or r.get("assessment_status") in {"insufficient_evidence", "degraded"})
     ]
 
     if not labeled:
@@ -440,7 +446,8 @@ def compute_classification_metrics(
         }
 
     golds = [r["gold_label"] for r in labeled]
-    preds = [r["predicted_label"] for r in labeled]
+    preds = ["无法判断" if r.get("assessment_status") in {"insufficient_evidence", "degraded"}
+             else r["predicted_label"] for r in labeled]
 
     # Accuracy
     correct = sum(1 for g, p in zip(golds, preds) if g == p)
@@ -482,13 +489,17 @@ def compute_classification_metrics(
     # Confusion matrix (gold (rows) × pred (cols))
     confusion: dict[str, dict[str, int]] = {}
     for g_label in ALL_RISK_LEVELS:
-        confusion[g_label] = {p_label: 0 for p_label in ALL_RISK_LEVELS}
+        confusion[g_label] = {p_label: 0 for p_label in (*ALL_RISK_LEVELS, "无法判断")}
     for g, p in zip(golds, preds):
         confusion[g][p] += 1
 
     return {
         "labeled_sample_count": len(labeled),
         "accuracy": accuracy,
+        "accuracy_denominator_includes_abstentions": True,
+        "abstention_count": sum(p == "无法判断" for p in preds),
+        "assessment_coverage": round(sum(p != "无法判断" for p in preds) / len(preds), 4),
+        "selective_accuracy": round(correct / sum(p != "无法判断" for p in preds), 4) if any(p != "无法判断" for p in preds) else None,
         "macro_precision": macro_precision,
         "macro_recall": macro_recall,
         "macro_f1": macro_f1,
@@ -512,6 +523,7 @@ def compute_inter_rater_agreement(
     dual = [
         r for r in results
         if not r.get("is_demo", False)
+        and r.get("human_review_status", "adjudicated") == "adjudicated"
         and r.get("reviewer_1_label") in ALL_RISK_LEVELS
         and r.get("reviewer_2_label") in ALL_RISK_LEVELS
     ]

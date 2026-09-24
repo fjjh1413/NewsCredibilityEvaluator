@@ -49,8 +49,9 @@ jobs:
             git fetch --all --tags
             git checkout '$DEPLOY_REF'
             docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend frontend
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend python -m app.db.migrate
-            curl -fsS https://\$DOMAIN/api/ready
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend worker frontend
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait mysql redis
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm --no-deps backend python -m app.db.migrate
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T backend python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/api/ready\", timeout=10).read()'
           "

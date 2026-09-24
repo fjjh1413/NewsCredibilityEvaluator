@@ -21,9 +21,18 @@ At minimum, set strong values for:
 
 ## 2. Build And Start
 
+Run these commands from the repository root. Both Dockerfiles use the root
+build context to copy the same `contracts/prompt_output_contract.json`; building
+from `backend/` or `frontend/` alone is not supported. The backend also includes
+the `evaluation.ai_engineering` runtime reader imported by the admin dashboard.
+The backend image runs an offline import/contract smoke check during its build. Root `.dockerignore`
+excludes local environment files, credentials, virtual environments and data.
+
 ```powershell
 docker compose build backend worker frontend
-docker compose up -d mysql redis backend worker frontend
+docker compose up -d --wait mysql redis
+docker compose run --rm --no-deps backend python -m app.db.migrate
+docker compose up -d --wait backend worker frontend
 ```
 
 The frontend is published at:
@@ -34,10 +43,12 @@ http://127.0.0.1:8080
 
 ## 3. Initialize Database
 
-Run migrations once after the database is healthy:
+The startup sequence above applies migrations before starting application
+processes. For subsequent releases, rebuild both backend and worker and run the
+same migration step before restarting them:
 
 ```powershell
-docker compose exec -T backend python -m app.db.migrate
+docker compose run --rm --no-deps backend python -m app.db.migrate
 ```
 
 Create the initial administrator once:

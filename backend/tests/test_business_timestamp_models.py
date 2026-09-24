@@ -12,13 +12,12 @@ from app.models.report import Report
 
 class BusinessTimestampModelTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        engine = create_engine("sqlite:///:memory:")
-        TestingSessionLocal = sessionmaker(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        self.engine = create_engine("sqlite:///:memory:")
+        self.addCleanup(self.engine.dispose)
+        TestingSessionLocal = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)
         self.db = TestingSessionLocal()
-
-    def tearDown(self) -> None:
-        self.db.close()
+        self.addCleanup(self.db.close)
 
     def test_new_business_records_receive_updated_at(self) -> None:
         detection, evidence, report = self._add_detection_with_related_rows()

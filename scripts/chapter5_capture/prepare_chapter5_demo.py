@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime
 
 from app.core.security import get_password_hash
@@ -12,7 +13,9 @@ from app.services.knowledge_service import create_knowledge_item, update_knowled
 from app.services.prompt_template_validator import NEWS_CREDIBILITY_PROMPT_TYPE
 
 
-DEMO_PASSWORD = "Chapter5Demo!2026"
+DEMO_PASSWORD = os.environ.get("CHAPTER5_DEMO_PASSWORD", "")
+if not DEMO_PASSWORD:
+    raise RuntimeError("Set CHAPTER5_DEMO_PASSWORD before running the chapter 5 demo scripts")
 
 USERS = [
     {
@@ -167,7 +170,6 @@ def main() -> None:
         admin = next(user for user in users if user.role == "admin")
         prompt = ensure_prompt(db, int(admin.id))
         items = [upsert_knowledge(db, row) for row in KNOWLEDGE_ROWS]
-        print(f"demo_password={DEMO_PASSWORD}")
         print("users=" + ",".join(f"{u.username}:{u.role}" for u in users))
         print(f"prompt_id={prompt.id}")
         print("knowledge=" + ",".join(f"{i.id}:{i.vector_sync_status}" for i in items))

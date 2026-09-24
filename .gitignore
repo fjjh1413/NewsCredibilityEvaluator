@@ -7,15 +7,30 @@ __pycache__/
 
 # Virtual environments
 .venv/
+.venv-p0/
 venv/
 
 # Environment files
 .env
 backend/.env
+.env.*
+**/.env.*
+!.env.example
+!.env.*.example
+!**/.env.example
+!**/.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
 
 # IDE
 .idea/
 .vscode/
+.claude/
 
 # Logs
 *.log
@@ -37,6 +52,8 @@ backend/tmp*/
 chroma_db/
 data/chroma/
 data/reports/
+test-persist/
+tmp/
 
 # Generated evaluation outputs
 evaluation/results/

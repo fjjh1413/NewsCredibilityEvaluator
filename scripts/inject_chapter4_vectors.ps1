@@ -3,9 +3,16 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$resolvedMap = (Resolve-Path -LiteralPath $MapPath).Path
+$repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
+function Resolve-RepositoryPath([string]$Path) {
+    if (-not [System.IO.Path]::IsPathRooted($Path)) {
+        $Path = Join-Path $repositoryRoot $Path
+    }
+    return (Resolve-Path -LiteralPath $Path).Path
+}
+$resolvedMap = Resolve-RepositoryPath $MapPath
 $mapping = Get-Content -Raw -LiteralPath $resolvedMap -Encoding UTF8 | ConvertFrom-Json
-$docxPath = [string]$mapping.docx
+$docxPath = Resolve-RepositoryPath ([string]$mapping.docx)
 
 $word = $null
 $document = $null
@@ -31,7 +38,7 @@ try {
         $range.Text = ""
         $range.ParagraphFormat.Alignment = 1
         $shape = $document.InlineShapes.AddPicture(
-            [string]$figure.path,
+            (Resolve-RepositoryPath ([string]$figure.path)),
             $false,
             $true,
             $range

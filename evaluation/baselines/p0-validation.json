@@ -1,0 +1,13 @@
+{
+  "command": ".venv-p0/Scripts/python.exe -X utf8 -m pytest evaluation/tests -q",
+  "reported_result": "146 passed, 4 warnings in 9.98s",
+  "test_files": 12,
+  "unittest_test_methods": 132,
+  "pytest_test_functions": 14,
+  "p0_added_tests": 15,
+  "warnings": "scikit-learn single-label / predicted-class-not-in-y_true warnings in existing chapter6 fixture tests",
+  "paid_provider_calls": 0,
+  "production_rag_benchmark_performed": false,
+  "title_retrieval_baseline": "cfever-title-v1/summary.json",
+  "unfinished_human_work": "Project four-level labels, two local independent human reviews and app knowledge/chunk relevance are deliberately pending."
+}

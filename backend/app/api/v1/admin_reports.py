@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.report_download import build_report_pdf_download_response
 from app.core.deps import get_current_admin
 from app.db.session import get_db
 from app.models.user import User
@@ -12,7 +13,6 @@ from app.schemas.report import (
     AdminReportListApiResponse,
 )
 from app.services.report_service import (
-    ReportFileMissingError,
     ReportNotFoundError,
     delete_admin_report_record,
     get_admin_report_detail,
@@ -98,17 +98,11 @@ def download_admin_report(
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_current_admin),
 ) -> FileResponse | JSONResponse:
-    try:
-        report, pdf_file = get_report_pdf_for_download(db, report_id, current_admin)
-    except ReportNotFoundError as exc:
-        return _error(exc, status.HTTP_404_NOT_FOUND)
-    except ReportFileMissingError as exc:
-        return _error(exc, status.HTTP_404_NOT_FOUND)
-
-    return FileResponse(
-        path=pdf_file,
-        media_type="application/pdf",
-        filename=f"news-credibility-report-{report.id}.pdf",
+    return build_report_pdf_download_response(
+        db=db,
+        report_id=report_id,
+        current_user=current_admin,
+        load_report_pdf=get_report_pdf_for_download,
     )
 
 

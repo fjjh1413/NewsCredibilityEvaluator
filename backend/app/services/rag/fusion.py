@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from typing import Any, Mapping, Sequence
 
 from app.utils.text_cleaner import clean_text
@@ -47,7 +48,7 @@ def normalized_rrf_score(
     rank_constant: int = DEFAULT_RRF_RANK_CONSTANT,
     exact_score: float = 0.0,
 ) -> float:
-    """Return a 0..1 RRF score calibrated to existing similarity thresholds."""
+    """Return a bounded rank-fusion score, not a calibrated cosine similarity."""
     rank_constant = _safe_rank_constant(rank_constant)
     signal_weights = dict(DEFAULT_SIGNAL_WEIGHTS)
     if weights is not None:
@@ -173,10 +174,20 @@ def fuse_ranked_parent_results(
 
             existing = candidates[key]
             existing["query_hits"].append(hit)
-            existing["similarity_score"] = max(
-                _safe_float(existing.get("similarity_score")),
-                _safe_float(result_copy.get("similarity_score")),
-            )
+            similarity_scores = [
+                _safe_float(item["similarity_score"])
+                for item in (existing, result_copy)
+                if item.get("similarity_score") is not None
+            ]
+            existing["similarity_score"] = max(similarity_scores) if similarity_scores else None
+            cosine_scores = [
+                item.get("raw_cosine_score")
+                for item in (existing, result_copy)
+                if isinstance(item.get("raw_cosine_score"), (int, float))
+                and math.isfinite(item["raw_cosine_score"])
+            ]
+            if cosine_scores:
+                existing["raw_cosine_score"] = max(cosine_scores)
             existing["chunks"] = _merge_chunks(
                 existing.get("chunks") or [],
                 result_copy.get("chunks") or [],
@@ -200,6 +211,8 @@ def fuse_ranked_parent_results(
         )
         candidate["query_match_count"] = len(ranks)
         candidate["multi_query_rrf_score"] = multi_query_score
+        # Preserve dense similarity for absolute thresholds; fusion only ranks.
+        candidate["fusion_score"] = multi_query_score
         score_components = dict(candidate.get("score_components") or {})
         score_components["multi_query_rrf_score"] = multi_query_score
         score_components["query_match_count"] = len(ranks)

@@ -9,7 +9,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from types import SimpleNamespace
 
 # Ensure the evaluation package is on path
 _HERE = Path(__file__).resolve().parent
@@ -283,8 +284,10 @@ class PerCaseCsvTests(unittest.TestCase):
 
 
 class RunSingleDetectionTests(unittest.TestCase):
-    @patch("app.services.detection_service.detect_news_credibility")
-    def test_records_stage_latency_and_rag_v2_fields(self, mock_detect) -> None:
+    @patch("evaluation.run_evaluation._load_detection_runtime")
+    def test_records_stage_latency_and_rag_v2_fields(self, mock_runtime) -> None:
+        mock_detect = Mock()
+        mock_runtime.return_value = (SimpleNamespace, ValueError, LookupError, mock_detect)
         mock_detect.return_value = {
             "risk_level": "可信新闻",
             "final_score": 91.5,
@@ -336,7 +339,8 @@ class RunSingleDetectionTests(unittest.TestCase):
         self.assertEqual(result["local_retrieval_latency_ms"], 23.2)
         self.assertEqual(result["web_search_latency_ms"], 34.3)
         self.assertEqual(result["llm_latency_ms"], 45.4)
-        self.assertEqual(result["report_latency_ms"], 5.5)
+        self.assertEqual(result["db_save_latency_ms"], 5.5)
+        self.assertEqual(result["report_latency_ms"], "")
         self.assertEqual(result["retrieval_version"], "v2")
         self.assertEqual(result["index_version"], "v2")
         self.assertEqual(result["candidate_parent_count"], 1)

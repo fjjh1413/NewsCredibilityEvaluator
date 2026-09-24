@@ -8,6 +8,10 @@ from app.models.report import Report
 from app.models.user import User
 
 
+class ReportCommitUncertainError(RuntimeError):
+    """Commit was attempted: retain generated files for reconciliation."""
+
+
 def _admin_report_query(
     db: Session,
     keyword: str | None = None,
@@ -152,6 +156,7 @@ def save_generated_report(
     pdf_path: str,
     api_prefix: str,
 ) -> tuple[Report, tuple[str | None, str | None]]:
+    commit_attempted = False
     try:
         report = get_report_by_detection_id(db, detection.id)
         old_paths = (
@@ -180,9 +185,15 @@ def save_generated_report(
             f"{api_prefix.rstrip('/')}/report/download/{report.id}"
         )
         db.add(detection)
+        commit_attempted = True
         db.commit()
-        db.refresh(report)
+        # No fallible refresh within the file-cleanup boundary after commit.
         return report, old_paths
-    except Exception:
-        db.rollback()
+    except Exception as exc:
+        try:
+            db.rollback()
+        except Exception:
+            pass  # A disconnected transaction can have an unknown outcome.
+        if commit_attempted:
+            raise ReportCommitUncertainError("报告事务提交结果不确定，已保留文件等待核对") from exc
         raise

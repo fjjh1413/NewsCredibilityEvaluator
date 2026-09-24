@@ -50,6 +50,8 @@ def _vector_result(knowledge_id: int, score: float) -> dict:
             "vector_sync_status": "synced",
         },
         "similarity_score": score,
+        "raw_cosine_score": score,
+        "index_version": "v1",
     }
 
 
@@ -80,6 +82,7 @@ class DetectServiceTestCase(unittest.TestCase):
                             "relevance_score": 80,
                             "quality_score": 80,
                             "stance": "support",
+                            "claim_ids": ["c1", "c2"],
                             "reason": "直接相关。",
                         },
                         {
@@ -127,8 +130,25 @@ class DetectServiceTestCase(unittest.TestCase):
         self.assertEqual(result["llm_score"], 70)
         self.assertEqual(result["rule_score"], 80)
         self.assertEqual(result["final_score"], 73.8)
+        self.assertEqual(result["assessment_status"], "completed")
+        self.assertEqual(result["arbitration_status"], "ok")
+        self.assertEqual(result["quality_status"], "ok")
+        self.assertGreater(result["arbitration_quality"]["claim_coverage"], 0)
+        self.assertFalse(result["web_search_triggered"])
         # 70 * 0.5 + 76 * 0.3 + 80 * 0.2 = 35 + 22.8 + 16 = 73.8
         self.assertEqual(result["risk_level"], "存疑信息")
+        self.assertEqual(result["agent_trace"]["status"], "completed")
+        graph_execution = result["agent_trace"]["graph_execution"]
+        self.assertEqual(
+            graph_execution["graph_name"],
+            "evidence-investigation-agent",
+        )
+        self.assertIn("persist_result", graph_execution["visited_nodes"])
+        self.assertNotIn("search_web_evidence", graph_execution["visited_nodes"])
+        self.assertEqual(
+            result["agent_trace"]["stages"][1]["tool"],
+            "chroma_hybrid_search",
+        )
         self.assertEqual(len(result["evidence_list"]), 2)
         self.assertEqual(len(result["similar_news"]), 0)
         self.assertEqual(mocked_search.call_args.kwargs["top_k"], 10)
@@ -138,11 +158,17 @@ class DetectServiceTestCase(unittest.TestCase):
         )
         saved_payload = mocked_save.call_args.args[1]
         self.assertEqual(saved_payload.user_id, 7)
+        self.assertEqual(saved_payload.assessment_status, "completed")
+        self.assertEqual(saved_payload.final_score, result["final_score"])
         self.assertEqual(
             saved_payload.analysis_payload["publish_time"],
             "2026-06-18T09:30:00+08:00",
         )
         self.assertEqual(len(saved_payload.evidence_matches), 2)
+        self.assertEqual(
+            saved_payload.analysis_payload["agent_trace"]["version"],
+            "1.0",
+        )
 
     def test_detect_news_continues_when_rag_returns_no_evidence(self) -> None:
         with (
@@ -178,10 +204,17 @@ class DetectServiceTestCase(unittest.TestCase):
 
         self.assertEqual(result["detection_id"], 124)
         self.assertEqual(result["evidence_score"], 0)
-        self.assertIn("证据不足", result["reason"])
+        self.assertEqual(result["assessment_status"], "insufficient_evidence")
+        self.assertIsNone(result["final_score"])
+        self.assertEqual(result["risk_level"], "无法判断")
+        self.assertIn("无法判断", result["reason"])
+        self.assertEqual(result["reason"], result["assessment_reason"])
         saved_payload = mocked_save.call_args.args[1]
         self.assertIsNone(saved_payload.user_id)
         self.assertEqual(saved_payload.evidence_matches, [])
+        self.assertIsNone(saved_payload.final_score)
+        self.assertEqual(saved_payload.assessment_status, "insufficient_evidence")
+        self.assertFalse(saved_payload.is_high_risk)
 
     def test_global_web_search_disabled_skips_bocha(self) -> None:
         with (
@@ -267,15 +300,19 @@ class DetectServiceTestCase(unittest.TestCase):
             self.assertEqual(result["evidence_score"], 0)
             self.assertEqual(result["llm_score"], 0)
             self.assertEqual(result["rule_score"], 70)
-            self.assertEqual(result["final_score"], 70.0)
-            self.assertIn("LLM 分析暂不可用，本次结果基于 RAG 和规则评分降级生成", result["reason"])
-            self.assertIn("模型调用失败", result["reason"])
-            self.assertIn("LLM 分析暂不可用", result["suggestion"])
+            self.assertIsNone(result["final_score"])
+            self.assertEqual(result["assessment_status"], "degraded")
+            self.assertEqual(result["arbitration_status"], "provider_error")
+            self.assertEqual(result["risk_level"], "无法判断")
+            self.assertIn("无法判断", result["reason"])
+            self.assertIn("不要将本次诊断分数作为真假结论", result["suggestion"])
             self.assertIn("缺少明确来源", result["risk_points"])
             saved_payload = mocked_save.call_args.args[1]
             self.assertEqual(saved_payload.llm_score, 0)
-            self.assertEqual(saved_payload.final_score, 70.0)
-            self.assertIn("LLM 分析暂不可用", saved_payload.reason)
+            self.assertIsNone(saved_payload.final_score)
+            self.assertEqual(saved_payload.assessment_status, "degraded")
+            self.assertFalse(saved_payload.is_high_risk)
+            self.assertIn("无法判断", saved_payload.reason)
             self.assertEqual(len(saved_payload.evidence_matches), 0)
 
     def test_invalid_default_and_fallback_prompt_uses_degraded_detection(self) -> None:
@@ -284,6 +321,7 @@ class DetectServiceTestCase(unittest.TestCase):
             patch("app.services.detection_service.get_default_prompt_content") as mocked_prompt,
             patch("app.services.llm_service.get_default_prompt_template") as mocked_fallback,
             patch("app.services.llm_service._load_deepseek_config") as mocked_config,
+            patch("app.services.llm_service._post_chat_completion") as mocked_transport,
             patch("app.services.detection_service.calculate_rule_score") as mocked_rule,
             patch("app.services.detection_service.save_detection_record") as mocked_save,
         ):
@@ -302,15 +340,24 @@ class DetectServiceTestCase(unittest.TestCase):
             with self.assertLogs("app.services.llm_service", level="WARNING"):
                 result = detect_news_credibility(
                     db=Mock(),
-                    payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT),
+                    payload=DetectNewsRequest(title="News title", content=VALID_NEWS_CONTENT,
+                                              enable_web_search=False),
                     current_user=None,
                 )
 
             self.assertEqual(result["detection_id"], 126)
             self.assertEqual(result["llm_score"], 0)
-            self.assertEqual(result["final_score"], 90.0)
-            self.assertIn("LLM 分析暂不可用", result["reason"])
+            self.assertEqual(result["rule_score"], 90)
+            self.assertIsNone(result["final_score"])
+            self.assertEqual(result["assessment_status"], "degraded")
+            self.assertEqual(result["risk_level"], "无法判断")
+            self.assertIn("无法判断", result["reason"])
+            mocked_transport.assert_not_called()
             mocked_save.assert_called_once()
+            saved_payload = mocked_save.call_args.args[1]
+            self.assertIsNone(saved_payload.final_score)
+            self.assertEqual(saved_payload.assessment_status, "degraded")
+            self.assertFalse(saved_payload.is_high_risk)
 
 
 class DetectApiTestCase(unittest.TestCase):
@@ -347,6 +394,13 @@ class DetectApiTestCase(unittest.TestCase):
                 "风险规则评分完成",
                 "检测结果生成完成",
             ],
+            "agent_trace": {
+                "version": "1.0",
+                "agent_name": "evidence-investigation-agent",
+                "status": "completed",
+                "total_latency_ms": 42.0,
+                "stages": [],
+            },
             "disclaimer": "检测结果仅供参考。",
         }
 
@@ -359,6 +413,7 @@ class DetectApiTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["message"], "检测完成")
         self.assertEqual(body["data"]["detection_id"], 1)
+        self.assertEqual(body["data"]["agent_trace"]["version"], "1.0")
 
     @patch("app.api.v1.detect.detect_news_credibility")
     def test_detect_news_endpoint_returns_degraded_result_when_llm_unavailable(self, mocked_detect) -> None:
@@ -757,7 +812,7 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
         self.assertEqual(result["arbitration_attempts"], 0)
         mocked_arbitration.assert_not_called()
 
-    def test_empty_effective_evidence_removes_evidence_quality_weight(self) -> None:
+    def test_empty_effective_evidence_abstains_despite_high_diagnostic_scores(self) -> None:
         with (
             patch("app.services.detection_service.search_similar_knowledge") as mocked_search,
             patch("app.services.detection_service.analyze_news_credibility") as mocked_llm,
@@ -800,7 +855,19 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
             )
 
         self.assertEqual(result["evidence_list"], [])
-        self.assertEqual(result["final_score"], 84.0)
+        self.assertEqual(result["assessment_status"], "insufficient_evidence")
+        self.assertEqual(result["arbitration_status"], "ok")
+        self.assertEqual(result["quality_status"], "ok")
+        self.assertEqual(result["llm_score"], 80)
+        self.assertEqual(result["rule_score"], 90)
+        self.assertIsNone(result["final_score"])
+        self.assertEqual(result["risk_level"], "无法判断")
+        self.assertEqual(len(result["excluded_evidence"]), 1)
+        saved_payload = mocked_save.call_args.args[1]
+        self.assertIsNone(saved_payload.final_score)
+        self.assertEqual(saved_payload.assessment_status, "insufficient_evidence")
+        self.assertEqual(saved_payload.evidence_matches, [])
+        self.assertFalse(saved_payload.is_high_risk)
 
     def test_missing_arbitration_retries_and_uses_retry_result(self) -> None:
         missing_arbitration = {
@@ -880,6 +947,18 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
         self.assertEqual(result["llm_score"], 40)
         self.assertEqual(result["reason"], "首次返回缺少仲裁。")
         self.assertEqual(result["evidence_quality"]["score"], 80)
+        graph_execution = result["agent_trace"]["graph_execution"]
+        self.assertIn(
+            "retry_arbitration",
+            graph_execution["visited_nodes"],
+        )
+        retry_transition = next(
+            transition
+            for transition in graph_execution["transitions"]
+            if transition["source"] == "arbitrate_evidence"
+        )
+        self.assertEqual(retry_transition["route"], "retry")
+        self.assertEqual(retry_transition["target"], "retry_arbitration")
 
     def test_similar_news_uses_llm_risk_judgement(self) -> None:
         with (
@@ -1102,6 +1181,18 @@ class DetectEvidenceArbitrationTestCase(unittest.TestCase):
 
         # Arbitration status
         self.assertEqual(result.get("arbitration_status"), "ok")
+        graph_execution = result["agent_trace"]["graph_execution"]
+        self.assertIn(
+            "search_web_evidence",
+            graph_execution["visited_nodes"],
+        )
+        web_transition = next(
+            transition
+            for transition in graph_execution["transitions"]
+            if transition["source"] == "route_web_search"
+        )
+        self.assertEqual(web_transition["route"], "search")
+        self.assertEqual(web_transition["target"], "search_web_evidence")
 
         # Score should be reasonable (not dragged to 0 by kb evidence)
         self.assertGreater(result["final_score"], 50)

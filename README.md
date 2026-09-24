@@ -1,22 +1,29 @@
-# 智闻辨真：基于 RAG 与大语言模型的新闻可信度评估系统
+# 智闻辨真｜RAG 驱动的新闻证据分析平台
 
-智闻辨真是一套端到端的新闻可信度评估系统。用户提交新闻标题、正文或链接后，系统通过本地知识库检索与按需联网补证收集证据，调用大语言模型完成证据仲裁，再结合规则评分生成可信度分数、风险等级、判断理由、风险点、相似证据和 PDF 报告。
+智闻辨真是一套新闻证据分析应用。用户提交新闻标题、正文或链接后，系统通过本地知识库检索与按需联网补证收集证据，调用大语言模型完成证据仲裁。只有模型和证据校验完整通过、存在有效证据时才生成综合可信度分数；证据不足或服务降级时明确显示“无法判断”。分析状态会持久化，并可按需生成 PDF 报告。
+
+> **2026-09-19 P0 改造**：分数语义、证据版本、弃权状态、报告提交边界和组合回归已修复；后端565项、评测146项、前端26项测试通过。干净目录构建和API启动通过，Docker运行验收与项目四级风险真人复核仍待完成。逐项实现、日志、升级步骤及边界见 [P0实施与验收记录](docs/p0-implementation-2026-09-19.md)。
+
+> **2026-09-24 发布复核**：重新通过 565 项后端、146 项评测及 26 项前端测试；发布文件排除本地环境配置、运行数据库、报告和日志，文档及辅助脚本改用可移植路径。实现边界与复现说明见 [发布验证记录](docs/security/publication-2026-09-24.md)。
 
 项目已覆盖用户端、管理后台、离线评测、异步任务、缓存、可观测性和容器化部署，可用于课程答辩、系统演示与工程实践。
+
+> **求职项目定位**：可审计的 RAG / LLM 证据分析应用。主张提取、混合检索、条件联网、结构化仲裁、契约校验与重试由固定状态图编排；代码中的 Agent 命名不代表自主规划或自主工具选择。结果页展示路由、状态、计数与阶段耗时，供人工复核。代码审计见 `docs/career-audit-2026-09-19/项目代码审计与求职定位.md`。
 
 ## 核心功能
 
 - 用户注册、登录、JWT 鉴权、游客检测和管理员权限控制。
 - 新闻标题、正文与链接识别；链接抓取默认拒绝私网地址，降低 SSRF 风险。
-- 工程化 RAG：Chroma 向量库、chunk 索引、dense + lexical 混合召回、RRF 融合、父文档聚合、MMR 去重、rerank 与证据压缩。
+- 工程化 RAG：Chroma chunk 索引、dense + lexical 混合召回、RRF 融合、父文档版本校验、来源多样性惩罚、规则重排与证据压缩；cosine、融合分和重排分独立记录。
 - 按需联网检索和定时新闻抓取，统一通过知识库索引 outbox/job 流程写入索引。
 - DeepSeek 结构化分析、规则评分、四级风险分级和异常降级处理。
 - 证据仲裁质量控制：候选证据随机排序、`candidate_id` 约束、后端校验和质量指标。
+- 可审计 Agent 运行轨迹：结构化展示工具选择、联网路由、仲裁重试、降级状态、阶段耗时和结果摘要，并保留旧 `agent_steps` 客户端兼容。
 - 统一 Prompt 输出契约，集中管理字段、别名、风险等级和前后端展示规则。
 - 检测历史、结果详情、重新评估、公开高风险新闻和 PDF 报告。
 - 管理后台：用户、检测记录、知识库、Prompt、报告、高风险新闻、统计、运行日志和 AI 工程策略管理。
 - 可选 Redis 缓存、Celery 异步检测任务、Prometheus 指标、OpenTelemetry 链路追踪和 Pyroscope 持续剖析。
-- 可复现离线评测，支持分类、检索、延迟、稳定性、证据完整率与人工评审一致性指标。
+- 可复现评测框架与数据发布门禁；已冻结120条官方 CFEVER 原始主张并运行独立页标题检索基线，项目四级风险真人标注和端到端质量指标仍待完成。
 
 ## 技术栈
 
@@ -119,7 +126,7 @@ NewsCredibilityEvaluator/
 ### 1. 准备后端配置
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 Copy-Item .env.example .env
 ```
 
@@ -171,7 +178,7 @@ CREATE DATABASE zhiyun_bianzhen
 ### 3. 安装依赖并初始化数据
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 python -m pip install -r requirements.txt
 python -m app.db.migrate
 python -m app.db.init_db
@@ -185,7 +192,7 @@ python -m app.db.seed_demo_data
 ### 4. 启动后端
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\backend
+cd backend
 uvicorn app.main:app --reload
 ```
 
@@ -200,7 +207,7 @@ uvicorn app.main:app --reload
 ### 5. 启动前端
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator\frontend
+cd frontend
 npm install
 npm run dev
 ```
@@ -212,7 +219,7 @@ npm run dev
 ### 本地容器化运行
 
 ```powershell
-cd E:\nan\NewsCredibilityEvaluator
+# 从仓库根目录执行
 Copy-Item .env.docker.example .env
 ```
 
@@ -250,25 +257,20 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 | 命令 | 说明 |
 |---|---|
 | `python -m unittest discover -s backend/tests -t backend -p "test_*.py"` | 运行后端测试 |
-| `python -m unittest discover -s evaluation/tests -p "test_*.py"` | 运行评测模块测试 |
+| `python -m pytest evaluation/tests -q` | 运行全部评测测试（包含pytest函数） |
 | `npm --prefix frontend test` | 运行前端 Node 测试 |
 | `npm --prefix frontend run build` | 构建前端生产包 |
 | `npm --prefix frontend run build:analyze` | 构建并生成包体分析 |
 | `docker compose config` | 校验 Compose 配置 |
 | `git diff --check` | 检查空白错误和冲突标记 |
 
-运行离线评测：
+运行无需密钥的独立标题检索基线：
 
 ```powershell
-python -m evaluation.run_evaluation `
-  --dataset evaluation/datasets/news_eval_demo.csv `
-  --output-dir evaluation/output `
-  --sample-limit 3 `
-  --allow-web-search false `
-  --seed 42
+python -m evaluation.run_title_retrieval_baseline
 ```
 
-评测输出默认写入 `evaluation/output/`，该目录不应提交。完整参数和指标定义见 `evaluation/README.md`。
+该结果不代表生产 RAG 召回率或 LLM 准确率。四级风险评测当前会拒绝尚未完成真人复核的数据；数据来源、结果及完整服务评测方法见 [evaluation/README.md](evaluation/README.md)。
 
 ## Prompt 输出契约
 
