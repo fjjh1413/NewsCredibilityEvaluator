@@ -1,337 +1,221 @@
-# 智闻辨真｜RAG 驱动的新闻证据分析平台
+<div align="center">
 
-智闻辨真是一套新闻证据分析应用。用户提交新闻标题、正文或链接后，系统通过本地知识库检索与按需联网补证收集证据，调用大语言模型完成证据仲裁。只有模型和证据校验完整通过、存在有效证据时才生成综合可信度分数；证据不足或服务降级时明确显示“无法判断”。分析状态会持久化，并可按需生成 PDF 报告。
+<h1>智闻辨真</h1>
+<p><strong>RAG 驱动的新闻证据分析平台</strong></p>
+<p>检索相关材料 · 校验模型输出 · 保留证据与分析过程</p>
 
-> **2026-09-19 P0 改造**：分数语义、证据版本、弃权状态、报告提交边界和组合回归已修复；后端565项、评测146项、前端26项测试通过。干净目录构建和API启动通过，Docker运行验收与项目四级风险真人复核仍待完成。逐项实现、日志、升级步骤及边界见 [P0实施与验收记录](docs/p0-implementation-2026-09-19.md)。
+[![CI](https://github.com/fjjh1413/NewsCredibilityEvaluator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fjjh1413/NewsCredibilityEvaluator/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+[![Output Contract 2.1](https://img.shields.io/badge/Output_Contract-2.1-6366F1)](contracts/prompt_output_contract.json)
 
-> **2026-09-24 发布复核**：重新通过 565 项后端、146 项评测及 26 项前端测试；发布文件排除本地环境配置、运行数据库、报告和日志，文档及辅助脚本改用可移植路径。实现边界与复现说明见 [发布验证记录](docs/security/publication-2026-09-24.md)。
+**[核心能力](#features) · [工作原理](#architecture) · [快速启动](#quick-start) · [配置](#configuration) · [测试与评测](#evaluation) · [文档](#documentation)**
 
-项目已覆盖用户端、管理后台、离线评测、异步任务、缓存、可观测性和容器化部署，可用于课程答辩、系统演示与工程实践。
+</div>
 
-> **求职项目定位**：可审计的 RAG / LLM 证据分析应用。主张提取、混合检索、条件联网、结构化仲裁、契约校验与重试由固定状态图编排；代码中的 Agent 命名不代表自主规划或自主工具选择。结果页展示路由、状态、计数与阶段耗时，供人工复核。代码审计见 `docs/career-audit-2026-09-19/项目代码审计与求职定位.md`。
+智闻辨真接收新闻标题、正文或链接，通过本地知识库检索和按需联网补证收集材料，再由大模型分析证据与新闻的关系。后端校验引用、分数和证据条件，保存分析结果，并支持按需生成 PDF 报告。
 
-## 核心功能
+**证据不足或模型处理失败时，系统返回“无法判断”，最终分数为空。** 结果页保留候选、采用与排除的证据，以及工作流执行信息，方便回看分析依据。
 
-- 用户注册、登录、JWT 鉴权、游客检测和管理员权限控制。
-- 新闻标题、正文与链接识别；链接抓取默认拒绝私网地址，降低 SSRF 风险。
-- 工程化 RAG：Chroma chunk 索引、dense + lexical 混合召回、RRF 融合、父文档版本校验、来源多样性惩罚、规则重排与证据压缩；cosine、融合分和重排分独立记录。
-- 按需联网检索和定时新闻抓取，统一通过知识库索引 outbox/job 流程写入索引。
-- DeepSeek 结构化分析、规则评分、四级风险分级和异常降级处理。
-- 证据仲裁质量控制：候选证据随机排序、`candidate_id` 约束、后端校验和质量指标。
-- 可审计 Agent 运行轨迹：结构化展示工具选择、联网路由、仲裁重试、降级状态、阶段耗时和结果摘要，并保留旧 `agent_steps` 客户端兼容。
-- 统一 Prompt 输出契约，集中管理字段、别名、风险等级和前后端展示规则。
-- 检测历史、结果详情、重新评估、公开高风险新闻和 PDF 报告。
-- 管理后台：用户、检测记录、知识库、Prompt、报告、高风险新闻、统计、运行日志和 AI 工程策略管理。
-- 可选 Redis 缓存、Celery 异步检测任务、Prometheus 指标、OpenTelemetry 链路追踪和 Pyroscope 持续剖析。
-- 可复现评测框架与数据发布门禁；已冻结120条官方 CFEVER 原始主张并运行独立页标题检索基线，项目四级风险真人标注和端到端质量指标仍待完成。
+> 当前定位：具有状态编排的 **LLM / RAG 应用**。工作流由代码定义条件路由；源码中的 Agent 命名不代表模型自主规划或自主选择工具。分析结果用于辅助核查，项目尚未完成端到端真实性判断效果评测。
 
-## 技术栈
+<a id="features"></a>
 
-| 层级 | 技术 |
-|---|---|
-| 后端 | Python 3.12、FastAPI、SQLAlchemy、Pydantic、Alembic、JWT |
-| 前端 | Vue 3、Vite、Element Plus、Pinia、Vue Router、ECharts |
-| 数据 | MySQL、Chroma、Redis（可选） |
-| AI | DeepSeek、DashScope Embedding、Bocha AI 联网检索 |
-| 异步任务 | Celery + Redis |
-| 报告 | Jinja2、HTML 模板、xhtml2pdf |
-| 可观测性 | Prometheus、Grafana、OpenTelemetry、Tempo、Pyroscope、Alertmanager |
-| 部署 | Docker Compose、Nginx、Caddy |
+## 核心能力
 
-## 系统架构
+| 能力 | 实现 | 代码入口 |
+|---|---|---|
+| **状态工作流** | 11 个定义节点，共享状态、条件联网、一次定向修复及节点执行记录；联网和修复节点按条件执行 | [检测图](backend/app/services/detection_agent_graph.py)、[执行器](backend/app/services/agent_state_graph.py) |
+| **混合检索 · v2** | 分块向量召回与词项召回，按父文档聚合，RRF 融合、多查询合并及规则重排；分别保留 cosine、融合分和重排分 | [检索](backend/app/services/rag/retrieval.py)、[融合](backend/app/services/rag/fusion.py) |
+| **条件联网补证** | 根据原始 cosine 和候选数量判断是否搜索；整合 Bocha 摘要、来源与 URL 信息 | [联网服务](backend/app/services/web/web_search_service.py) |
+| **模型输出校验** | 共享输出契约，检查候选 ID、重复与遗漏、立场、分数范围和证据条件；不合格时修复或弃权 | [模型服务](backend/app/services/llm_service.py)、[业务校验](backend/app/services/detection_service.py) |
+| **跨存储一致性处理** | 知识与索引任务同事务保存；v2 dense 候选回查父记录状态和内容指纹；报告按数据库提交边界决定文件清理 | [知识服务](backend/app/services/knowledge_service.py)、[报告保存](backend/app/crud/report_crud.py) |
+| **完整应用流程** | JWT 登录、历史与资源归属、管理后台、知识维护、Prompt 管理、结果详情及 HTML/PDF 报告 | [API](backend/app/api/v1)、[前端页面](frontend/src/views) |
+
+**用户流程：** 输入新闻或提取链接 → 提交检测 → 查看结论状态与证据 → 按需生成报告 → 回看历史。
+
+**管理流程：** 维护知识 → 检查索引任务 → 管理 Prompt → 审核检测与公开内容 → 查看统计和运行日志。
+
+<a id="architecture"></a>
+
+## 工作原理
 
 ```mermaid
-flowchart LR
-  User["用户 / 管理员"] --> Frontend["Vue 3 前端"]
-  Frontend --> API["FastAPI API"]
-
-  API --> Auth["认证与权限"]
-  API --> Detect["检测编排"]
-  API --> Admin["管理后台"]
-  API --> Report["报告生成"]
-
-  Detect --> Claim["声明与关键词提取"]
-  Claim --> Retrieval["RAG 检索"]
-  Retrieval --> Fusion["Dense + Lexical + RRF"]
-  Fusion --> Arbitration["LLM 证据仲裁"]
-  Arbitration --> Contract["Prompt 输出契约校验"]
-  Contract --> Scoring["规则评分与风险分级"]
-  Scoring --> MySQL["MySQL"]
-
-  Retrieval --> Chroma["Chroma"]
-  Detect --> Search["按需联网补证"]
-  Detect --> LLM["DeepSeek"]
-  Report --> PDF["PDF 报告"]
-
-  Admin --> Outbox["知识索引 Outbox"]
-  Outbox --> Indexer["索引 Worker / Scheduler"]
-  Indexer --> Chroma
-
-  API -. "缓存 / 限流" .-> Redis["Redis"]
-  API -. "可选异步检测" .-> Celery["Celery Worker"]
-  Celery --> Redis
-  Celery --> MySQL
-
-  API -. "指标 / Trace / Profile" .-> Observability["Prometheus / Tempo / Pyroscope"]
+flowchart TD
+    UI["Vue 3 · 新闻输入"] --> API["FastAPI · 校验 / 身份 / 限流"]
+    API --> Prepare["清洗输入 / 规则提取主张"]
+    Prepare --> Local["本地检索 · v1 / v2 / hybrid"]
+    Chroma[("Chroma · 知识向量")] --> Local
+    MySQL[("MySQL · 知识 / 任务 / 结果")] --> Local
+    Local --> Route{"允许联网且本地候选不足？"}
+    Route -->|是| Web["Bocha · 联网补证"]
+    Route -->|否| Context["候选整理 / Prompt 构造"]
+    Web --> Context
+    Context --> LLM["DeepSeek · 结构化分析"]
+    LLM --> Check["解析 / 引用与质量字段校验"]
+    Check -->|证据字段需修复| Repair["一次定向修复并复检"]
+    Check -->|继续| Assess["判断是否具备评分条件"]
+    Repair --> Assess
+    Assess --> Result["综合评分或明确弃权"]
+    Result --> Save["保存结果 / 证据 / 执行信息"]
+    Save --> MySQL
+    Save --> View["结果页与历史记录"]
+    View -.按需生成.-> Report["HTML / PDF 报告"]
 ```
 
-检测链路不是一次模型调用，而是“声明抽取 → RAG 检索 → 必要时联网补证 → 证据仲裁 → 契约校验 → 规则评分 → 结果落库 → 指标与审计”的可观测流水线。知识库写入采用 outbox/job 模式，使自动抓取、管理员导入和索引重建进入同一套同步策略。
+### 检索与证据
 
-## 项目结构
+- **知识入库与检测分离：** MySQL 保存知识和索引任务，后台完成 Embedding 与 Chroma 写入；待核查新闻作为查询，不会先被当作可信知识入库。
+- **v2 检索：** 默认分块基准 700 字符、重叠 100 字符；dense 初选 50 个块，父候选上限 15，检测服务取 Top-10。上下文前缀会影响实际块长，多查询合并后也可能保留更多片段。
+- **联网条件：** 在允许联网时，无本地候选、最高 cosine `< 0.45`，或最高 cosine `< 0.60` 且 cosine `>= 0.30` 的候选少于 3 条，会触发补证。融合分不替代原始 cosine。
+- **有效性边界：** 词项召回采用 `LIKE` 与字段权重，重排以规则为主；联网使用摘要/片段。相似材料、不同 URL 与多条候选，都不能直接等同于充分或独立的证据。
 
-```text
-NewsCredibilityEvaluator/
-├── backend/                 # FastAPI 后端、迁移和后端测试
-│   ├── app/
-│   │   ├── api/             # API 路由
-│   │   ├── core/            # 配置、安全、缓存和可观测性
-│   │   ├── crud/            # 数据库 CRUD
-│   │   ├── db/              # 数据库初始化、迁移和演示数据
-│   │   ├── models/          # SQLAlchemy 模型
-│   │   ├── schemas/         # Pydantic Schema
-│   │   ├── services/        # 检测、RAG、LLM、抓取和报告服务
-│   │   ├── tasks/           # Celery 任务
-│   │   └── templates/       # 报告模板
-│   ├── alembic/             # Alembic 迁移
-│   └── tests/               # 后端测试
-├── frontend/                # Vue 3 前端
-│   └── src/
-│       ├── api/             # API 封装
-│       ├── components/      # 通用组件
-│       ├── contracts/       # 前端契约适配
-│       ├── layouts/         # 用户端和管理端布局
-│       ├── router/          # 路由与权限守卫
-│       ├── stores/          # Pinia 状态
-│       ├── utils/           # 请求、缓存和图表工具
-│       └── views/           # 页面
-├── contracts/               # 跨前后端的机器可读契约
-├── evaluation/              # 离线评测数据、脚本和测试
-├── deploy/                  # Caddy 与可观测性组件配置
-├── docs/                    # 设计、开发、审查和发布文档
-├── data/                    # 本地 Chroma 与报告目录（默认不提交）
-├── docker-compose.yml       # 本地容器化运行
-├── docker-compose.prod.yml  # 生产部署与可观测性扩展
-└── README.md
-```
+### 分析状态与评分
 
-## 本地快速启动
+| 状态 | 含义 | 最终分数 |
+|---|---|---|
+| `completed` | 模型、仲裁及质量校验通过，并满足当前有效证据条件 | 输出综合分 |
+| `insufficient_evidence` | 缺少可用于判断的有效证据 | `null`，显示“无法判断” |
+| `degraded` | 模型失败、响应无效或修复耗尽等 | `null`，显示“无法判断” |
 
-### 环境要求
+正常完成时：`F = 0.5 × L + 0.3 × Q + 0.2 × R`，其中 `Q = 0.6 × coverage + 0.4 × consistency`。L 是模型分，R 是规则分，coverage 与 consistency 由模型提供、Q 由后端计算。该分数尚未校准为真实性概率。
 
-- Python 3.12（与后端容器版本一致）
-- Node.js 22（与前端构建容器版本一致）
-- MySQL 8.x
-- Redis（仅在启用缓存、分布式限流或异步检测时需要）
+<a id="quick-start"></a>
 
-### 1. 准备后端配置
+## 快速启动
+
+### Docker Compose · 先体验应用流程
+
+需要 Git、Docker Engine / Docker Desktop，以及支持 `--wait` 的 Docker Compose v2。以下命令从仓库根目录执行；示例使用 PowerShell，Bash 用户将 `Copy-Item` 换成 `cp`。
 
 ```powershell
-cd backend
-Copy-Item .env.example .env
-```
-
-编辑 `backend/.env`。下面是本地运行所需的核心配置；完整配置和注释以 `backend/.env.example` 为准。
-
-```env
-APP_ENV=development
-BACKEND_CORS_ORIGINS=*
-
-DATABASE_HOST=127.0.0.1
-DATABASE_PORT=3306
-DATABASE_USER=root
-DATABASE_PASSWORD=请填写本机MySQL密码
-DATABASE_NAME=zhiyun_bianzhen
-
-SECRET_KEY=请替换为随机长字符串
-FIRST_SUPERUSER_USERNAME=admin
-FIRST_SUPERUSER_PASSWORD=请替换为管理员密码
-FIRST_SUPERUSER_EMAIL=admin@example.com
-
-CHROMA_PERSIST_DIR=../data/chroma
-REPORT_DIR=../data/reports
-
-EMBEDDING_PROVIDER=dashscope
-EMBEDDING_DIMENSION=1024
-DASHSCOPE_API_KEY=请替换为真实Key
-
-DEEPSEEK_API_KEY=请替换为真实Key
-BOCHA_API_KEY=请替换为真实Key
-```
-
-配置说明：
-
-- `DATABASE_URL` 可替代拆分的 MySQL 配置，并具有更高优先级。
-- `CHROMA_PERSIST_DIR` 是模板使用的 Chroma 路径变量；兼容变量 `CHROMA_PATH` 也可使用，且两者同时存在时 `CHROMA_PATH` 优先。
-- 正式 RAG 建议使用 DashScope `text-embedding-v4` 和 `EMBEDDING_DIMENSION=1024`。
-- 没有 DashScope Key 时，可临时使用 `EMBEDDING_PROVIDER=hash`、`EMBEDDING_DIMENSION=384` 验证流程；hash 不具备语义检索能力，不适合正式评测。
-- `DEEPSEEK_API_KEY` 用于真实可信度分析；`BOCHA_API_KEY` 用于联网检索和定时抓取。未启用对应能力时可以保留占位值。
-- `REPORT_DIR` 必须位于 `backend/` 源码目录之外。
-
-### 2. 创建数据库
-
-```sql
-CREATE DATABASE zhiyun_bianzhen
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-```
-
-### 3. 安装依赖并初始化数据
-
-```powershell
-cd backend
-python -m pip install -r requirements.txt
-python -m app.db.migrate
-python -m app.db.init_db
-python -m app.db.seed_demo_data
-```
-
-`python -m app.db.migrate` 会将数据库升级到 Alembic `head`。`seed_demo_data` 会初始化演示用户、知识库、Chroma 向量、检测记录、高风险新闻、Prompt 模板和报告演示数据；控制台中的 `Chroma collection count` 应大于 0。
-
-切换 `EMBEDDING_PROVIDER`、`EMBEDDING_DIMENSION` 或 RAG 索引版本后，必须重建 Chroma 索引。可以清理旧的本地 Chroma 数据后重新 seed，或由管理员调用 `POST /api/admin/knowledge/rebuild-index`。
-
-### 4. 启动后端
-
-```powershell
-cd backend
-uvicorn app.main:app --reload
-```
-
-| 地址 | 用途 |
-|---|---|
-| `http://127.0.0.1:8000` | 后端服务 |
-| `http://127.0.0.1:8000/docs` | Swagger UI |
-| `http://127.0.0.1:8000/api/health` | 存活检查 |
-| `http://127.0.0.1:8000/api/ready` | 就绪检查 |
-| `http://127.0.0.1:8000/api/metrics` | Prometheus 指标 |
-
-### 5. 启动前端
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-前端默认地址为 `http://127.0.0.1:5173`，并通过 Vite proxy 将 `/api` 转发到 `http://127.0.0.1:8000`。
-
-## Docker Compose 启动
-
-### 本地容器化运行
-
-```powershell
-# 从仓库根目录执行
+git clone https://github.com/fjjh1413/NewsCredibilityEvaluator.git
+cd NewsCredibilityEvaluator
 Copy-Item .env.docker.example .env
 ```
 
-先编辑根目录 `.env`，至少替换 `SECRET_KEY`、`MYSQL_ROOT_PASSWORD`、`MYSQL_PASSWORD` 和 `FIRST_SUPERUSER_PASSWORD`，再执行：
+编辑根目录 `.env`，先替换四个必需配置：`SECRET_KEY`（至少 32 字符的随机值）、`MYSQL_ROOT_PASSWORD`、`MYSQL_PASSWORD`、`FIRST_SUPERUSER_PASSWORD`。
+
+首次体验使用 [demo 覆盖配置](docker-compose.demo.yml)：显式清空模型密钥，使用 hash 向量，关闭联网、定时抓取、异步检测和可选观测组件。它适合检查页面、数据库、演示报告和降级流程，不调用外部 LLM、Embedding 或搜索服务；用户主动提交 URL 提取仍会访问该网址。
+
+`hash` 不具备语义检索能力，未配置真实 LLM 时新检测会降级，不能用来演示正常的模型判断或衡量准确率。
 
 ```powershell
-docker compose up --build -d
-docker compose exec backend python -m app.db.migrate
-docker compose exec backend python -m app.db.init_db
-docker compose exec backend python -m app.db.seed_demo_data
+docker compose -f docker-compose.yml -f docker-compose.demo.yml config --quiet
+docker compose -f docker-compose.yml -f docker-compose.demo.yml build backend worker frontend
+docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d --wait mysql redis
+docker compose -f docker-compose.yml -f docker-compose.demo.yml run --rm --no-deps backend python -m app.db.migrate
+docker compose -f docker-compose.yml -f docker-compose.demo.yml run --rm --no-deps backend python -m app.db.init_db
+docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d --wait backend worker frontend
 ```
 
-访问 `http://127.0.0.1:8080`。停止服务时运行：
-
-```powershell
-docker compose down
-```
-
-Compose 默认启动 MySQL、Redis、后端、Celery worker 和前端。同步检测仍是默认模式；如需启用任务队列，将根目录 `.env` 中的 `ASYNC_DETECTION_ENABLED` 设为 `true` 后重建服务。
-
-### 生产部署
-
-生产覆盖配置会增加 Caddy HTTPS、Prometheus、Grafana、Tempo、Pyroscope、OpenTelemetry Collector、Alertmanager 和飞书告警转发服务。准备好 `.env.docker.example` 中的域名、证书邮箱、Grafana 密码和告警 Webhook 后运行：
-
-```powershell
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
-```
-
-生产环境必须使用强随机 `SECRET_KEY`、明确的 CORS 域名，并保持私网抓取开关关闭。
-
-## 常用命令
-
-以下命令均从项目根目录执行。
-
-| 命令 | 说明 |
+| 入口 | 地址或操作 |
 |---|---|
-| `python -m unittest discover -s backend/tests -t backend -p "test_*.py"` | 运行后端测试 |
-| `python -m pytest evaluation/tests -q` | 运行全部评测测试（包含pytest函数） |
-| `npm --prefix frontend test` | 运行前端 Node 测试 |
-| `npm --prefix frontend run build` | 构建前端生产包 |
-| `npm --prefix frontend run build:analyze` | 构建并生成包体分析 |
-| `docker compose config` | 校验 Compose 配置 |
-| `git diff --check` | 检查空白错误和冲突标记 |
+| 应用 | <http://127.0.0.1:8080> |
+| 就绪检查 | <http://127.0.0.1:8080/api/ready> |
+| 管理员登录 | `.env` 中的 `FIRST_SUPERUSER_USERNAME` 与自行设置的密码 |
+| 容器状态 / 停止 | `docker compose -f docker-compose.yml -f docker-compose.demo.yml ps` / 将 `ps` 换成 `down` |
 
-运行无需密钥的独立标题检索基线：
+需要演示数据时，**仅在专用演示库**中执行：
 
 ```powershell
-python -m evaluation.run_title_retrieval_baseline
+docker compose -f docker-compose.yml -f docker-compose.demo.yml exec backend python -m app.db.seed_demo_data
 ```
 
-该结果不代表生产 RAG 召回率或 LLM 准确率。四级风险评测当前会拒绝尚未完成真人复核的数据；数据来源、结果及完整服务评测方法见 [evaluation/README.md](evaluation/README.md)。
+脚本创建或更新演示账号、知识、预置检测与报告，并重新设置演示账号密码；密码输出到控制台。预置结果不代表真实模型评测。知识索引由后台异步处理，首次向量计数为 0 可能正常；切换到 DashScope 模式后，后台索引会调用外部 Embedding。
 
-## Prompt 输出契约
+**源码开发、真实模型接入、v2 启用与排障：** [本地开发与配置指南](docs/getting-started.md)。Compose 默认使用 production 配置，Swagger 不对外开启；本地 development 模式可访问 `http://127.0.0.1:8000/docs`。
 
-`contracts/prompt_output_contract.json` 是新闻可信度分析输出结构的唯一机器可读契约源，当前版本为 `2.1`。它统一驱动：
+<a id="configuration"></a>
 
-- 后端默认 Prompt 和附加到自定义 Prompt 的输出要求。
-- LLM JSON 解析时的字段别名、必填字段、风险等级和证据仲裁校验。
-- 前端风险标签、等级说明、筛选项和统计图表。
-- 契约相关单元测试。
+## 配置与运行模式
 
-修改字段、风险等级或兼容别名前，应先更新该契约；影响模型输出结构、前后端字段解释或历史解析兼容性的变更需要升级契约版本。详细规则见 `docs/prompt_output_contract.md`。
+| 能力 | 源码 / 配置默认值 | 使用说明 |
+|---|---|---|
+| RAG 索引 | `RAG_INDEX_VERSION=v1` | v2 为分块混合检索；hybrid 先读 v2，空结果时回退 v1，写入走 v2 |
+| 语义 Embedding | DashScope `text-embedding-v4`，1024 维 | 配置真实 Key；切换模型、维度或索引版本后重建索引 |
+| 主模型 | DeepSeek，模型名由 `DEEPSEEK_MODEL` 配置 | 真实分析需有效 Key；不配置时走降级路径 |
+| 网络材料 | Bocha | 需有效 Key；本次请求与全局开关共同控制补证 |
+| Redis | 本地开发关闭，基础 Compose 开启 | 用于可选缓存和共享限流状态 |
+| 异步检测 | `ASYNC_DETECTION_ENABLED=false` | 后端可返回任务 ID；当前 Vue 提交页尚未完整接通轮询，体验完整页面流程时保留同步模式 |
+| 知识索引任务 | APScheduler 扫描任务表 | 与可选 Celery 检测任务是不同执行路径 |
+| Trace / Profile | 普通本地配置关闭 | `.env.docker.example` 含生产观测选项；基础栈体验时按上文关闭 |
 
-## 演示账号与流程
+上表描述源码和基础 Compose；快速启动的 demo 文件显式覆盖为无模型密钥的体验模式。后端本地配置读取 [backend/.env.example](backend/.env.example) 对应的 `backend/.env`；Compose 根目录 `.env` 只替换 YAML 中显式引用的变量。**在根目录写入 `RAG_INDEX_VERSION=v2` 不会自动传入当前容器**，请按[指南](docs/getting-started.md#rag-v2)显式配置 backend 与 worker。
 
-执行 `python -m app.db.seed_demo_data` 后会创建：
+<a id="evaluation"></a>
 
-```text
-普通用户：user_demo
-普通用户：user_demo2
-管理员：admin_demo
+## 测试与评测
+
+### 工程验证
+
+[2026-09-24 发布验证记录](docs/security/publication-2026-09-24.md)保存以下已完成检查的说明。顶部 CI 徽章展示 GitHub Actions 的实时状态，下面是历史验证快照。
+
+| 范围 | 当次结果 | 主要验证内容 |
+|---|---|---|
+| 后端 | **565 项通过** | API、权限、检索完整性、输出校验、弃权传播、报告故障边界等 |
+| 评测工具 | **146 项通过** | 数据来源与划分、泄漏门禁、指标计算、状态与续跑隔离等 |
+| 前端 | **26 项通过** | 契约、状态转换及相关展示逻辑 |
+| 独立目录打包 | 通过 | 干净依赖安装、前端构建、API/worker 导入及 health/ready |
+
+测试使用 Mock、临时数据库和故障注入，覆盖“提交已成功但确认丢失”“旧向量不能从回退路径重新进入”“模型失败不得产生正常结论”等情况。测试通过数不是准确率或覆盖率；该次本机记录不包含完整 Docker 栈和生产 MySQL 验收。
+
+从仓库根目录运行检查前，按[测试指南](docs/getting-started.md#tests)安装依赖并设置隔离环境，避免读取开发配置：
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s backend/tests -t backend -p "test_*.py"
+.\.venv\Scripts\python.exe -m pytest evaluation/tests -q
+npm --prefix frontend ci
+npm --prefix frontend test
+npm --prefix frontend run build
 ```
 
-演示密码会输出到 seed 控制台。需要固定密码时，可在执行前设置 `DEMO_PASSWORD` 或 `ADMIN_DEMO_PASSWORD`。
+### 模型与检索效果
 
-推荐演示路径：
+仓库冻结了 120 条 CFEVER 原始主张及 474 个证据页标题，划分为 82 / 22 / 16 条，并保留来源、分组规则和文件哈希。独立页标题词项检索基线在 test 的 15 条可计分样本上得到 **Recall@10 = 0.9333、MRR = 0.8**；另 1 条 NEI 不计入该检索指标。
 
-```text
-普通用户：登录 → 新闻检测 → 查看结果与证据 → 生成 PDF → 查看历史记录
-管理员：登录 → 统计概览 → 知识库与索引任务 → Prompt → 报告与高风险新闻审核
-```
+这组结果只适用于该封闭标题语料基线，**不能作为应用混合 RAG 召回率或 LLM 新闻判断准确率**。项目四级风险人工复核、片段相关性标注和端到端质量评测仍待完成。
 
-## 运行状态与可观测性
+无需模型密钥的复现入口：`.\.venv\Scripts\python.exe -m evaluation.run_title_retrieval_baseline`。详见[评测说明](evaluation/README.md)、[冻结清单](evaluation/datasets/frozen_manifest.json)及[基线结果](evaluation/baselines/cfever-title-v1/summary.json)。
 
-- `GET /api/health`：进程存活检查。
-- `GET /api/ready`：服务就绪检查；启用且要求 Redis 时会校验 Redis 状态。
-- `GET /api/metrics`：Prometheus 格式指标。前端 Nginx 默认不向公网代理该端点。
-- Redis 可用于缓存、TTL 抖动和分布式限流；本地开发默认关闭。
-- `ASYNC_DETECTION_ENABLED=true` 时，检测请求进入 Celery 队列，可通过 `GET /api/detect/tasks/{task_id}` 查询任务状态。
-- OpenTelemetry 和 Pyroscope 默认在普通本地开发中关闭，可通过环境变量或生产 Compose 覆盖启用。
+<a id="roadmap"></a>
 
-## 配置与安全注意
+## 实现边界与下一步
 
-- 不要提交 `backend/.env`、根目录 `.env`、真实数据库密码、API Key、JWT 密钥或生产 Webhook。
-- `data/reports/`、`data/chroma/`、`backend/chroma_db/`、`node_modules/`、`dist/` 和 `evaluation/output/` 都是运行或生成产物。
-- 本地可以使用 `BACKEND_CORS_ORIGINS=*`；生产环境必须配置明确来源。
-- `CRAWL_ALLOW_PRIVATE_HOSTS` 和 `ARTICLE_FETCH_ALLOW_PRIVATE_HOSTS` 在生产环境应保持 `false`。
-- 数据库结构以 Alembic 为准；`backend/migrations/legacy_sql/` 只用于历史追溯，不应手工执行。
-- 切换 embedding provider、向量维度或索引版本后必须重建 Chroma 索引，否则可能发生维度不匹配或旧向量污染检索结果。
-- 输出契约是跨前后端风险语义的单一事实来源，不要在 Prompt、解析器或组件中维护第二份字段与风险等级清单。
+- [ ] 完成应用知识库、查询与证据片段的独立标注，建立 dense / lexical / fusion / rerank 消融评测。
+- [ ] 校准联网阈值、评分与弃权条件，统计回答覆盖率、引用质量、真实延迟和调用成本。
+- [ ] 完善多查询后的上下文预算、全局重排和通过业务校验后再缓存的策略。
+- [ ] 接通异步检测前端轮询，补充任务原子领取、崩溃恢复及完整失败轨迹。
+- [ ] 加强 URL 校验与实际连接地址绑定，完善报告孤儿文件对账。
 
+当前没有自主规划、多 Agent 协作、持久化断点恢复或已验证的模型重排收益。以上待办是后续计划，不属于已发布成果。
 
-## 相关文档
+<a id="documentation"></a>
 
-- `backend/README.md`：后端配置、演示数据和联调说明。
-- `evaluation/README.md`：离线评测方法、参数和指标。
-- `docs/01_project_design.md`：项目设计。
-- `docs/02_database_design.md`：数据库设计。
-- `docs/03_api_design.md`：API 设计。
-- `docs/ai_engineering_spec.md`：AI 工程化能力说明。
-- `docs/rag_engineering_optimization.md`：RAG 工程化优化。
-- `docs/prompt_output_contract.md`：Prompt 输出契约与演进规则。
-- `docs/admin_governance_playbook.md`：管理员治理手册。
-- `docs/release_notes_v1.0.0.md`：v1.0.0 发布说明。
-- `CLAUDE.md`：面向代码代理的项目上下文与约定。
+## 技术栈与代码导航
+
+| 层级 | 技术 / 路径 |
+|---|---|
+| API 与业务 | Python 3.12 · FastAPI · Pydantic · SQLAlchemy · [backend/app](backend/app) |
+| RAG 与模型 | Chroma · DashScope Embedding · DeepSeek · Bocha · [services](backend/app/services) |
+| 前端 | Vue 3 · Vite · Element Plus · Pinia · ECharts · [frontend/src](frontend/src) |
+| 数据与任务 | MySQL · Alembic · 可选 Redis / Celery · [迁移](backend/alembic) |
+| 契约与验证 | [contracts](contracts) · [backend/tests](backend/tests) · [evaluation](evaluation) |
+| 部署与观测 | Docker Compose · Nginx · Caddy · Prometheus / OpenTelemetry 等配置 · [deploy](deploy) |
+
+| 文档 | 内容 |
+|---|---|
+| [本地开发与配置](docs/getting-started.md) | 源码启动、离线/真实模型、v2 配置、测试与常见问题 |
+| [后端说明](backend/README.md) | 后端模块、演示数据与联调 |
+| [架构决策：状态图](docs/decisions/ADR-001-explicit-agent-state-graph.md) | 节点、条件边与状态工作流 |
+| [架构决策：证据完整性](docs/decisions/ADR-002-rag-evidence-integrity.md) | 分数语义、父记录验证与回退边界 |
+| [输出契约](docs/prompt_output_contract.md) | 字段、风险语义及兼容规则 |
+| [Docker 部署](docs/deployment/docker.md) / [运行手册](docs/deployment/runbook.md) / [备份恢复](docs/deployment/backup-restore.md) | 部署配置、运行检查与数据维护 |
+| [评测](evaluation/README.md) / [发布验证](docs/security/publication-2026-09-24.md) | 可复现方法、结果范围与历史检查 |
+
+## 反馈与配置安全
+
+欢迎通过 [Issues](https://github.com/fjjh1413/NewsCredibilityEvaluator/issues) 提交可复现问题和改进建议。请提供提交版本、运行方式、复现步骤与脱敏日志；不要附带 `.env`、API Key、用户数据或报告原文。修改前后端字段时，先核对共享输出契约，并运行对应检查。
+
+真实密钥、数据库、向量数据、报告、日志和备份均不应提交。生产配置应使用明确的 CORS 来源，并保持私网抓取开关关闭。项目级许可证尚未声明；评测数据的来源与上游许可见[评测文档](evaluation/README.md)。

@@ -1,0 +1,23 @@
+# Optional local demo overlay. Does not change the base / production stack.
+# Use: docker compose -f docker-compose.yml -f docker-compose.demo.yml ...
+# External AI/search integrations are disabled explicitly. URL extraction is
+# still user-initiated network access, and dependency/image builds need network.
+x-demo-environment: &demo_environment
+  EMBEDDING_PROVIDER: hash
+  EMBEDDING_DIMENSION: "384"
+  DASHSCOPE_API_KEY: ""
+  DEEPSEEK_API_KEY: ""
+  BOCHA_API_KEY: ""
+  WEB_SEARCH_ENABLED: "false"
+  CRAWL_ENABLED: "false"
+  ASYNC_DETECTION_ENABLED: "false"
+  OTEL_TRACING_ENABLED: "false"
+  PYROSCOPE_ENABLED: "false"
+
+services:
+  backend:
+    environment:
+      <<: *demo_environment
+  worker:
+    environment:
+      <<: *demo_environment
