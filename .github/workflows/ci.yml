@@ -59,7 +59,7 @@ jobs:
 
       - name: Upload backend test log and P0 scenario artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-tests-and-p0-scenarios
           path: |
@@ -118,7 +118,7 @@ jobs:
 
       - name: Upload Lighthouse CI artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouseci
           path: .lighthouseci/
@@ -252,7 +252,7 @@ jobs:
 
       - name: Upload k6 performance artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-performance-budget
           path: .artifacts/k6/
@@ -267,7 +267,7 @@ jobs:
 
       - name: Upload application packaging smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: application-container-smoke
           path: .artifacts/container-smoke/
